@@ -837,7 +837,10 @@ function initCardTilt() {
   const cards = document.querySelectorAll(".lab-card, .bignum-card, .schematic-wrapper");
 
   cards.forEach(card => {
-    card.addEventListener("mouseenter", () => sound.playTick());
+    card.addEventListener("mouseenter", () => {
+      sound.playTick();
+      card.style.transition = "transform 0.1s ease-out, border-color 0.22s ease, box-shadow 0.22s ease";
+    });
 
     card.addEventListener("mousemove", (e) => {
       const rect = card.getBoundingClientRect();
@@ -846,15 +849,16 @@ function initCardTilt() {
 
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -4.2;
-      const rotateY = ((x - centerX) / centerX) * 4.2;
+      const rotateX = ((y - centerY) / centerY) * -3.8;
+      const rotateY = ((x - centerX) / centerX) * 3.8;
 
       card.style.setProperty("--mouse-x", `${x}px`);
       card.style.setProperty("--mouse-y", `${y}px`);
-      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-3px) scale3d(1.006, 1.006, 1.006)`;
+      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-4px) scale3d(1.008, 1.008, 1.008)`;
     });
 
     card.addEventListener("mouseleave", () => {
+      card.style.transition = "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, box-shadow 0.22s ease";
       card.style.transform = "";
       card.style.removeProperty("--mouse-x");
       card.style.removeProperty("--mouse-y");
@@ -1154,8 +1158,14 @@ class AudioBriefController {
     }
 
     if (this.cliCopyBtn && this.cliDisplay) {
-      this.cliCopyBtn.addEventListener("click", () => {
+      this.cliCopyBtn.addEventListener("click", (e) => {
         const cmd = this.cliDisplay.textContent.trim();
+        if (window.fxEngine) {
+          const rect = this.cliCopyBtn.getBoundingClientRect();
+          const bx = e.clientX || (rect.left + rect.width / 2);
+          const by = e.clientY || (rect.top + rect.height / 2);
+          window.fxEngine.spawnBurst(bx, by, "#B58900", 26);
+        }
         navigator.clipboard.writeText(cmd).then(() => {
           const original = this.cliCopyBtn.textContent;
           this.cliCopyBtn.textContent = "Copied!";
@@ -1327,6 +1337,10 @@ function initScrollAnimations() {
   const bar = document.getElementById("bar");
   const scrollCue = document.getElementById("scroll-cue");
   const masthead = document.querySelector(".masthead");
+  const crown = document.querySelector(".crown");
+  const orbRed = document.querySelector(".ambient-orb--red");
+  const orbGilt = document.querySelector(".ambient-orb--gilt");
+  const orbTeal = document.querySelector(".ambient-orb--teal");
   const cards = Array.from(document.querySelectorAll(".lab-card, .filter-sheet"));
   let ticking = false;
 
@@ -1343,7 +1357,17 @@ function initScrollAnimations() {
       bar.style.transform = `scaleX(${max > 0 ? clamp(y / max, 0, 1) : 0})`;
     }
 
-    // 2. Masthead scroll cue fade
+    // 2. Crown Header frosted glass elevation on scroll
+    if (crown) {
+      crown.classList.toggle("scrolled", y > 15);
+    }
+
+    // 3. Ambient Background Orbs Parallax Drift
+    if (orbRed) orbRed.style.transform = `translateY(${y * 0.08}px)`;
+    if (orbGilt) orbGilt.style.transform = `translateY(${-y * 0.06}px)`;
+    if (orbTeal) orbTeal.style.transform = `translateY(${y * 0.04}px)`;
+
+    // 4. Masthead scroll cue fade
     if (scrollCue) {
       if (y > 30) {
         scrollCue.classList.add("hidden");
@@ -1352,11 +1376,29 @@ function initScrollAnimations() {
       }
     }
 
-    // 3. Subtle Masthead Hero Parallax
+    // 5. Subtle Masthead Hero Parallax
     if (masthead && y <= vh) {
       const h = clamp(y / vh, 0, 1);
-      masthead.style.transform = `translateY(${h * 20}px)`;
-      masthead.style.opacity = `${1 - h * 0.4}`;
+      masthead.style.transform = `translateY(${h * 24}px)`;
+      masthead.style.opacity = `${1 - h * 0.45}`;
+    }
+
+    // 6. Active Center Reading Highlight
+    const viewportCenter = vh * 0.45;
+    let activeCard = null;
+    let minDist = Infinity;
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const dist = Math.abs(center - viewportCenter);
+      if (dist < minDist && rect.top < vh && rect.bottom > 0) {
+        minDist = dist;
+        activeCard = card;
+      }
+      card.classList.remove("reading-active");
+    });
+    if (activeCard && minDist < vh * 0.35) {
+      activeCard.classList.add("reading-active");
     }
   }
 
@@ -1371,7 +1413,7 @@ function initScrollAnimations() {
   window.addEventListener("resize", req);
   update();
 
-  // 4. Staggered card entrance via IntersectionObserver (Scroll Animation.html)
+  // 7. Staggered card entrance via IntersectionObserver (Scroll Animation.html)
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
