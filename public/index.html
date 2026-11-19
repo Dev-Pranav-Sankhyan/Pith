@@ -12,51 +12,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Andrew McCarthy (andrevv.com) Inspired Architectural Vertical Side Rails -->
-    <aside class="side-rail-left" aria-hidden="true">
-        <div class="rail-line-track"></div>
-        <div class="rail-bead" id="rail-bead-left"></div>
-        <div class="rail-telemetry">
-            <span class="telemetry-idx" id="telemetry-card-idx">01</span>
-            <span class="telemetry-slash">//</span>
-            <span class="telemetry-total">05</span>
-        </div>
-        <div class="rail-coord" id="rail-scroll-coord">Y: 00%</div>
-    </aside>
-
-    <nav class="side-rail-right" id="side-rail-nav" aria-label="Section navigation">
-        <div class="rail-line-track"></div>
-        <div class="rail-tracer-beam-wrap" aria-hidden="true">
-            <div class="rail-tracer-beam" id="rail-tracer-beam"></div>
-        </div>
-        <div class="rail-pips-container" id="rail-pips-container">
-            
-            <a href="#card-20261119-cache-cut" class="rail-pip active" data-index="0" data-target="card-20261119-cache-cut" title="I. Tier-1 API Providers Cut Context Caching Rates by 90%, Slashing Agent Run Costs">
-                <span class="pip-square"></span>
-                <span class="pip-tooltip">I // TIER-1 API PROVIDERS</span>
-            </a>
-            <a href="#card-20261119-computer-use" class="rail-pip" data-index="1" data-target="card-20261119-computer-use" title="II. Anthropic Introduces Native OS Computer Use API, Standardizing Desktop Agent Automation">
-                <span class="pip-square"></span>
-                <span class="pip-tooltip">II // ANTHROPIC INTRODUCES</span>
-            </a>
-            <a href="#card-20261119-open-agent-protocol" class="rail-pip" data-index="2" data-target="card-20261119-open-agent-protocol" title="III. Linux Foundation &amp; CNCF Form Open Agent Protocol (OAP) to Unify Tool &amp; MCP Interfaces">
-                <span class="pip-square"></span>
-                <span class="pip-tooltip">III // LINUX FOUNDATION &amp; C</span>
-            </a>
-            <a href="#card-20261119-mla-kernels" class="rail-pip" data-index="3" data-target="card-20261119-mla-kernels" title="IV. vLLM &amp; SGLang Merge Native Multi-Head Latent Attention (MLA), Cutting KV-Cache RAM by 70%">
-                <span class="pip-square"></span>
-                <span class="pip-tooltip">IV // VLLM &amp; SGLANG MERGE </span>
-            </a>
-            <a href="#card-20261119-dualpipe-kernels" class="rail-pip" data-index="4" data-target="card-20261119-dualpipe-kernels" title="V. DeepSeek Open-Sources DualPipe Kernels for Extreme Overlap Computation in Clustered Training">
-                <span class="pip-square"></span>
-                <span class="pip-tooltip">V // DEEPSEEK OPEN-SOURCE</span>
-            </a>
-            <a href="#safely-ignore" class="rail-pip" data-index="5" data-target="safely-ignore" title="Safely Ignore Today">
-                <span class="pip-square noise-pip"></span>
-                <span class="pip-tooltip">NOISE // SAFELY IGNORE</span>
-            </a>
-        </div>
-    </nav>
+    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
+    <div id="bar" aria-hidden="true"></div>
 
     <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
@@ -122,41 +79,45 @@
         <!-- 90-Second Studio Audio Briefing Player -->
         <section class="audio-brief-section">
             <div class="audio-brief-bar" id="audio-brief-bar">
-                <div class="audio-brief-play-side">
-                    <button class="audio-brief-play-btn" id="audio-brief-play-btn" type="button" aria-label="Play 90-second audio briefing">
-                        <span class="audio-play-icon" id="audio-play-icon">▶</span>
-                        <span class="audio-pause-icon" id="audio-pause-icon" style="display:none;">❚❚</span>
-                    </button>
-                    <div class="audio-brief-info">
-                        <div class="audio-brief-badge-row">
-                            <span class="audio-pulse-indicator" id="audio-pulse-indicator"></span>
-                            <span class="audio-brief-title">90s Spoken Briefing</span>
-                            <span class="audio-role-pill" id="audio-role-pill">DEVELOPER</span>
-                            <div class="audio-eq-waves" id="audio-eq-waves" aria-hidden="true">
-                                <span></span><span></span><span></span><span></span>
+                <div class="audio-brief-main-row">
+                    <div class="audio-brief-play-side">
+                        <button class="audio-brief-play-btn" id="audio-brief-play-btn" type="button" aria-label="Play 90-second audio briefing">
+                            <span class="audio-play-icon" id="audio-play-icon">▶</span>
+                            <span class="audio-pause-icon" id="audio-pause-icon" style="display:none;">❚❚</span>
+                        </button>
+                        <div class="audio-brief-info">
+                            <div class="audio-brief-badge-row">
+                                <span class="audio-pulse-indicator" id="audio-pulse-indicator"></span>
+                                <span class="audio-brief-title">90s Spoken Briefing</span>
+                                <span class="audio-role-pill" id="audio-role-pill">DEVELOPER</span>
+                                <div class="audio-eq-waves" id="audio-eq-waves" aria-hidden="true">
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
                             </div>
+                            <div class="audio-brief-sub">ElevenLabs Voice (Adam) &middot; Studio-mastered &middot; Natural breathing &middot; -45dB room tone &middot; -16 LUFS</div>
                         </div>
-                        <div class="audio-brief-sub">ElevenLabs Voice (Adam) &middot; Studio-mastered &middot; Natural breathing &middot; -45dB room tone &middot; -16 LUFS</div>
                     </div>
-                </div>
 
-                <div class="audio-brief-track-side">
-                    <div class="audio-brief-scrubber" id="audio-brief-scrubber" title="Click to seek">
-                        <div class="audio-brief-progress" id="audio-brief-progress"></div>
-                    </div>
-                    <div class="audio-brief-waveform-time-row">
-                        <canvas class="audio-waveform-canvas" id="audio-waveform-canvas" width="220" height="20" aria-hidden="true"></canvas>
-                        <div class="audio-brief-time-row">
-                            <span id="audio-current-time">0:00</span>
-                            <span>/</span>
-                            <span id="audio-total-time">1:17</span>
+                    <div class="audio-brief-track-side">
+                        <div class="audio-brief-scrubber" id="audio-brief-scrubber" title="Click to seek">
+                            <div class="audio-brief-progress" id="audio-brief-progress"></div>
+                        </div>
+                        <div class="audio-brief-waveform-time-row">
+                            <canvas class="audio-waveform-canvas" id="audio-waveform-canvas" width="220" height="20" aria-hidden="true"></canvas>
+                            <div class="audio-brief-time-row">
+                                <span id="audio-current-time">0:00</span>
+                                <span>/</span>
+                                <span id="audio-total-time">1:17</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="audio-brief-cli-pill" title="Terminal CLI: Fetch brief instantly in terminal">
-                    <span class="cli-icon">$</span>
-                    <code id="cli-cmd-display">curl -sL https://dev-pranav-sankhyan.github.io/Pith/dev</code>
+                    <div class="cli-cmd-wrapper">
+                        <span class="cli-icon">$</span>
+                        <code id="cli-cmd-display">curl -sL https://dev-pranav-sankhyan.github.io/Pith/dev</code>
+                    </div>
                     <button class="cli-copy-btn" id="cli-copy-btn" title="Copy terminal curl command" type="button">Copy</button>
                 </div>
 
@@ -696,9 +657,241 @@
             </div>
         </article>
         
-        <article class="lab-card" id="card-20261119-open-agent-protocol" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Eliminates the maintenance headache of writing and syncing multiple function calling schemas for separate LLM client SDKs.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Standardize internal service interfaces on OAP tool definitions to ensure model neutrality.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Tech companies agreed to build a single universal plug\u2014like USB-C, but for AI\u2014so assistants can easily work with your calendar, email, and files without requiring 10 separate logins.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;You don&#x27;t have to configure anything; future app updates will automatically connect your tools smoothly.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Removes distribution barriers: your product can be exposed as an agent skill to any compliant client without bilateral partnership agreements.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Track whether major client platforms (Claude Desktop, VS Code, OpenAI Operator) commit to upstream protocol conformance.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Commoditizes thin tool-routing middleware; value moves to privileged enterprise data access and verifiable agent execution sandboxes.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Assess whether tooling portfolio companies rely on proprietary protocol lock-in that will be erased by CNCF standardization.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
+        <article class="lab-card" id="card-20261119-infrastructure-standard-introduc" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Benchmark JSON-RPC schema translation on your core internal tool endpoints.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Apps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;No action needed; future consumer app updates will connect smoothly.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Lowers distribution friction: your platform can connect to any conforming agent client without custom bilateral partnerships.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Monitor whether major client IDEs and models commit to standard protocol conformance.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Commoditizes thin tool-routing middleware; enterprise defensibility concentrates in proprietary data ownership and sandboxed execution.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Review developer tooling portfolio companies to ensure they do not depend on proprietary routing lock-in.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
             <div class="card-header-line">
                 <span class="card-roman">III &middot; AI &amp; Developer Infrastructure</span>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    
+                    <span class="card-sources-count">1 primary source</span>
+                </div>
+            </div>
+
+            <h2 class="card-headline">Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</h2>
+
+            <div class="story-block">
+                <span class="story-lead">What Happened:</span>
+                <span>A major open specification was released for AI developer workflows. DeepSeek-V3 incorporates Multi-Head Latent Attention (MLA) compressing key-value cache mem.</span>
+            </div>
+
+            <div class="story-block">
+                <span class="story-lead">Why It Matters:</span>
+                <span>Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.</span>
+            </div>
+
+            <!-- Dynamic Role Action Instrument with Split-Flap Typography and Border Glow -->
+            <div class="action-panel action-do dev-glow">
+                <div class="action-panel-top">
+                    <span class="action-pill do">DO</span>
+                    <span style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); font-weight:600;">Action this week</span>
+                </div>
+                <div class="role-impact-preview">Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.</div>
+                <div class="action-directive">Benchmark JSON-RPC schema translation on your core internal tool endpoints.</div>
+            </div>
+
+            <!-- Gauge and Prediction Row -->
+            <div class="card-gauge-row">
+                <div class="gauge-item">
+                    <span>Signal:</span>
+                    <span class="badge-tag high">High</span>
+                    <span style="font-size:12px; color:var(--muted); margin-left:4px;">(Broad industry impact (broad ecosystem-wide impact))</span>
+                </div>
+                <div class="gauge-item">
+                    <span>Confidence: <strong style="color:var(--ink);">High</strong></span>
+                </div>
+            </div>
+
+            <!-- Precision Prediction Strip -->
+            <div class="prediction-strip">
+                <span class="forecast-badge">70% Forecast</span>
+                <span class="prediction-text">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</span>
+                <span class="resolves-badge">Resolves 2027-12-31</span>
+            </div>
+
+            <!-- Beat the Brief 1-Tap Calibration Widget with Contrarian Multiplier -->
+            <div class="beat-brief-widget" data-card-id="card-20261119-infrastructure-standard-introduc" data-prob="70">
+                <!-- Mechanical On-Record Stamp Container (Positioned inside Beat the Brief) -->
+                <div class="stamp-container" id="stamp-container-card-20261119-infrastructure-standard-introduc"></div>
+                <div class="beat-brief-header">
+                    <div>
+                        <span class="beat-brief-title">✦ Beat the Brief:</span>
+                        <span class="beat-brief-subtitle">Do you think true probability is higher or lower?</span>
+                    </div>
+                    <span class="contrarian-tag" id="contrarian-tag-card-20261119-infrastructure-standard-introduc" style="display:none;">⚡ 2x Contrarian Multiplier Active</span>
+                </div>
+                <div class="beat-brief-actions">
+                    <button class="vote-btn" data-vote="higher" type="button">▲ Higher</button>
+                    <button class="vote-btn" data-vote="agree" type="button">● Agree (70%)</button>
+                    <button class="vote-btn" data-vote="lower" type="button">▼ Lower</button>
+                </div>
+                <div class="crowd-result" style="display:none;">
+                    <div class="crowd-bar-track">
+                        <div class="crowd-bar-fill higher" style="width: 22%;" title="22% Higher"></div>
+                        <div class="crowd-bar-fill agree" style="width: 63%;" title="63% Agree"></div>
+                        <div class="crowd-bar-fill lower" style="width: 15%;" title="15% Lower"></div>
+                    </div>
+                    <div class="crowd-meta-line">
+                        <span>Crowd: <strong>63% Agree</strong> &middot; 22% Higher &middot; 15% Lower</span>
+                        <span class="user-vote-tag">Your pick: <strong class="user-vote-text">Agree</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Toolbar: Deep Scan & Share to Slack -->
+            <div class="card-action-bar">
+                <button class="deep-scan-btn" type="button">
+                    <span class="deep-scan-label">Detailed Intelligence Scan</span>
+                    <span class="deep-scan-action-wrap">
+                        <span class="deep-scan-text">Expand 5-min deep scan</span>
+                        <span class="deep-scan-chevron">▼</span>
+                    </span>
+                </button>
+                <button class="slack-share-btn" type="button" title="Copy 4-line summary tailored for Slack" data-card-id="card-20261119-infrastructure-standard-introduc">
+                    <span class="slack-hash">#</span>
+                    <span class="slack-btn-text">Share to Slack</span>
+                </button>
+            </div>
+            <div class="deep-scan-panel">
+                <div class="drawer-section">
+                    <div class="drawer-title">System Architecture Schematic &amp; Execution Topology</div>
+                    
+        <div class="schematic-wrapper" data-schematic="cluster-fabric">
+            <div class="schematic-header">
+                <div class="schematic-title-group">
+                    <span class="schematic-badge">INFRASTRUCTURE SCALE</span>
+                    <h4 class="schematic-heading">100k+ Liquid-Cooled H100 GPU Cluster Spine Fabric</h4>
+                </div>
+                <div class="schematic-telemetry">
+                    <span class="telemetry-pill good">Zero Downtime MTBF</span>
+                    <span class="telemetry-pill">Fabric: RoCE v2 Spine</span>
+                </div>
+            </div>
+            <div class="svg-schematic-canvas">
+                <svg viewBox="0 0 740 180" fill="none" xmlns="http://www.w3.org/2000/svg" class="flow-svg">
+                    <g transform="translate(40, 20)">
+                        <rect width="200" height="130" rx="8" class="node-box" />
+                        <text x="100" y="24" class="node-title">COMPUTE PODS</text>
+                        <text x="100" y="46" class="node-desc">100,000+ Liquid Cooled</text>
+                        <text x="100" y="64" class="node-desc">Custom Thermal Racks</text>
+                        <rect x="25" y="80" width="150" height="18" rx="4" fill="rgba(181,137,0,0.15)" />
+                        <text x="100" y="93" class="node-stat">FP8 Mixed Precision</text>
+                    </g>
+
+                    <path d="M 240 85 L 290 85" class="flow-wire active-gold" />
+
+                    <g transform="translate(290, 20)">
+                        <rect width="180" height="130" rx="8" class="node-box accent-box" />
+                        <text x="90" y="24" class="node-title good">SPINE NETWORK</text>
+                        <text x="90" y="46" class="node-desc">Non-Blocking RoCE v2</text>
+                        <text x="90" y="64" class="node-desc">Multi-Tier Leaf Fabric</text>
+                        <rect x="20" y="80" width="140" height="18" rx="4" fill="rgba(16,185,129,0.15)" />
+                        <text x="90" y="93" class="node-stat">3.2 Tbps Cross-Bisection</text>
+                    </g>
+
+                    <path d="M 470 85 L 520 85" class="flow-wire active-green" />
+
+                    <g transform="translate(520, 20)">
+                        <rect width="180" height="130" rx="8" class="node-box hit-box" />
+                        <text x="90" y="24" class="node-title">FAULT TOLERANCE</text>
+                        <text x="90" y="46" class="node-desc">Sub-Second Failover</text>
+                        <text x="90" y="64" class="node-desc">Automated Straggler Kill</text>
+                        <rect x="20" y="80" width="140" height="18" rx="4" fill="rgba(59,130,246,0.15)" />
+                        <text x="90" y="93" class="node-stat">99.8% MFU Efficiency</text>
+                    </g>
+                </svg>
+            </div>
+            <div class="schematic-footer-notes">
+                <span>✦ <strong>Commoditization Dynamic:</strong> Open model training at frontier capital scale establishes an open-weights baseline impossible for proprietary startups to beat on price.</span>
+            </div>
+        </div>
+        
+                </div>
+
+                <div class="drawer-section">
+                    <div class="drawer-title">Technical Architecture &amp; Unit Economics Breakdown</div>
+                    <div class="deep-context-box">
+                        <div class="context-grid">
+                            <div class="context-item">
+                                <span class="context-item-tag">Architectural Mechanism</span>
+                                <p class="context-item-desc">Structural architectural shift altering execution pipelines, memory bandwidth, or RPC schemas.</p>
+                            </div>
+                            <div class="context-item">
+                                <span class="context-item-tag">Unit Economics Shift</span>
+                                <p class="context-item-desc">Directly impacts inference expenditure, SaaS gross margins, and operational compute allocations.</p>
+                            </div>
+                            <div class="context-item">
+                                <span class="context-item-tag">Defensibility &amp; Lock-in Vector</span>
+                                <p class="context-item-desc">Alters switching costs, ecosystem standards, and proprietary vendor leverage.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="drawer-section">
+                    <div class="drawer-title">Second-Order Consequences</div>
+                    <ul class="clean-list">
+                        <li>Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers</li><li>Internal service proxies enforce access control policies at the organization network perimeter</li><li>Switching costs between frontier model providers drop significantly</li>
+                    </ul>
+                </div>
+
+                
+            <div class="drawer-section">
+                <div class="drawer-title">Historical Analogue</div>
+                <div class="analogue-card">
+                    <div>Resembles the Container Network Interface (CNI) standardization in cloud-native container runtimes (2016-2017).</div>
+                    <div class="analogue-break-text"><strong>Where it breaks:</strong> Agent tool schemas carry state and prompt context far more dynamic than network block routing.</div>
+                </div>
+            </div>
+            
+
+                <div class="drawer-section">
+                    <div class="drawer-title">Falsifiable Resolution Criteria</div>
+                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                        Official repository release documentation details native endpoint protocol support without external bridge proxies.
+                    </div>
+                </div>
+
+                
+        <div class="drawer-section">
+            <div class="drawer-title">Cross-Role Lens Comparison</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+        
+                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">developer &middot; DO</div>
+                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.</div>
+                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Benchmark JSON-RPC schema translation on your core internal tool endpoints.</div>
+                </div>
+            
+                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">everyday &middot; IGNORE</div>
+                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Apps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.</div>
+                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; No action needed; future consumer app updates will connect smoothly.</div>
+                </div>
+            
+                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">founder &middot; WATCH</div>
+                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Lowers distribution friction: your platform can connect to any conforming agent client without custom bilateral partnerships.</div>
+                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Monitor whether major client IDEs and models commit to standard protocol conformance.</div>
+                </div>
+            
+                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">investor &middot; WATCH</div>
+                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Commoditizes thin tool-routing middleware; enterprise defensibility concentrates in proprietary data ownership and sandboxed execution.</div>
+                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Review developer tooling portfolio companies to ensure they do not depend on proprietary routing lock-in.</div>
+                </div>
+            </div></div>
+
+                <div class="drawer-section">
+                    <div class="drawer-title">Primary Sources &amp; Quoted Spans</div>
+                    <ul class="clean-list">
+                        <li><a href="https://github.com/deepseek-ai/DeepSeek-V3" target="_blank" rel="noopener" style="color:var(--ink); font-weight:600;">DeepSeek-V3 Multi-Head Latent Attention Architecture Report</a> &mdash; DeepSeek AI Research<br><span style="font-size:12px; color:var(--muted);">&ldquo;DeepSeek-V3 incorporates Multi-Head Latent At&rdquo;</span></li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+        
+        <article class="lab-card" id="card-20261119-open-agent-protocol" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Eliminates the maintenance headache of writing and syncing multiple function calling schemas for separate LLM client SDKs.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Standardize internal service interfaces on OAP tool definitions to ensure model neutrality.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Tech companies agreed to build a single universal plug\u2014like USB-C, but for AI\u2014so assistants can easily work with your calendar, email, and files without requiring 10 separate logins.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;You don&#x27;t have to configure anything; future app updates will automatically connect your tools smoothly.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Removes distribution barriers: your product can be exposed as an agent skill to any compliant client without bilateral partnership agreements.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Track whether major client platforms (Claude Desktop, VS Code, OpenAI Operator) commit to upstream protocol conformance.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Commoditizes thin tool-routing middleware; value moves to privileged enterprise data access and verifiable agent execution sandboxes.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Assess whether tooling portfolio companies rely on proprietary protocol lock-in that will be erased by CNCF standardization.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
+            <div class="card-header-line">
+                <span class="card-roman">IV &middot; AI &amp; Developer Infrastructure</span>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <a href="patterns.html#pattern-standards-war" class="pattern-pill" title="View historical dynamic & base rates">✦ The Standards War &amp; CNI Moment</a>
                     <span class="card-sources-count">1 primary source</span>
@@ -930,7 +1123,7 @@
         
         <article class="lab-card" id="card-20261119-mla-kernels" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Enables hosting long-context models without out-of-memory crashes on resource-constrained development nodes.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Test SGLang/vLLM MLA branch with your long-context RAG prompts to evaluate throughput gains.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Engineers found a trick to shrink the memory needed to run AI by 70%, so apps won&#x27;t slow down or show &#x27;system overloaded&#x27; during busy hours.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Enjoy faster, more reliable web tools without having to care about the computer memory under the hood.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Reduces inference hosting hardware requirements by up to 50%, directly cutting private cloud infrastructure bills.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Review cloud GPU cluster capacity planning and defer hardware expansion until MLA benchmarks are verified.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Lowers infrastructure barriers for self-hosted sovereign AI, reducing enterprise reliance on closed hyper-scaler APIs.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Assess whether private cloud AI infrastructure margins widen as serving software efficiency doubles.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
             <div class="card-header-line">
-                <span class="card-roman">IV &middot; AI &amp; Developer Infrastructure</span>
+                <span class="card-roman">V &middot; AI &amp; Developer Infrastructure</span>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <a href="patterns.html#pattern-commoditisation-cascade" class="pattern-pill" title="View historical dynamic & base rates">✦ The Commoditisation Cascade</a>
                     <span class="card-sources-count">1 primary source</span>
@@ -1162,7 +1355,7 @@
         
         <article class="lab-card" id="card-20261119-dualpipe-kernels" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Distributed model fine-tuning and pre-training clusters can increase MFU throughput without hardware topology changes.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Follow PyTorch distributed pull requests and review kernel benchmarks for your specific cluster interconnect.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Researchers released free open software that lets smaller teams train AI models much faster, breaking Big Tech&#x27;s monopoly on building smart computer brains.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;No action needed. Expect more free, high-powered tools competing with big commercial chatbots.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Lowers the capital expenditure hurdle for training domain-specific proprietary models, narrowing the gap with frontier labs.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;No immediate engineering intervention needed unless actively managing a multi-node GPU training cluster.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;High-cost proprietary interconnect networking moats face incremental erosion as clever software algorithms mitigate hardware bottlenecks.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Track compute cost per token trajectory for open-source AI labs versus hyperscale frontier providers.&quot;, &quot;stakes&quot;: &quot;Low&quot;}}'>
             <div class="card-header-line">
-                <span class="card-roman">V &middot; AI &amp; Developer Infrastructure</span>
+                <span class="card-roman">VI &middot; AI &amp; Developer Infrastructure</span>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <a href="patterns.html#pattern-codesign-bottleneck" class="pattern-pill" title="View historical dynamic & base rates">✦ The Hardware/Software Co-Design Bottleneck</a>
                     <span class="card-sources-count">1 primary source</span>

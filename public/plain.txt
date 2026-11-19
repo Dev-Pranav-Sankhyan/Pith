@@ -38,7 +38,23 @@
      [1m[Beat the Brief]:[0m [38;5;35m[▲ H]igher[0m  [38;5;178m[● A]gree[0m  [91m[▼ L]ower[0m  [90m(curl lowpass.sh/vote/card-20261119-computer-use/<pick>)[0m
 
 [90m────────────────────────────────────────────────────────────────────────────────[0m
-[38;5;178m[1mIII.[0m [1m[97mLinux Foundation & CNCF Form Open Agent Protocol (OAP) to Unify Tool & MCP Interfaces[0m
+[38;5;178m[1mIII.[0m [1m[97mInfrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In[0m
+   [38;5;35m[HIGH SIGNAL · 83.9][0m [90m· 1 primary source · Resolves 2027-12-31[0m
+
+   [96m[1mWhat Happened:[0m A major open specification was released for AI developer workflows. DeepSeek-V3 incorporates Multi-Head Latent Attention (MLA) compressing key-value cache mem.
+   [38;5;178m[1mWhy It Matters:[0m Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
+
+   ┌─ [90m[1m[IGNORE FOR NOW][0m ────────────────────────────────────────────────────────┐
+   │ [1m[97mNo action needed; future consumer app updates will connect smoothly.[0m
+   │ [2mApps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.[0m
+   └──────────────────────────────────────────────────────────────────┘
+
+   [38;5;178m✦ Forecast (70%):[0m By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.
+     [2mResolution standard:[0m Official repository release documentation details native endpoint protocol support without external bridge proxies.
+     [1m[Beat the Brief]:[0m [38;5;35m[▲ H]igher[0m  [38;5;178m[● A]gree[0m  [91m[▼ L]ower[0m  [90m(curl lowpass.sh/vote/card-20261119-infrastructure-standard-introduc/<pick>)[0m
+
+[90m────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;178m[1mIV.[0m [1m[97mLinux Foundation & CNCF Form Open Agent Protocol (OAP) to Unify Tool & MCP Interfaces[0m
    [38;5;35m[HIGH SIGNAL · 82.0][0m [90m· 1 primary source · Resolves 2027-12-31[0m
 
    [96m[1mWhat Happened:[0m The Linux Foundation and CNCF created an open, vendor-neutral standard for connecting AI models to external tools, databases, and enterprise software.
@@ -54,7 +70,7 @@
      [1m[Beat the Brief]:[0m [38;5;35m[▲ H]igher[0m  [38;5;178m[● A]gree[0m  [91m[▼ L]ower[0m  [90m(curl lowpass.sh/vote/card-20261119-open-agent-protocol/<pick>)[0m
 
 [90m────────────────────────────────────────────────────────────────────────────────[0m
-[38;5;178m[1mIV.[0m [1m[97mvLLM & SGLang Merge Native Multi-Head Latent Attention (MLA), Cutting KV-Cache RAM by 70%[0m
+[38;5;178m[1mV.[0m [1m[97mvLLM & SGLang Merge Native Multi-Head Latent Attention (MLA), Cutting KV-Cache RAM by 70%[0m
    [38;5;35m[HIGH SIGNAL · 81.5][0m [90m· 1 primary source · Resolves 2027-06-30[0m
 
    [96m[1mWhat Happened:[0m Open-source AI engines vLLM and SGLang added a memory compression algorithm that cuts the RAM needed to serve long documents by 70%.
@@ -70,7 +86,7 @@
      [1m[Beat the Brief]:[0m [38;5;35m[▲ H]igher[0m  [38;5;178m[● A]gree[0m  [91m[▼ L]ower[0m  [90m(curl lowpass.sh/vote/card-20261119-mla-kernels/<pick>)[0m
 
 [90m────────────────────────────────────────────────────────────────────────────────[0m
-[38;5;178m[1mV.[0m [1m[97mDeepSeek Open-Sources DualPipe Kernels for Extreme Overlap Computation in Clustered Training[0m
+[38;5;178m[1m#6.[0m [1m[97mDeepSeek Open-Sources DualPipe Kernels for Extreme Overlap Computation in Clustered Training[0m
    [38;5;35m[HIGH SIGNAL · 78.5][0m [90m· 1 primary source · Resolves 2027-09-30[0m
 
    [96m[1mWhat Happened:[0m DeepSeek released free open-source software kernels that overlap computing and data transfer during model training, eliminating cross-node network idle time.

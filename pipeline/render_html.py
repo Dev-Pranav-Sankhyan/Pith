@@ -303,24 +303,6 @@ def render_index(issue, path: str):
         </div>
         """)
 
-    pip_items = []
-    pip_roman = ["I", "II", "III", "IV", "V", "VI", "VII"]
-    for i, card in enumerate(issue.cards):
-        roman = pip_roman[i] if i < len(pip_roman) else str(i+1)
-        short_title = card.headline.split(":")[0].split(",")[0][:20].upper()
-        pip_items.append(f'''
-            <a href="#{escape(card.id)}" class="rail-pip{' active' if i == 0 else ''}" data-index="{i}" data-target="{escape(card.id)}" title="{roman}. {escape(card.headline)}">
-                <span class="pip-square"></span>
-                <span class="pip-tooltip">{roman} // {escape(short_title)}</span>
-            </a>''')
-    if issue.not_included_today:
-        pip_items.append(f'''
-            <a href="#safely-ignore" class="rail-pip" data-index="{len(issue.cards)}" data-target="safely-ignore" title="Safely Ignore Today">
-                <span class="pip-square noise-pip"></span>
-                <span class="pip-tooltip">NOISE // SAFELY IGNORE</span>
-            </a>''')
-    pips_html = "".join(pip_items)
-
     issue_date_formatted = datetime.datetime.strptime(issue.date, "%Y-%m-%d").strftime("%d %B %Y")
 
     html_content = f"""<!DOCTYPE html>
@@ -337,27 +319,8 @@ def render_index(issue, path: str):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Andrew McCarthy (andrevv.com) Inspired Architectural Vertical Side Rails -->
-    <aside class="side-rail-left" aria-hidden="true">
-        <div class="rail-line-track"></div>
-        <div class="rail-bead" id="rail-bead-left"></div>
-        <div class="rail-telemetry">
-            <span class="telemetry-idx" id="telemetry-card-idx">01</span>
-            <span class="telemetry-slash">//</span>
-            <span class="telemetry-total">{len(issue.cards):02d}</span>
-        </div>
-        <div class="rail-coord" id="rail-scroll-coord">Y: 00%</div>
-    </aside>
-
-    <nav class="side-rail-right" id="side-rail-nav" aria-label="Section navigation">
-        <div class="rail-line-track"></div>
-        <div class="rail-tracer-beam-wrap" aria-hidden="true">
-            <div class="rail-tracer-beam" id="rail-tracer-beam"></div>
-        </div>
-        <div class="rail-pips-container" id="rail-pips-container">
-            {pips_html}
-        </div>
-    </nav>
+    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
+    <div id="bar" aria-hidden="true"></div>
 
     <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
@@ -423,41 +386,45 @@ def render_index(issue, path: str):
         <!-- 90-Second Studio Audio Briefing Player -->
         <section class="audio-brief-section">
             <div class="audio-brief-bar" id="audio-brief-bar">
-                <div class="audio-brief-play-side">
-                    <button class="audio-brief-play-btn" id="audio-brief-play-btn" type="button" aria-label="Play 90-second audio briefing">
-                        <span class="audio-play-icon" id="audio-play-icon">▶</span>
-                        <span class="audio-pause-icon" id="audio-pause-icon" style="display:none;">❚❚</span>
-                    </button>
-                    <div class="audio-brief-info">
-                        <div class="audio-brief-badge-row">
-                            <span class="audio-pulse-indicator" id="audio-pulse-indicator"></span>
-                            <span class="audio-brief-title">90s Spoken Briefing</span>
-                            <span class="audio-role-pill" id="audio-role-pill">DEVELOPER</span>
-                            <div class="audio-eq-waves" id="audio-eq-waves" aria-hidden="true">
-                                <span></span><span></span><span></span><span></span>
+                <div class="audio-brief-main-row">
+                    <div class="audio-brief-play-side">
+                        <button class="audio-brief-play-btn" id="audio-brief-play-btn" type="button" aria-label="Play 90-second audio briefing">
+                            <span class="audio-play-icon" id="audio-play-icon">▶</span>
+                            <span class="audio-pause-icon" id="audio-pause-icon" style="display:none;">❚❚</span>
+                        </button>
+                        <div class="audio-brief-info">
+                            <div class="audio-brief-badge-row">
+                                <span class="audio-pulse-indicator" id="audio-pulse-indicator"></span>
+                                <span class="audio-brief-title">90s Spoken Briefing</span>
+                                <span class="audio-role-pill" id="audio-role-pill">DEVELOPER</span>
+                                <div class="audio-eq-waves" id="audio-eq-waves" aria-hidden="true">
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
                             </div>
+                            <div class="audio-brief-sub">ElevenLabs Voice (Adam) &middot; Studio-mastered &middot; Natural breathing &middot; -45dB room tone &middot; -16 LUFS</div>
                         </div>
-                        <div class="audio-brief-sub">ElevenLabs Voice (Adam) &middot; Studio-mastered &middot; Natural breathing &middot; -45dB room tone &middot; -16 LUFS</div>
                     </div>
-                </div>
 
-                <div class="audio-brief-track-side">
-                    <div class="audio-brief-scrubber" id="audio-brief-scrubber" title="Click to seek">
-                        <div class="audio-brief-progress" id="audio-brief-progress"></div>
-                    </div>
-                    <div class="audio-brief-waveform-time-row">
-                        <canvas class="audio-waveform-canvas" id="audio-waveform-canvas" width="220" height="20" aria-hidden="true"></canvas>
-                        <div class="audio-brief-time-row">
-                            <span id="audio-current-time">0:00</span>
-                            <span>/</span>
-                            <span id="audio-total-time">1:17</span>
+                    <div class="audio-brief-track-side">
+                        <div class="audio-brief-scrubber" id="audio-brief-scrubber" title="Click to seek">
+                            <div class="audio-brief-progress" id="audio-brief-progress"></div>
+                        </div>
+                        <div class="audio-brief-waveform-time-row">
+                            <canvas class="audio-waveform-canvas" id="audio-waveform-canvas" width="220" height="20" aria-hidden="true"></canvas>
+                            <div class="audio-brief-time-row">
+                                <span id="audio-current-time">0:00</span>
+                                <span>/</span>
+                                <span id="audio-total-time">1:17</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="audio-brief-cli-pill" title="Terminal CLI: Fetch brief instantly in terminal">
-                    <span class="cli-icon">$</span>
-                    <code id="cli-cmd-display">curl -sL https://dev-pranav-sankhyan.github.io/Pith/dev</code>
+                    <div class="cli-cmd-wrapper">
+                        <span class="cli-icon">$</span>
+                        <code id="cli-cmd-display">curl -sL https://dev-pranav-sankhyan.github.io/Pith/dev</code>
+                    </div>
                     <button class="cli-copy-btn" id="cli-copy-btn" title="Copy terminal curl command" type="button">Copy</button>
                 </div>
 
@@ -597,6 +564,9 @@ def render_ledger(predictions, stats, path: str):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
+    <div id="bar" aria-hidden="true"></div>
+
     <header class="crown">
         <a href="index.html" class="brand-wrapper">
             <div class="brand-mark" aria-hidden="true">
@@ -880,6 +850,9 @@ def render_patterns(patterns, issue, path: str):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
+    <div id="bar" aria-hidden="true"></div>
+
     <header class="crown">
         <a href="index.html" class="brand-wrapper">
             <div class="brand-mark" aria-hidden="true">
