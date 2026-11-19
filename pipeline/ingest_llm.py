@@ -191,7 +191,7 @@ def run_pipeline(
     # Build Card dataclass
     prediction_data = card_dict.get("prediction", {})
     pred = Prediction(
-        id=f"pred-{today_str.replace('-', '')}-{card_slug[:8]}",
+        id=f"pred-{today_str.replace('-', '')}-{card_slug}",
         card_id=card_id,
         statement=prediction_data.get("statement", "By end of year, architecture standardizes."),
         probability=float(prediction_data.get("probability", 0.70)),

@@ -78,10 +78,11 @@ def render_cli_brief(issue: Optional[DailyIssue], role: str = "developer", width
 
         # Signal score badge
         sig_badge = f"{FG_EMERALD}[HIGH SIGNAL · {card.signal_score:.1f}]{RESET}" if card.signal_score >= 78 else f"{FG_AMBER}[MED SIGNAL · {card.signal_score:.1f}]{RESET}"
+        resolves_str = f" · Resolves {card.prediction.resolves_at}" if card.prediction else ""
 
         lines.append(f"{FG_GRAY}{'─' * width}{RESET}")
         lines.append(f"{FG_GOLD}{BOLD}{roman}.{RESET} {BOLD}{FG_WHITE}{card.headline}{RESET}")
-        lines.append(f"   {sig_badge} {FG_GRAY}· {len(card.evidence_links)} primary source · Resolves {card.prediction.resolves_at}{RESET}")
+        lines.append(f"   {sig_badge} {FG_GRAY}· {len(card.evidence_links)} primary source{resolves_str}{RESET}")
         lines.append("")
         
         # What Happened & Why it Matters
@@ -90,7 +91,10 @@ def render_cli_brief(issue: Optional[DailyIssue], role: str = "developer", width
         lines.append("")
 
         # Action box
-        action_type = rv.action_type.upper()
+        action_type = rv.action_type.upper() if rv else (card.action_type or "DO").upper()
+        action_text = rv.action_text if rv else (card.action_text or "Benchmark operational latency.")
+        impact_text = rv.impact if rv else card.why_it_matters
+
         if action_type == "DO":
             type_tag = f"{FG_EMERALD}{BOLD}[DO THIS WEEK]{RESET}"
         elif action_type == "WATCH":
@@ -99,17 +103,18 @@ def render_cli_brief(issue: Optional[DailyIssue], role: str = "developer", width
             type_tag = f"{FG_GRAY}{BOLD}[IGNORE FOR NOW]{RESET}"
 
         lines.append(f"   ┌─ {type_tag} ────────────────────────────────────────────────────────┐")
-        lines.append(f"   │ {BOLD}{FG_WHITE}{rv.action_text}{RESET}")
-        lines.append(f"   │ {DIM}{rv.impact}{RESET}")
+        lines.append(f"   │ {BOLD}{FG_WHITE}{action_text}{RESET}")
+        lines.append(f"   │ {DIM}{impact_text}{RESET}")
         lines.append(f"   └──────────────────────────────────────────────────────────────────┘")
         lines.append("")
 
         # Prediction & 1-Keystroke Vote Prompt
-        prob_pct = int(card.prediction.probability * 100)
-        lines.append(f"   {FG_GOLD}✦ Forecast ({prob_pct}%):{RESET} {card.prediction.statement}")
-        lines.append(f"     {DIM}Resolution standard:{RESET} {card.prediction.resolution_criteria}")
-        lines.append(f"     {BOLD}[Beat the Brief]:{RESET} {FG_EMERALD}[▲ H]igher{RESET}  {FG_GOLD}[● A]gree{RESET}  {FG_RED}[▼ L]ower{RESET}  {FG_GRAY}(curl lowpass.sh/vote/{card.id}/<pick>){RESET}")
-        lines.append("")
+        if card.prediction:
+            prob_pct = int(card.prediction.probability * 100)
+            lines.append(f"   {FG_GOLD}✦ Forecast ({prob_pct}%):{RESET} {card.prediction.statement}")
+            lines.append(f"     {DIM}Resolution standard:{RESET} {card.prediction.resolution_criteria}")
+            lines.append(f"     {BOLD}[Beat the Brief]:{RESET} {FG_EMERALD}[▲ H]igher{RESET}  {FG_GOLD}[● A]gree{RESET}  {FG_RED}[▼ L]ower{RESET}  {FG_GRAY}(curl lowpass.sh/vote/{card.id}/<pick>){RESET}")
+            lines.append("")
 
     # Filtered noise summary
     if issue.not_included_today:
