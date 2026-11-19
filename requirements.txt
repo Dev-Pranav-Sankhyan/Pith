@@ -1,0 +1,3 @@
+# Pith Core Runtime Dependencies
+# Core pipeline uses Python 3.11+ standard library (urllib, sqlite3, json, dataclasses)
+Pillow>=10.0.0

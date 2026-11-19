@@ -1,0 +1,117 @@
+name: Daily Tech Intelligence Pipeline
+
+on:
+  schedule:
+    # Runs daily at 05:00 UTC (10:30 AM IST / 01:00 AM EST)
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode (simulation without external LLM calls)'
+        required: false
+        default: false
+        type: boolean
+      skip_audio:
+        description: 'Skip voice synthesis (useful for fast testing)'
+        required: false
+        default: false
+        type: boolean
+      provider:
+        description: 'LLM provider to use'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - gemini
+          - openai
+          - anthropic
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pith-daily-publishing"
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System Audio Mastering Tools (FFmpeg)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Master Daily Intelligence Pipeline
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="$FLAGS --dry-run"
+          fi
+          if [ "${{ inputs.skip_audio }}" = "true" ]; then
+            FLAGS="$FLAGS --skip-audio"
+          fi
+          if [ -n "${{ inputs.provider }}" ]; then
+            FLAGS="$FLAGS --provider ${{ inputs.provider }}"
+          fi
+
+          echo "Executing: python3 run_daily.py $FLAGS"
+          python3 run_daily.py $FLAGS
+
+      - name: Verify Generated Assets & Feeds
+        run: |
+          ls -la public/
+          ls -la public/audio/
+          python3 -c "
+          import os
+          assert os.path.exists('public/index.html'), 'Missing index.html'
+          assert os.path.exists('public/feed.json'), 'Missing feed.json'
+          assert os.path.exists('public/rss.xml'), 'Missing rss.xml'
+          print('✓ All core public assets verified successfully.')
+          "
+
+      - name: Commit & Push Daily Issue Updates
+        run: |
+          git config user.name "pith-intelligence-bot[bot]"
+          git config user.email "bot@pith.news"
+          git add brief.sqlite3 public/
+          if git diff --staged --quiet; then
+            echo "No changes detected. Issue already up to date."
+          else
+            git commit -m "chore(daily): publish intelligence brief for $(date -u +'%Y-%m-%d') [skip ci]"
+            git push origin HEAD:${{ github.ref }}
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: success()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          cname: pith.news # Optional custom domain, remove or edit as desired

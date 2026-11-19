@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DailyIssue",
+  "description": "Schema for a single Daily Tech Intelligence Brief issue",
+  "type": "object",
+  "required": ["issue_id", "date", "beat", "cards", "not_included_today", "published_at"],
+  "properties": {
+    "issue_id": { "type": "string" },
+    "date": { "type": "string", "format": "date" },
+    "beat": { "type": "string" },
+    "is_quiet_day": { "type": "boolean", "default": false },
+    "cards": {
+      "type": "array",
+      "items": { "$ref": "card.schema.json" },
+      "maxItems": 3
+    },
+    "not_included_today": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["headline", "reason"],
+        "properties": {
+          "headline": { "type": "string" },
+          "reason": { "type": "string" },
+          "source_url": { "type": "string" }
+        }
+      },
+      "maxItems": 3
+    },
+    "published_at": { "type": "string", "format": "date-time" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "candidate_clusters_evaluated": { "type": "integer" },
+        "claims_verified_count": { "type": "integer" },
+        "claims_dropped_count": { "type": "integer" },
+        "editor_review_minutes": { "type": "number" }
+      }
+    }
+  }
+}

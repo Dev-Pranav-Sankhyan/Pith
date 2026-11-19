@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Library &middot; Pith</title>
+    <meta name="description" content="Curated catalog of recurring tech dynamics, historical base rates, failure modes, and cognitive bias warnings for Pith.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="crown">
+        <a href="index.html" class="brand-wrapper">
+            <div class="brand-mark" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+            </div>
+            <div class="brand-name">PITH</div>
+        </a>
+        <div class="nav-cluster">
+            <nav>
+                <a href="index.html" class="nav-link">Brief</a>
+                <a href="ledger.html" class="nav-link">Ledger</a>
+                <a href="patterns.html" class="nav-link active" aria-current="page">Patterns</a>
+            </nav>
+            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                <span class="elo-icon">◈</span>
+                <span class="elo-score" id="user-elo-score">1200</span>
+                <span class="elo-tier" id="user-elo-tier">Observer</span>
+            </div>
+            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
+                <span class="sound-wave-icon" aria-hidden="true">
+                    <i></i><i></i><i></i>
+                </span>
+                <span class="sound-label">Audio: On</span>
+            </button>
+            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
+                <div class="theme-icon-circle"></div>
+            </button>
+        </div>
+    </header>
+
+    <div class="desk-container">
+        <section class="masthead">
+            <div>
+                <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; BASE RATES &middot; BIAS PITFALLS</div>
+                <h1 class="page-title">Pattern <em>Library</em></h1>
+            </div>
+            <div class="meta-pill-group">
+                <span>MENTAL MODELS</span>
+                <span>&middot;</span>
+                <span>6 ARCHITECTURAL DYNAMICS</span>
+            </div>
+        </section>
+
+        <div style="margin-bottom:28px;">
+            <p style="font-size:15px; color:var(--ink-2); line-height:1.6; max-width:68ch;">
+                Tech shifts appear sudden, but infrastructure history repeats in predictable economic and architectural dynamics. We evaluate candidate events against recurring failure modes, historical base rates, and cognitive bias warnings before drafting predictions.
+            </p>
+        </div>
+
+        <!-- Pattern Filter Controls -->
+        <section class="role-bar" style="margin-bottom:30px;">
+            <div class="role-bar-label">Filter Category</div>
+            <div class="seg-control" id="pattern-filters">
+                <button class="seg-btn active" data-category="all" type="button">All Patterns</button>
+                <button class="seg-btn" data-category="Platform Economics" type="button">Platform Economics</button>
+                <button class="seg-btn" data-category="Open Source & Standards" type="button">Open Source &amp; Standards</button>
+                <button class="seg-btn" data-category="Architecture & Silicon" type="button">Architecture &amp; Silicon</button>
+            </div>
+        </section>
+
+        <!-- Patterns Flow -->
+        <main class="cards-flow" id="patterns-container">
+            
+        <article class="lab-card pattern-card" id="pattern-commoditisation-cascade" data-category="Platform Economics">
+            <div class="card-header-line">
+                <span class="card-roman">I &middot; PLATFORM ECONOMICS</span>
+                <span class="card-sources-count">2 documented cases</span>
+            </div>
+
+            <h2 class="card-headline">The Commoditisation Cascade</h2>
+            
+            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
+                Open-weight models match 90% of closed frontier capability at 10% the operating cost, triggering a price collapse that erodes thin wrapper margins and pushes value to proprietary data and execution.
+            </p>
+
+            <div class="story-block" style="margin-top:10px;">
+                <span class="story-lead">The Core Dynamic:</span>
+                <span>Initial frontier monopoly prices create massive margin incentives for open replication. Once permissive architectures reach &#x27;good enough&#x27; utility for 80% of enterprise tasks, proprietary API pricing power breaks. Infrastructure providers are forced to discount inference or bundle it into platform subscriptions.</span>
+            </div>
+
+            <!-- Base Rate Box -->
+            <div class="base-rate-box">
+                <div class="base-rate-header">
+                    <span class="base-rate-badge">Historical Base Rate</span>
+                </div>
+                <div class="base-rate-text">In 78% of developer infrastructure categories, permissive open alternatives cap closed API gross margins below 45% within 3 years of first parity release.</div>
+            </div>
+
+            <!-- Documented Case Studies -->
+            <div class="pattern-cases-section">
+                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="pattern-cases-grid">
+                    
+            <div class="case-study-card">
+                <div class="case-study-title">Linux vs. Proprietary Unix (1995–2003)</div>
+                <div class="case-study-detail">Sun Microsystems, SGI, and HP commanded 70%+ gross margins on custom Unix servers. Once open-source Linux achieved stability on commodity x86 Intel hardware, proprietary server margins collapsed permanently.</div>
+            </div>
+            
+            <div class="case-study-card">
+                <div class="case-study-title">Stable Diffusion vs. Closed Image APIs (2022–2024)</div>
+                <div class="case-study-detail">Midjourney and OpenAI initially controlled image generation pricing. The release of open-weight Stable Diffusion and Flux forced hosted API pricing down by &gt;85% within 18 months, shifting defensibility to workflow UI and canvas integration.</div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Cognitive Bias & Failure Mode Panel -->
+            <div class="bias-warning-panel">
+                <div class="bias-warning-title">Cognitive Pitfall to Avoid</div>
+                <div class="bias-warning-text">Moat Mirage &amp; Recency Bias: Mistaking an incumbent&#x27;s 6-month research lead for an enduring structural barrier to entry.</div>
+                <div class="failure-mode-callout">
+                    <strong>Known Failure Mode:</strong> Building a venture-scale startup on a single prompt or thin routing wrapper without proprietary execution loops or enterprise data lock-in.
+                </div>
+            </div>
+
+            
+            <div class="pattern-active-brief">
+                <span style="font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--gilt);">Active in Today's Issue:</span>
+                <a href="index.html#card-20261119-cache-cut" class="pattern-active-link">Tier-1 API Providers Cut Context Caching Rates by 90%, Slashing Agent Run Costs &rarr;</a> &middot; <a href="index.html#card-20261119-mla-kernels" class="pattern-active-link">vLLM &amp; SGLang Merge Native Multi-Head Latent Attention (MLA), Cutting KV-Cache RAM by 70% &rarr;</a>
+            </div>
+            
+        </article>
+        
+        <article class="lab-card pattern-card" id="pattern-standards-war" data-category="Open Source &amp; Standards">
+            <div class="card-header-line">
+                <span class="card-roman">II &middot; OPEN SOURCE &amp; STANDARDS</span>
+                <span class="card-sources-count">2 documented cases</span>
+            </div>
+
+            <h2 class="card-headline">The Standards War &amp; CNI Moment</h2>
+            
+            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
+                Competing vendors unite under a neutral foundation (e.g., CNCF, Linux Foundation) to standardize an interface, neutralizing a dominant single-vendor tollbooth.
+            </p>
+
+            <div class="story-block" style="margin-top:10px;">
+                <span class="story-lead">The Core Dynamic:</span>
+                <span>When a platform leader begins leveraging proprietary connector protocols to extract ecosystem tolls, competing cloud providers and developer toolmakers form an open consortium. The resulting open standard commoditizes the connector layer and shifts value to infrastructure reliability and execution sandboxes.</span>
+            </div>
+
+            <!-- Base Rate Box -->
+            <div class="base-rate-box">
+                <div class="base-rate-header">
+                    <span class="base-rate-badge">Historical Base Rate</span>
+                </div>
+                <div class="base-rate-text">When at least 3 tier-1 rivals back a vendor-neutral protocol under independent governance, proprietary protocols lose developer mindshare within 14 months in 82% of tracked cases.</div>
+            </div>
+
+            <!-- Documented Case Studies -->
+            <div class="pattern-cases-section">
+                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="pattern-cases-grid">
+                    
+            <div class="case-study-card">
+                <div class="case-study-title">Container Network Interface (CNI, 2016–2018)</div>
+                <div class="case-study-detail">Docker attempted to capture the container ecosystem by bundling proprietary libnetwork and Docker Swarm. Competitors united around CNCF Kubernetes and the CNI/CSI standards, rendering proprietary container networking obsolete.</div>
+            </div>
+            
+            <div class="case-study-card">
+                <div class="case-study-title">Language Server Protocol (LSP, 2016)</div>
+                <div class="case-study-detail">Microsoft and Red Hat standardized editor integrations via JSON-RPC. Instead of building M×N bespoke compiler plugins for every IDE, developers adopted a single protocol, commoditizing editor language parsing.</div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Cognitive Bias & Failure Mode Panel -->
+            <div class="bias-warning-panel">
+                <div class="bias-warning-title">Cognitive Pitfall to Avoid</div>
+                <div class="bias-warning-text">Incumbent Inevitability: Assuming a first-mover&#x27;s proprietary connector format is insurmountable simply because it launched first.</div>
+                <div class="failure-mode-callout">
+                    <strong>Known Failure Mode:</strong> Spending heavy engineering cycles maintaining bilateral custom connectors rather than adopting the upstream neutral specification.
+                </div>
+            </div>
+
+            
+            <div class="pattern-active-brief">
+                <span style="font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--gilt);">Active in Today's Issue:</span>
+                <a href="index.html#card-20261119-open-agent-protocol" class="pattern-active-link">Linux Foundation &amp; CNCF Form Open Agent Protocol (OAP) to Unify Tool &amp; MCP Interfaces &rarr;</a>
+            </div>
+            
+        </article>
+        
+        <article class="lab-card pattern-card" id="pattern-price-war-compression" data-category="Platform Economics">
+            <div class="card-header-line">
+                <span class="card-roman">III &middot; PLATFORM ECONOMICS</span>
+                <span class="card-sources-count">2 documented cases</span>
+            </div>
+
+            <h2 class="card-headline">Price-War Margin Compression</h2>
+            
+            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
+                Hyperscalers with massive balance sheets slash marginal costs on compute primitives to near-zero, squeezing venture-backed challenger clouds and anchoring customer lock-in to their memory clusters.
+            </p>
+
+            <div class="story-block" style="margin-top:10px;">
+                <span class="story-lead">The Core Dynamic:</span>
+                <span>Cloud hyper-scalers treat low-level compute and caching as loss leaders to capture high-margin enterprise data residency and platform orchestration. Challenger clouds unable to cross-subsidize infrastructure face rapid gross margin compression.</span>
+            </div>
+
+            <!-- Base Rate Box -->
+            <div class="base-rate-box">
+                <div class="base-rate-header">
+                    <span class="base-rate-badge">Historical Base Rate</span>
+                </div>
+                <div class="base-rate-text">Frontier provider price cuts exceeding 40% are matched by at least two major competitors within 180 days in 70% of historical cloud price adjustments.</div>
+            </div>
+
+            <!-- Documented Case Studies -->
+            <div class="pattern-cases-section">
+                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="pattern-cases-grid">
+                    
+            <div class="case-study-card">
+                <div class="case-study-title">AWS vs. Google Cloud Price War (2014–2016)</div>
+                <div class="case-study-detail">Sequential price cuts of 30% to 50% across virtual machines and memory instances forced second-tier hosting providers out of business and consolidated 80%+ of cloud spend into AWS, Azure, and GCP.</div>
+            </div>
+            
+            <div class="case-study-card">
+                <div class="case-study-title">S3 Infrequent Access &amp; Tiered Storage (2015)</div>
+                <div class="case-study-detail">Cloud providers slashed pricing on cold bytes to below raw hardware depreciation rates, disincentivizing customers from running on-premise storage arrays.</div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Cognitive Bias & Failure Mode Panel -->
+            <div class="bias-warning-panel">
+                <div class="bias-warning-title">Cognitive Pitfall to Avoid</div>
+                <div class="bias-warning-text">Static Margin Fallacy: Modeling multi-year company valuation on current token pricing without forecasting aggressive provider deflation.</div>
+                <div class="failure-mode-callout">
+                    <strong>Known Failure Mode:</strong> Passing provider price drops directly to customers without preserving margin buffers or optimizing prompt prefix architecture.
+                </div>
+            </div>
+
+            
+            <div class="pattern-active-brief">
+                <span style="font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--gilt);">Active in Today's Issue:</span>
+                <a href="index.html#card-20261119-cache-cut" class="pattern-active-link">Tier-1 API Providers Cut Context Caching Rates by 90%, Slashing Agent Run Costs &rarr;</a>
+            </div>
+            
+        </article>
+        
+        <article class="lab-card pattern-card" id="pattern-relicensing-trap" data-category="Open Source &amp; Standards">
+            <div class="card-header-line">
+                <span class="card-roman">IV &middot; OPEN SOURCE &amp; STANDARDS</span>
+                <span class="card-sources-count">2 documented cases</span>
+            </div>
+
+            <h2 class="card-headline">The Relicensing &amp; Moat Pivot</h2>
+            
+            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
+                Permissive open-source infrastructure projects face revenue capture from cloud giants, pivot to restrictive source-available licenses (BSL, SSPL), and provoke immediate community forks.
+            </p>
+
+            <div class="story-block" style="margin-top:10px;">
+                <span class="story-lead">The Core Dynamic:</span>
+                <span>Single-vendor commercial open-source companies struggle to monetize against hyper-scaler managed offerings. Stewards adopt restrictive source-available licenses to force commercial licensing, creating an immediate opportunity for cloud rivals and community consortiums to fork the permissive codebase.</span>
+            </div>
+
+            <!-- Base Rate Box -->
+            <div class="base-rate-box">
+                <div class="base-rate-header">
+                    <span class="base-rate-badge">Historical Base Rate</span>
+                </div>
+                <div class="base-rate-text">Within 24 months of relicensing, a community-governed neutral fork captures over 50% of grassroots developer mindshare in 65% of tracked infrastructure cases.</div>
+            </div>
+
+            <!-- Documented Case Studies -->
+            <div class="pattern-cases-section">
+                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="pattern-cases-grid">
+                    
+            <div class="case-study-card">
+                <div class="case-study-title">Elasticsearch to SSPL (2021)</div>
+                <div class="case-study-detail">Elastic switched from Apache 2.0 to SSPL to block AWS. Amazon responded by creating the OpenSearch fork under the Apache license, permanently splitting enterprise mindshare and plugin ecosystems.</div>
+            </div>
+            
+            <div class="case-study-card">
+                <div class="case-study-title">Terraform to BSL (2023)</div>
+                <div class="case-study-detail">HashiCorp&#x27;s transition to BSL sparked the OpenTofu fork under the Linux Foundation within 30 days. OpenTofu quickly secured majority corporate backing for open infrastructure deployment.</div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Cognitive Bias & Failure Mode Panel -->
+            <div class="bias-warning-panel">
+                <div class="bias-warning-title">Cognitive Pitfall to Avoid</div>
+                <div class="bias-warning-text">Sunk-Cost Trap: Staying locked into a relicensed vendor&#x27;s stack due to prior investment, ignoring the rising legal and migration costs.</div>
+                <div class="failure-mode-callout">
+                    <strong>Known Failure Mode:</strong> Building deep proprietary architectural hooks into single-vendor commercial open-source software without evaluating fork durability.
+                </div>
+            </div>
+
+            
+        </article>
+        
+        <article class="lab-card pattern-card" id="pattern-platform-squeeze" data-category="Platform Economics">
+            <div class="card-header-line">
+                <span class="card-roman">V &middot; PLATFORM ECONOMICS</span>
+                <span class="card-sources-count">2 documented cases</span>
+            </div>
+
+            <h2 class="card-headline">The Platform Squeeze &amp; Sherlocking</h2>
+            
+            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
+                A platform cultivates an active ecosystem of third-party builders, reaches market dominance, and then systematically restricts API access or ships native clones of the most successful third-party tools.
+            </p>
+
+            <div class="story-block" style="margin-top:10px;">
+                <span class="story-lead">The Core Dynamic:</span>
+                <span>In early phases, platforms offer generous free APIs and developer grants to build ecosystem gravity. Once user and data lock-in are achieved, the platform absorbs high-demand utility apps into core product tiers or imposes steep API usage tollbooths.</span>
+            </div>
+
+            <!-- Base Rate Box -->
+            <div class="base-rate-box">
+                <div class="base-rate-header">
+                    <span class="base-rate-badge">Historical Base Rate</span>
+                </div>
+                <div class="base-rate-text">Platforms with &gt;60% category market share clone or restrict top-10 ecosystem utility tools within 3 years of feature maturity (85% historical incidence).</div>
+            </div>
+
+            <!-- Documented Case Studies -->
+            <div class="pattern-cases-section">
+                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="pattern-cases-grid">
+                    
+            <div class="case-study-card">
+                <div class="case-study-title">Apple &#x27;Sherlocking&#x27; (2000s–Present)</div>
+                <div class="case-study-detail">Apple systematically incorporated third-party developer utilities (Watson search, f.lux night shift, Tile tracking, Shazam) directly into macOS and iOS system software, erasing third-party business models overnight.</div>
+            </div>
+            
+            <div class="case-study-card">
+                <div class="case-study-title">Twitter API Paywall (2023)</div>
+                <div class="case-study-detail">Overnight price hikes from free/cheap tiers to $42,000/month wiped out an entire ecosystem of analytics, research, and scheduling software that had spent a decade building Twitter&#x27;s developer mindshare.</div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Cognitive Bias & Failure Mode Panel -->
+            <div class="bias-warning-panel">
+                <div class="bias-warning-title">Cognitive Pitfall to Avoid</div>
+                <div class="bias-warning-text">Platform Partnership Illusion: Mistaking a partner marketing badge or early API grant for long-term strategic safety.</div>
+                <div class="failure-mode-callout">
+                    <strong>Known Failure Mode:</strong> Failing to build proprietary data moats or direct user distribution, leaving your product vulnerable to a single API deprecation notice.
+                </div>
+            </div>
+
+            
+            <div class="pattern-active-brief">
+                <span style="font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--gilt);">Active in Today's Issue:</span>
+                <a href="index.html#card-20261119-computer-use" class="pattern-active-link">Anthropic Introduces Native OS Computer Use API, Standardizing Desktop Agent Automation &rarr;</a>
+            </div>
+            
+        </article>
+        
+        <article class="lab-card pattern-card" id="pattern-codesign-bottleneck" data-category="Architecture &amp; Silicon">
+            <div class="card-header-line">
+                <span class="card-roman">VI &middot; ARCHITECTURE &amp; SILICON</span>
+                <span class="card-sources-count">2 documented cases</span>
+            </div>
+
+            <h2 class="card-headline">The Hardware/Software Co-Design Bottleneck</h2>
+            
+            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
+                When hardware interconnects become the primary cost bottleneck, algorithmic kernel breakthroughs (FlashAttention, DualPipe, MLA) temporarily narrow the performance moat of closed hyper-scalers.
+            </p>
+
+            <div class="story-block" style="margin-top:10px;">
+                <span class="story-lead">The Core Dynamic:</span>
+                <span>Hardware scaling encounters physical thermal and bandwidth walls (HBM capacity, memory bus width, cross-node communication). Software engineers rewrite execution kernels to overlap compute with communication or compress attention states, yielding 2x to 4x efficiency gains on existing commodity hardware.</span>
+            </div>
+
+            <!-- Base Rate Box -->
+            <div class="base-rate-box">
+                <div class="base-rate-header">
+                    <span class="base-rate-badge">Historical Base Rate</span>
+                </div>
+                <div class="base-rate-text">Algorithmic and kernel optimizations provide a 2x to 4x throughput improvement on existing silicon before the next hardware fabrication generation reaches scale (90% historical frequency).</div>
+            </div>
+
+            <!-- Documented Case Studies -->
+            <div class="pattern-cases-section">
+                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="pattern-cases-grid">
+                    
+            <div class="case-study-card">
+                <div class="case-study-title">Tri Dao FlashAttention (2022–2023)</div>
+                <div class="case-study-detail">Algorithmic IO-awareness cut attention memory from quadratic O(N²) to linear O(N), enabling standard GPU nodes to process long-context sequences without hardware clustering upgrades.</div>
+            </div>
+            
+            <div class="case-study-card">
+                <div class="case-study-title">DeepSeek Multi-Head Latent Attention (MLA, 2024)</div>
+                <div class="case-study-detail">Projecting key-value matrices into low-rank latent vectors compressed KV-cache memory footprints by over 70%, allowing high-throughput inference on commodity GPU clusters.</div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Cognitive Bias & Failure Mode Panel -->
+            <div class="bias-warning-panel">
+                <div class="bias-warning-title">Cognitive Pitfall to Avoid</div>
+                <div class="bias-warning-text">Hardware Determinism: Assuming compute dominance is purely a function of raw GPU inventory rather than kernel-level scheduling and attention compression.</div>
+                <div class="failure-mode-callout">
+                    <strong>Known Failure Mode:</strong> Over-committing to multi-year hardware leases before benchmarking modern low-rank attention and pipeline-overlap runtime libraries.
+                </div>
+            </div>
+
+            
+            <div class="pattern-active-brief">
+                <span style="font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--gilt);">Active in Today's Issue:</span>
+                <a href="index.html#card-20261119-dualpipe-kernels" class="pattern-active-link">DeepSeek Open-Sources DualPipe Kernels for Extreme Overlap Computation in Clustered Training &rarr;</a> &middot; <a href="index.html#card-20261119-mla-kernels" class="pattern-active-link">vLLM &amp; SGLang Merge Native Multi-Head Latent Attention (MLA), Cutting KV-Cache RAM by 70% &rarr;</a>
+            </div>
+            
+        </article>
+        
+        </main>
+
+        <footer class="desk-footer">
+            <div><strong>Pith</strong> &middot; Mental Models &amp; Pattern Library</div>
+            <div class="footer-nav">
+                <a href="index.html">Today's Issue</a>
+                <a href="ledger.html">Public Ledger</a>
+                <a href="patterns.html">Pattern Library</a>
+            </div>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

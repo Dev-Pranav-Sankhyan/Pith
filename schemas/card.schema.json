@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ImpactCard",
+  "description": "Schema for a single Daily Tech Intelligence Brief card",
+  "type": "object",
+  "required": [
+    "id",
+    "date",
+    "beat",
+    "headline",
+    "what_happened",
+    "signal_level",
+    "signal_reason",
+    "confidence",
+    "action_type",
+    "action_text",
+    "prediction",
+    "role_views"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "cluster_id": { "type": "string" },
+    "date": { "type": "string", "format": "date" },
+    "beat": { "type": "string", "default": "AI & Developer Infrastructure" },
+    "headline": { "type": "string", "maxLength": 120 },
+    "what_happened": { "type": "string", "description": "Max 2 sentences, facts only with citations" },
+    "why_it_matters": { "type": "string", "description": "High-level summary including who gains and who loses" },
+    "second_order": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 2,
+      "maxItems": 4,
+      "description": "Who is affected next, what breaks, what becomes cheaper or harder"
+    },
+    "signal_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "signal_level": { "type": "string", "enum": ["High", "Medium", "Low"] },
+    "signal_reason": { "type": "string" },
+    "confidence": { "type": "string", "enum": ["High", "Medium", "Low"] },
+    "action_type": { "type": "string", "enum": ["DO", "WATCH", "IGNORE"] },
+    "action_text": { "type": "string", "description": "Concrete action for the default view" },
+    "prediction": {
+      "type": "object",
+      "required": ["id", "statement", "probability", "resolves_at", "resolution_criteria", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "statement": { "type": "string", "description": "Dated, falsifiable statement" },
+        "probability": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "made_at": { "type": "string", "format": "date" },
+        "resolves_at": { "type": "string", "format": "date" },
+        "resolution_criteria": { "type": "string", "description": "Objective resolution rule" },
+        "category": { "type": "string", "enum": ["market", "technology", "adoption"] },
+        "status": { "type": "string", "enum": ["open", "correct", "wrong", "void"] },
+        "resolved_at": { "type": ["string", "null"] },
+        "evidence_url": { "type": ["string", "null"] },
+        "postmortem": { "type": ["string", "null"] }
+      }
+    },
+    "historical_analogue": {
+      "type": "object",
+      "properties": {
+        "analogue": { "type": "string" },
+        "where_it_breaks": { "type": "string" }
+      }
+    },
+    "evidence_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "publisher": { "type": "string" },
+          "tier": { "type": "string", "enum": ["primary", "secondary"] },
+          "quoted_span": { "type": "string" }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["text", "source_url", "quoted_span", "verified"],
+        "properties": {
+          "text": { "type": "string" },
+          "source_url": { "type": "string" },
+          "quoted_span": { "type": "string" },
+          "verified": { "type": "boolean" }
+        }
+      }
+    },
+    "role_views": {
+      "type": "object",
+      "required": ["developer", "founder", "investor"],
+      "properties": {
+        "developer": {
+          "type": "object",
+          "required": ["impact", "action_type", "action_text"],
+          "properties": {
+            "impact": { "type": "string" },
+            "action_type": { "type": "string", "enum": ["DO", "WATCH", "IGNORE"] },
+            "action_text": { "type": "string" },
+            "stakes": { "type": "string" }
+          }
+        },
+        "founder": {
+          "type": "object",
+          "required": ["impact", "action_type", "action_text"],
+          "properties": {
+            "impact": { "type": "string" },
+            "action_type": { "type": "string", "enum": ["DO", "WATCH", "IGNORE"] },
+            "action_text": { "type": "string" },
+            "stakes": { "type": "string" }
+          }
+        },
+        "investor": {
+          "type": "object",
+          "required": ["impact", "action_type", "action_text"],
+          "properties": {
+            "impact": { "type": "string" },
+            "action_type": { "type": "string", "enum": ["DO", "WATCH", "IGNORE"] },
+            "action_text": { "type": "string" },
+            "stakes": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}
