@@ -60,7 +60,17 @@ def build_static_artifacts(db_path: str = "brief.sqlite3", output_dir: str = "pu
     with open(f"{output_dir}/rss.xml", "w", encoding="utf-8") as f:
         f.write(xml_str)
 
-    print(f"Generated {output_dir}/feed.json and {output_dir}/rss.xml successfully.")
+    # 3. Generate Static Plain-Text ANSI CLI Briefs for curl
+    from core.cli_format import render_cli_brief
+    for role in ["developer", "founder", "investor", "everyday"]:
+        filename = "dev" if role == "developer" else ("plain" if role == "everyday" else role)
+        cli_content = render_cli_brief(latest_issue, role=role)
+        with open(f"{output_dir}/{filename}", "w", encoding="utf-8") as f:
+            f.write(cli_content)
+        with open(f"{output_dir}/{filename}.txt", "w", encoding="utf-8") as f:
+            f.write(cli_content)
+
+    print(f"Generated {output_dir}/feed.json, {output_dir}/rss.xml, and static CLI endpoints successfully.")
 
 
 if __name__ == "__main__":

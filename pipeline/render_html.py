@@ -303,10 +303,28 @@ def render_index(issue, path: str):
         </div>
         """)
 
+    pip_items = []
+    pip_roman = ["I", "II", "III", "IV", "V", "VI", "VII"]
+    for i, card in enumerate(issue.cards):
+        roman = pip_roman[i] if i < len(pip_roman) else str(i+1)
+        short_title = card.headline.split(":")[0].split(",")[0][:20].upper()
+        pip_items.append(f'''
+            <a href="#{escape(card.id)}" class="rail-pip{' active' if i == 0 else ''}" data-index="{i}" data-target="{escape(card.id)}" title="{roman}. {escape(card.headline)}">
+                <span class="pip-square"></span>
+                <span class="pip-tooltip">{roman} // {escape(short_title)}</span>
+            </a>''')
+    if issue.not_included_today:
+        pip_items.append(f'''
+            <a href="#safely-ignore" class="rail-pip" data-index="{len(issue.cards)}" data-target="safely-ignore" title="Safely Ignore Today">
+                <span class="pip-square noise-pip"></span>
+                <span class="pip-tooltip">NOISE // SAFELY IGNORE</span>
+            </a>''')
+    pips_html = "".join(pip_items)
+
     issue_date_formatted = datetime.datetime.strptime(issue.date, "%Y-%m-%d").strftime("%d %B %Y")
 
     html_content = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -319,6 +337,28 @@ def render_index(issue, path: str):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Andrew McCarthy (andrevv.com) Inspired Architectural Vertical Side Rails -->
+    <aside class="side-rail-left" aria-hidden="true">
+        <div class="rail-line-track"></div>
+        <div class="rail-bead" id="rail-bead-left"></div>
+        <div class="rail-telemetry">
+            <span class="telemetry-idx" id="telemetry-card-idx">01</span>
+            <span class="telemetry-slash">//</span>
+            <span class="telemetry-total">{len(issue.cards):02d}</span>
+        </div>
+        <div class="rail-coord" id="rail-scroll-coord">Y: 00%</div>
+    </aside>
+
+    <nav class="side-rail-right" id="side-rail-nav" aria-label="Section navigation">
+        <div class="rail-line-track"></div>
+        <div class="rail-tracer-beam-wrap" aria-hidden="true">
+            <div class="rail-tracer-beam" id="rail-tracer-beam"></div>
+        </div>
+        <div class="rail-pips-container" id="rail-pips-container">
+            {pips_html}
+        </div>
+    </nav>
+
     <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
 
@@ -331,7 +371,6 @@ def render_index(issue, path: str):
 
     <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
     <header class="crown">
-        <div class="scroll-progress-line" id="scroll-progress-line" aria-hidden="true"></div>
         <a href="index.html" class="brand-wrapper">
             <div class="brand-mark" aria-hidden="true">
                 <i></i><i></i><i></i><i></i>
@@ -418,7 +457,7 @@ def render_index(issue, path: str):
 
                 <div class="audio-brief-cli-pill" title="Terminal CLI: Fetch brief instantly in terminal">
                     <span class="cli-icon">$</span>
-                    <code id="cli-cmd-display">curl localhost:8000/dev</code>
+                    <code id="cli-cmd-display">curl -sL https://dev-pranav-sankhyan.github.io/Pith/dev</code>
                     <button class="cli-copy-btn" id="cli-copy-btn" title="Copy terminal curl command" type="button">Copy</button>
                 </div>
 
@@ -456,7 +495,7 @@ def render_index(issue, path: str):
         </main>
 
         <!-- Signature "Safely Ignore Today" Filter-Proof Sheet with Shredder -->
-        <section class="filter-sheet" id="filter-sheet">
+        <section class="filter-sheet" id="safely-ignore">
             <div class="filter-sheet-header">
                 <div>
                     <div class="eyebrow" style="margin-bottom:2px;"><span class="gilt-dot"></span> NOISE FILTER AT WORK</div>
@@ -545,7 +584,7 @@ def render_ledger(predictions, stats, path: str):
     hit_rate_val = f"{stats['hit_rate_pct']:.1f}%" if stats['hit_rate_pct'] is not None else "N/A"
 
     html_content = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -828,7 +867,7 @@ def render_patterns(patterns, issue, path: str):
         """)
 
     html_content = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
