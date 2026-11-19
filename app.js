@@ -338,13 +338,13 @@ const sound = new SoundEngine();
 // 2. Theme Switcher with Shutter Sound
 // ==========================================================================
 function initTheme() {
-  const savedTheme = localStorage.getItem("pith_brief_theme") || "light";
+  const savedTheme = localStorage.getItem("pith_brief_theme") || "dark";
   document.documentElement.setAttribute("data-theme", savedTheme);
 }
 
 function toggleTheme() {
   sound.playShutter();
-  const current = document.documentElement.getAttribute("data-theme") || "light";
+  const current = document.documentElement.getAttribute("data-theme") || "dark";
   const next = current === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("pith_brief_theme", next);
@@ -1222,7 +1222,7 @@ class AudioBriefController {
 
     if (this.cliDisplay) {
       const cliSub = cliPaths[role] || "dev";
-      this.cliDisplay.textContent = `curl localhost:8000/${cliSub}`;
+      this.cliDisplay.textContent = `curl -sL https://dev-pranav-sankhyan.github.io/Pith/${cliSub}`;
     }
 
     if (this.audio) {
@@ -1321,33 +1321,96 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================================================
-// 14. Kinetic Scroll Animations (Laser Progress, Scroll Cue & Card In-View)
+// 14. Andrew McCarthy (andrevv.com) Inspired Side Rail & Kinetic Tracer Engine
 // ==========================================================================
 function initScrollAnimations() {
-  const progressBar = document.getElementById("scroll-progress-line");
   const scrollCue = document.getElementById("scroll-cue");
+  const tracerBeam = document.getElementById("rail-tracer-beam");
+  const leftBead = document.getElementById("rail-bead-left");
+  const scrollCoord = document.getElementById("rail-scroll-coord");
+  const telemetryIdx = document.getElementById("telemetry-card-idx");
+  const pips = Array.from(document.querySelectorAll(".rail-pip"));
+  const cards = Array.from(document.querySelectorAll(".lab-card"));
+  const filterSection = document.getElementById("safely-ignore") || document.getElementById("filter-sheet");
 
-  window.addEventListener("scroll", () => {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    
-    // Update laser reading line
-    if (progressBar && docHeight > 0) {
-      const progress = Math.min(100, Math.max(0, (scrollTop / docHeight) * 100));
-      progressBar.style.width = `${progress}%`;
-    }
+  const allSections = [...cards];
+  if (filterSection) allSections.push(filterSection);
 
-    // Fade out scroll cue once scrolled
-    if (scrollCue) {
-      if (scrollTop > 35) {
-        scrollCue.classList.add("hidden");
-      } else {
-        scrollCue.classList.remove("hidden");
+  // Hook smooth scrolling on each side rail pip
+  pips.forEach(pip => {
+    pip.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = pip.getAttribute("data-target");
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        sound.playTick();
+        targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
       }
+    });
+  });
+
+  // Passive high-performance scroll loop
+  let ticking = false;
+  window.addEventListener("scroll", () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const progress = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
+
+        // 1. Kinetic Optical Tracer Beam (Expands down the right rail with mix-blend-difference)
+        if (tracerBeam) {
+          tracerBeam.style.height = `${progress}%`;
+        }
+
+        // 2. Left Rail Telemetry & Laser Bead
+        if (leftBead) {
+          leftBead.style.top = `${Math.min(96, Math.max(4, progress))}%`;
+        }
+        if (scrollCoord) {
+          scrollCoord.textContent = `Y: ${Math.round(progress).toString().padStart(2, "0")}%`;
+        }
+
+        // 3. Fade out top masthead scroll cue
+        if (scrollCue) {
+          if (scrollTop > 40) {
+            scrollCue.classList.add("hidden");
+          } else {
+            scrollCue.classList.remove("hidden");
+          }
+        }
+
+        // 4. Update active section pip based on scroll proximity
+        const viewportCenter = window.innerHeight * 0.45;
+        let activeIndex = 0;
+
+        allSections.forEach((section, idx) => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= viewportCenter && rect.bottom >= viewportCenter) {
+            activeIndex = idx;
+          }
+        });
+
+        pips.forEach((pip, idx) => {
+          if (idx === activeIndex) {
+            pip.classList.add("active");
+          } else {
+            pip.classList.remove("active");
+          }
+        });
+
+        if (telemetryIdx) {
+          const displayIdx = Math.min(cards.length, activeIndex + 1);
+          telemetryIdx.textContent = displayIdx.toString().padStart(2, "0");
+        }
+
+        ticking = false;
+      });
+      ticking = true;
     }
   }, { passive: true });
 
-  // Viewport intersection observer for cards
+  // Viewport intersection observer for cards (stagger reveal)
   if ("IntersectionObserver" in window) {
     const cardObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -1356,13 +1419,12 @@ function initScrollAnimations() {
         }
       });
     }, {
-      threshold: 0.12,
+      threshold: 0.10,
       rootMargin: "0px 0px -40px 0px"
     });
 
-    document.querySelectorAll(".lab-card").forEach(card => {
-      cardObserver.observe(card);
-    });
+    cards.forEach(card => cardObserver.observe(card));
+    if (filterSection) cardObserver.observe(filterSection);
   }
 }
 
