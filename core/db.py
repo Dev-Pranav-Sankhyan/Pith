@@ -144,6 +144,29 @@ class Database:
                 json.dumps(issue.meta)
             ))
 
+            # Remove any cards for this issue that are no longer in issue.cards
+            current_card_ids = [c.id for c in issue.cards]
+            if current_card_ids:
+                placeholders = ",".join(["?"] * len(current_card_ids))
+                cursor.execute(f"""
+                    DELETE FROM card_role_views WHERE card_id IN (
+                        SELECT id FROM cards WHERE issue_date = ? AND id NOT IN ({placeholders})
+                    )
+                """, [issue.date] + current_card_ids)
+                cursor.execute(f"""
+                    DELETE FROM claims WHERE card_id IN (
+                        SELECT id FROM cards WHERE issue_date = ? AND id NOT IN ({placeholders})
+                    )
+                """, [issue.date] + current_card_ids)
+                cursor.execute(f"""
+                    DELETE FROM predictions WHERE card_id IN (
+                        SELECT id FROM cards WHERE issue_date = ? AND id NOT IN ({placeholders})
+                    )
+                """, [issue.date] + current_card_ids)
+                cursor.execute(f"""
+                    DELETE FROM cards WHERE issue_date = ? AND id NOT IN ({placeholders})
+                """, [issue.date] + current_card_ids)
+
             for card in issue.cards:
                 self._save_card_cursor(cursor, card, issue.date)
 

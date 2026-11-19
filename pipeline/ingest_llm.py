@@ -182,7 +182,10 @@ def run_pipeline(
     card_dict = json.loads(clean_json_response(card_raw))
 
     today_str = datetime.date.today().isoformat()
-    card_slug = slugify(card_dict.get("headline", metadata.get("title", "shift")))
+    import hashlib
+    slug_source = card_dict.get("headline") or metadata.get("title", "shift")
+    title_hash = hashlib.md5((metadata.get("title", "") + metadata.get("url", "")).encode("utf-8")).hexdigest()[:6]
+    card_slug = slugify(slug_source)[:24] + f"-{title_hash}"
     card_id = f"card-{today_str.replace('-', '')}-{card_slug}"
 
     # Build Card dataclass

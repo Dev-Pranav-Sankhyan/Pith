@@ -1467,7 +1467,7 @@ class EmberParticleEngine {
   }
 
   loop() {
-    if (this.ctx && this.canvas) {
+    if (this.ctx && this.canvas && this.particles.length > 0) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       for (let i = this.particles.length - 1; i >= 0; i--) {
         const p = this.particles[i];
@@ -1491,6 +1491,9 @@ class EmberParticleEngine {
         this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         this.ctx.fill();
         this.ctx.restore();
+      }
+      if (this.particles.length === 0) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       }
     }
     requestAnimationFrame(() => this.loop());
