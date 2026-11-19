@@ -553,6 +553,42 @@ body::before {
 }
 
 /* Meta pill group fade-in */
+/* Live Telemetry Radar Dot */
+.live-telemetry-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #10B981;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 10.5px;
+}
+
+.radar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  display: inline-block;
+  box-shadow: 0 0 6px #10B981;
+  position: relative;
+}
+
+.radar-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid #10B981;
+  animation: radarRing 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  opacity: 0;
+}
+
+@keyframes radarRing {
+  0% { transform: scale(0.6); opacity: 0.95; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
 .meta-pill-group {
   display: flex;
   align-items: center;

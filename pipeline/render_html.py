@@ -388,6 +388,8 @@ def render_index(issue, path: str):
                 <h1 class="page-title">Pith <em>Intelligence</em></h1>
             </div>
             <div class="meta-pill-group">
+                <span class="live-telemetry-chip"><i class="radar-dot"></i> AUDITED</span>
+                <span>&middot;</span>
                 <span>{escape(issue_date_formatted)}</span>
                 <span>&middot;</span>
                 <span>ISSUE #01</span>
@@ -631,6 +633,8 @@ def render_ledger(predictions, stats, path: str):
                 <h1 class="page-title">Prediction <em>Ledger</em></h1>
             </div>
             <div class="meta-pill-group">
+                <span class="live-telemetry-chip"><i class="radar-dot"></i> ON-RECORD</span>
+                <span>&middot;</span>
                 <span>IMMUTABLE PROBABILITIES</span>
                 <span>&middot;</span>
                 <span>ZERO RETROSPECTIVE EDITS</span>
@@ -927,6 +931,8 @@ def render_patterns(patterns, issue, path: str):
                 <h1 class="page-title">Pattern <em>Library</em></h1>
             </div>
             <div class="meta-pill-group">
+                <span class="live-telemetry-chip"><i class="radar-dot"></i> CATALOGUED</span>
+                <span>&middot;</span>
                 <span>MENTAL MODELS</span>
                 <span>&middot;</span>
                 <span>6 ARCHITECTURAL DYNAMICS</span>
