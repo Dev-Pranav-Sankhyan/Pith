@@ -5,72 +5,61 @@
     <link>https://pith.news</link>
     <description>Filtered tech intelligence: AI &amp; Developer Infrastructure.</description>
     <language>en-us</language>
-    <lastBuildDate>Thu, 19 Nov 2026 16:00:31 GMT</lastBuildDate>
-    <item>
-      <title>[High Signal] Tier-1 API Providers Cut Context Caching Rates by 90%, Slashing Agent Run Costs</title>
-      <link>https://pith.news/#card-20261119-cache-cut</link>
-      <guid>card-20261119-cache-cut</guid>
-      <pubDate>Thu, 19 Nov 2026 16:00:31 GMT</pubDate>
-      <description>Major AI providers cut the cost of reusing repeated text and instructions by up to 90%. Long conversations and multi-step agent workflows now run at a fraction of their previous bill.
-
-Why it matters: Apps that process long documents or run multi-step tasks become dramatically cheaper to operate today. However, structuring your prompts to claim these discounts deepens lock-in to that specific provider.
-
-Action (DO): Refactor agent system prompts into static prefixes to trigger automatic cache hits and benchmark billing changes.</description>
-    </item>
-    <item>
-      <title>[High Signal] Anthropic Introduces Native OS Computer Use API, Standardizing Desktop Agent Automation</title>
-      <link>https://pith.news/#card-20261119-computer-use</link>
-      <guid>card-20261119-computer-use</guid>
-      <pubDate>Thu, 19 Nov 2026 16:00:31 GMT</pubDate>
-      <description>Anthropic launched an API that allows AI models to directly view desktop screens, move mouse cursors, click buttons, and type text inside any computer application.
-
-Why it matters: Automating routine computer work no longer requires custom API integrations or fragile web scrapers. Software can now be operated by an AI agent just like a human team member.
-
-Action (DO): Benchmark a prototype UI regression suite using vision-driven coordinate actions against existing Selenium/Playwright tests.</description>
-    </item>
+    <lastBuildDate>Thu, 19 Nov 2026 20:26:09 GMT</lastBuildDate>
     <item>
       <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
-      <link>https://pith.news/#card-20261119-infrastructure-standard-introduc</link>
-      <guid>card-20261119-infrastructure-standard-introduc</guid>
-      <pubDate>Thu, 19 Nov 2026 16:00:31 GMT</pubDate>
-      <description>A major open specification was released for AI developer workflows. DeepSeek-V3 incorporates Multi-Head Latent Attention (MLA) compressing key-value cache mem.
+      <link>https://pith.news/#card-20261119-infrastructure-standard--e81238</link>
+      <guid>card-20261119-infrastructure-standard--e81238</guid>
+      <pubDate>Thu, 19 Nov 2026 20:26:09 GMT</pubDate>
+      <description>A major open specification was released for AI developer workflows. Title: Anthropic hits $2T in Nasdaq debut.
 
 Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
 
 Action (DO): Audit tool schema formatting utilities this week to standardize endpoint definitions.</description>
     </item>
     <item>
-      <title>[High Signal] Linux Foundation &amp; CNCF Form Open Agent Protocol (OAP) to Unify Tool &amp; MCP Interfaces</title>
-      <link>https://pith.news/#card-20261119-open-agent-protocol</link>
-      <guid>card-20261119-open-agent-protocol</guid>
-      <pubDate>Thu, 19 Nov 2026 16:00:31 GMT</pubDate>
-      <description>The Linux Foundation and CNCF created an open, vendor-neutral standard for connecting AI models to external tools, databases, and enterprise software.
+      <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
+      <link>https://pith.news/#card-20261119-infrastructure-standard--faf14d</link>
+      <guid>card-20261119-infrastructure-standard--faf14d</guid>
+      <pubDate>Thu, 19 Nov 2026 20:26:09 GMT</pubDate>
+      <description>A major open specification was released for AI developer workflows. Title: Claude solves two open problems in the physics of black holes.
 
-Why it matters: Developers will no longer need to write bespoke connectors for every new AI vendor. Proprietary walled gardens lose their tollbooth, while open tools gain instant universal compatibility.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
 
-Action (DO): Adopt standardized JSON-RPC agent tool definitions rather than vendor-specific function schemas.</description>
+Action (DO): Audit tool schema formatting utilities this week to standardize endpoint definitions.</description>
     </item>
     <item>
-      <title>[High Signal] vLLM &amp; SGLang Merge Native Multi-Head Latent Attention (MLA), Cutting KV-Cache RAM by 70%</title>
-      <link>https://pith.news/#card-20261119-mla-kernels</link>
-      <guid>card-20261119-mla-kernels</guid>
-      <pubDate>Thu, 19 Nov 2026 16:00:31 GMT</pubDate>
-      <description>Open-source AI engines vLLM and SGLang added a memory compression algorithm that cuts the RAM needed to serve long documents by 70%.
+      <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
+      <link>https://pith.news/#card-20261119-infrastructure-standard--803ba9</link>
+      <guid>card-20261119-infrastructure-standard--803ba9</guid>
+      <pubDate>Thu, 19 Nov 2026 20:26:09 GMT</pubDate>
+      <description>A major open specification was released for AI developer workflows. Title: Pancreatic cancer halted by virus injection in three patients.
 
-Why it matters: Engineering teams can now host large AI models on half as many GPU servers, dramatically lowering monthly cloud hosting bills.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
 
-Action (DO): Upgrade serving nodes to vLLM v0.7+ and benchmark GPU memory utilization under peak token generation load.</description>
+Action (DO): Audit tool schema formatting utilities this week to standardize endpoint definitions.</description>
     </item>
     <item>
-      <title>[High Signal] DeepSeek Open-Sources DualPipe Kernels for Extreme Overlap Computation in Clustered Training</title>
-      <link>https://pith.news/#card-20261119-dualpipe-kernels</link>
-      <guid>card-20261119-dualpipe-kernels</guid>
-      <pubDate>Thu, 19 Nov 2026 16:00:31 GMT</pubDate>
-      <description>DeepSeek released free open-source software kernels that overlap computing and data transfer during model training, eliminating cross-node network idle time.
+      <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
+      <link>https://pith.news/#card-20261119-infrastructure-standard--adfb75</link>
+      <guid>card-20261119-infrastructure-standard--adfb75</guid>
+      <pubDate>Thu, 19 Nov 2026 20:26:09 GMT</pubDate>
+      <description>A major open specification was released for AI developer workflows. URL: https://blog.harrison.page/garage-door-spam/.
 
-Why it matters: Smaller AI labs and cloud providers can now train frontier models at throughput speeds previously only achievable on multi-million dollar tech-giant networks.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
 
-Action (WATCH): Monitor PyTorch integration PRs and test throughput benchmarks on your distributed training stack.</description>
+Action (DO): Audit tool schema formatting utilities this week to standardize endpoint definitions.</description>
+    </item>
+    <item>
+      <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
+      <link>https://pith.news/#card-20261119-infrastructure-standard--479039</link>
+      <guid>card-20261119-infrastructure-standard--479039</guid>
+      <pubDate>Thu, 19 Nov 2026 20:26:09 GMT</pubDate>
+      <description>A major open specification was released for AI developer workflows. Title: Show HN: Cornhole News – A Hacker News inspired site for news across the Midwest.
+
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
+
+Action (DO): Audit tool schema formatting utilities this week to standardize endpoint definitions.</description>
     </item>
   </channel>
 </rss>

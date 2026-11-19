@@ -1321,110 +1321,77 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================================================
-// 14. Andrew McCarthy (andrevv.com) Inspired Side Rail & Kinetic Tracer Engine
+// 14. Scroll Animation Engine (Top Bar, Hero Parallax, Staggered Card Reveal)
 // ==========================================================================
 function initScrollAnimations() {
+  const bar = document.getElementById("bar");
   const scrollCue = document.getElementById("scroll-cue");
-  const tracerBeam = document.getElementById("rail-tracer-beam");
-  const leftBead = document.getElementById("rail-bead-left");
-  const scrollCoord = document.getElementById("rail-scroll-coord");
-  const telemetryIdx = document.getElementById("telemetry-card-idx");
-  const pips = Array.from(document.querySelectorAll(".rail-pip"));
-  const cards = Array.from(document.querySelectorAll(".lab-card"));
-  const filterSection = document.getElementById("safely-ignore") || document.getElementById("filter-sheet");
-
-  const allSections = [...cards];
-  if (filterSection) allSections.push(filterSection);
-
-  // Hook smooth scrolling on each side rail pip
-  pips.forEach(pip => {
-    pip.addEventListener("click", (e) => {
-      e.preventDefault();
-      const targetId = pip.getAttribute("data-target");
-      const targetEl = document.getElementById(targetId);
-      if (targetEl) {
-        sound.playTick();
-        targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    });
-  });
-
-  // Passive high-performance scroll loop
+  const masthead = document.querySelector(".masthead");
+  const cards = Array.from(document.querySelectorAll(".lab-card, .filter-sheet"));
   let ticking = false;
-  window.addEventListener("scroll", () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const progress = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
 
-        // 1. Kinetic Optical Tracer Beam (Expands down the right rail with mix-blend-difference)
-        if (tracerBeam) {
-          tracerBeam.style.height = `${progress}%`;
-        }
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
-        // 2. Left Rail Telemetry & Laser Bead
-        if (leftBead) {
-          leftBead.style.top = `${Math.min(96, Math.max(4, progress))}%`;
-        }
-        if (scrollCoord) {
-          scrollCoord.textContent = `Y: ${Math.round(progress).toString().padStart(2, "0")}%`;
-        }
+  function update() {
+    ticking = false;
+    const y = window.scrollY || window.pageYOffset;
+    const vh = window.innerHeight;
+    const max = document.documentElement.scrollHeight - vh;
 
-        // 3. Fade out top masthead scroll cue
-        if (scrollCue) {
-          if (scrollTop > 40) {
-            scrollCue.classList.add("hidden");
-          } else {
-            scrollCue.classList.remove("hidden");
-          }
-        }
-
-        // 4. Update active section pip based on scroll proximity
-        const viewportCenter = window.innerHeight * 0.45;
-        let activeIndex = 0;
-
-        allSections.forEach((section, idx) => {
-          const rect = section.getBoundingClientRect();
-          if (rect.top <= viewportCenter && rect.bottom >= viewportCenter) {
-            activeIndex = idx;
-          }
-        });
-
-        pips.forEach((pip, idx) => {
-          if (idx === activeIndex) {
-            pip.classList.add("active");
-          } else {
-            pip.classList.remove("active");
-          }
-        });
-
-        if (telemetryIdx) {
-          const displayIdx = Math.min(cards.length, activeIndex + 1);
-          telemetryIdx.textContent = displayIdx.toString().padStart(2, "0");
-        }
-
-        ticking = false;
-      });
-      ticking = true;
+    // 1. Top reading laser progress bar (0..1 scaleX)
+    if (bar) {
+      bar.style.transform = `scaleX(${max > 0 ? clamp(y / max, 0, 1) : 0})`;
     }
-  }, { passive: true });
 
-  // Viewport intersection observer for cards (stagger reveal)
+    // 2. Masthead scroll cue fade
+    if (scrollCue) {
+      if (y > 30) {
+        scrollCue.classList.add("hidden");
+      } else {
+        scrollCue.classList.remove("hidden");
+      }
+    }
+
+    // 3. Subtle Masthead Hero Parallax
+    if (masthead && y <= vh) {
+      const h = clamp(y / vh, 0, 1);
+      masthead.style.transform = `translateY(${h * 20}px)`;
+      masthead.style.opacity = `${1 - h * 0.4}`;
+    }
+  }
+
+  function req() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  }
+
+  window.addEventListener("scroll", req, { passive: true });
+  window.addEventListener("resize", req);
+  update();
+
+  // 4. Staggered card entrance via IntersectionObserver (Scroll Animation.html)
   if ("IntersectionObserver" in window) {
-    const cardObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add("in-view");
+          const idx = cards.indexOf(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add("show");
+            entry.target.classList.add("in-view");
+          }, Math.max(0, idx * 80));
+          io.unobserve(entry.target);
         }
       });
-    }, {
-      threshold: 0.10,
-      rootMargin: "0px 0px -40px 0px"
-    });
+    }, { threshold: 0.12 });
 
-    cards.forEach(card => cardObserver.observe(card));
-    if (filterSection) cardObserver.observe(filterSection);
+    cards.forEach((card) => io.observe(card));
+  } else {
+    cards.forEach((card) => {
+      card.classList.add("show");
+      card.classList.add("in-view");
+    });
   }
 }
 
@@ -1467,7 +1434,7 @@ class EmberParticleEngine {
   }
 
   loop() {
-    if (this.ctx && this.canvas) {
+    if (this.ctx && this.canvas && this.particles.length > 0) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       for (let i = this.particles.length - 1; i >= 0; i--) {
         const p = this.particles[i];
@@ -1491,6 +1458,9 @@ class EmberParticleEngine {
         this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         this.ctx.fill();
         this.ctx.restore();
+      }
+      if (this.particles.length === 0) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       }
     }
     requestAnimationFrame(() => this.loop());
