@@ -149,6 +149,27 @@ class SoundEngine {
     osc.stop(t + 0.07);
   }
 
+  // Mechanical Terminal Key Clack
+  playPithClack() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(1100 + Math.random() * 250, t);
+      osc.frequency.exponentialRampToValueAtTime(140, t + 0.025);
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.028);
+    } catch (e) {}
+  }
+
   // Accordion Expand resonant chime
   playExpand() {
     if (!this.enabled) return;
@@ -1816,7 +1837,13 @@ function initTerminalPage() {
 
     // Echo input
     printLine(`<span class="term-prompt">pith@intel:~$</span> <span style="color:#fff; font-weight:600;">${escapeHtml(rawTrimmed)}</span>`, "term-line cmd-echo");
-    sound.playPithClack();
+    try {
+      if (typeof sound !== "undefined" && sound && typeof sound.playPithClack === "function") {
+        sound.playPithClack();
+      } else if (typeof sound !== "undefined" && sound && typeof sound.playTick === "function") {
+        sound.playTick();
+      }
+    } catch (e) {}
 
     // 1. Check Restricted Commands
     for (const rule of RESTRICTED_PATTERNS) {
