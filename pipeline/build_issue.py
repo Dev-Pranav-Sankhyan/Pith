@@ -3,6 +3,7 @@ Build orchestrator that generates static feeds (RSS, JSON) and exported data bun
 Follows Section 5.5 and Section 5.6 (Delivery & Archive).
 """
 
+import os
 import json
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -12,6 +13,7 @@ from core.ledger import LedgerEngine
 
 
 def build_static_artifacts(db_path: str = "brief.sqlite3", output_dir: str = "public"):
+    os.makedirs(output_dir, exist_ok=True)
     db = Database(db_path)
     latest_issue = db.get_latest_issue()
     if not latest_issue:

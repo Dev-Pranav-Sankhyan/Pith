@@ -150,9 +150,15 @@ def run_daily_pipeline(
 
     # 4. Static Asset Rendering & Feeds
     print("\n[Phase 4/5] Building static web pages and distribution feeds...")
-    build_static_artifacts(db_path=db_path, output_dir=output_dir)
-    render_all(db_path=db_path, output_dir=output_dir)
-    print("  ✓ index.html, ledger.html, patterns.html, feed.json, and rss.xml compiled.")
+    try:
+        build_static_artifacts(db_path=db_path, output_dir=output_dir)
+        render_all(db_path=db_path, output_dir=output_dir)
+        print("  ✓ All 9 static intelligence pages, feed.json, and rss.xml compiled.")
+    except Exception as e:
+        import traceback
+        print(f"  ✕ Phase 4/5 Static Build Error: {e}")
+        traceback.print_exc()
+        raise e
 
     # 5. Studio Audio Briefing
     audio_results = {}

@@ -254,6 +254,24 @@ class Database:
                 return None
             return self._load_issue_by_row(cursor, row)
 
+    def get_all_issues(self) -> List[DailyIssue]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM daily_issues ORDER BY date DESC")
+            rows = cursor.fetchall()
+            return [self._load_issue_by_row(cursor, row) for row in rows]
+
+    def get_all_claims(self) -> List[Dict[str, Any]]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT c.*, cd.headline, cd.issue_date, cd.beat, cd.signal_score
+                FROM claims c
+                JOIN cards cd ON c.card_id = cd.id
+                ORDER BY c.id DESC
+            """)
+            return [dict(r) for r in cursor.fetchall()]
+
     def _load_issue_by_row(self, cursor: sqlite3.Cursor, issue_row: sqlite3.Row) -> DailyIssue:
         issue_date = issue_row["date"]
         # Load cards

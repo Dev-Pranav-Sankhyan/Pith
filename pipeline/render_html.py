@@ -7,11 +7,24 @@ Includes Daily Brief, Public Prediction Ledger, and Pattern Library.
 
 import json
 import html
+import os
 import datetime
 from core.db import Database
 from core.ledger import LedgerEngine
 from core.patterns_data import PATTERNS
 from core.schematics import get_card_schematic
+from core.models import Prediction
+from pipeline.render_extended import (
+    render_horizon,
+    render_matrix,
+    render_economics,
+    render_terminal,
+    render_archive,
+    render_bounty,
+    get_nav_html,
+    get_footer_html,
+    get_ambient_bg_html
+)
 
 
 def escape(text: str) -> str:
@@ -74,15 +87,26 @@ def get_pattern_for_card(card_id: str):
 
 
 def render_all(db_path: str = "brief.sqlite3", output_dir: str = "public"):
+    os.makedirs(output_dir, exist_ok=True)
     db = Database(db_path)
     latest_issue = db.get_latest_issue()
     predictions = db.get_all_predictions()
     stats = LedgerEngine.calculate_statistics(predictions)
+    all_issues = db.get_all_issues()
+    all_claims = db.get_all_claims()
 
     render_index(latest_issue, f"{output_dir}/index.html")
     render_ledger(predictions, stats, f"{output_dir}/ledger.html")
     render_patterns(PATTERNS, latest_issue, f"{output_dir}/patterns.html")
-    print("Rendered index.html, ledger.html, and patterns.html successfully for Pith.")
+
+    # Render 6 extended interactive pages
+    render_horizon(predictions, latest_issue, f"{output_dir}/horizon.html")
+    render_matrix(latest_issue, f"{output_dir}/matrix.html")
+    render_economics(latest_issue, f"{output_dir}/economics.html")
+    render_terminal(latest_issue, f"{output_dir}/terminal.html")
+    render_archive(all_issues, f"{output_dir}/archive.html")
+    render_bounty(all_claims, predictions, f"{output_dir}/bounty.html")
+    print("Rendered all 9 static intelligence pages successfully for Pith.")
 
 
 def render_index(issue, path: str):
@@ -92,6 +116,19 @@ def render_index(issue, path: str):
     for idx, card in enumerate(issue.cards):
         roman = roman_numerals[idx] if idx < len(roman_numerals) else f"#{idx+1}"
         dev_view = card.role_views.get("developer")
+        pred = card.prediction
+        if not pred:
+            pred = Prediction(
+                id=f"pred-{card.id}",
+                card_id=card.id,
+                statement="By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
+                probability=0.70,
+                made_at=issue.date,
+                resolves_at="2027-12-31",
+                resolution_criteria="Official release documentation and standard adoption announcements.",
+                category="technology",
+                status="open"
+            )
         
         role_views_json = escape(json.dumps({
             k: {
@@ -187,13 +224,13 @@ def render_index(issue, path: str):
 
             <!-- Precision Prediction Strip -->
             <div class="prediction-strip">
-                <span class="forecast-badge">{int(card.prediction.probability * 100)}% Forecast</span>
-                <span class="prediction-text">{escape(card.prediction.statement)}</span>
-                <span class="resolves-badge">Resolves {escape(card.prediction.resolves_at)}</span>
+                <span class="forecast-badge">{int(pred.probability * 100)}% Forecast</span>
+                <span class="prediction-text">{escape(pred.statement)}</span>
+                <span class="resolves-badge">Resolves {escape(pred.resolves_at)}</span>
             </div>
 
             <!-- Beat the Brief 1-Tap Calibration Widget with Contrarian Multiplier -->
-            <div class="beat-brief-widget" data-card-id="{escape(card.id)}" data-prob="{int(card.prediction.probability * 100)}">
+            <div class="beat-brief-widget" data-card-id="{escape(card.id)}" data-prob="{int(pred.probability * 100)}">
                 <!-- Mechanical On-Record Stamp Container (Positioned inside Beat the Brief) -->
                 <div class="stamp-container" id="stamp-container-{escape(card.id)}"></div>
                 <div class="beat-brief-header">
@@ -205,7 +242,7 @@ def render_index(issue, path: str):
                 </div>
                 <div class="beat-brief-actions">
                     <button class="vote-btn" data-vote="higher" type="button">▲ Higher</button>
-                    <button class="vote-btn" data-vote="agree" type="button">● Agree ({int(card.prediction.probability * 100)}%)</button>
+                    <button class="vote-btn" data-vote="agree" type="button">● Agree ({int(pred.probability * 100)}%)</button>
                     <button class="vote-btn" data-vote="lower" type="button">▼ Lower</button>
                 </div>
                 <div class="crowd-result" style="display:none;">
@@ -273,7 +310,7 @@ def render_index(issue, path: str):
                 <div class="drawer-section">
                     <div class="drawer-title">Falsifiable Resolution Criteria</div>
                     <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
-                        {escape(card.prediction.resolution_criteria)}
+                        {escape(pred.resolution_criteria)}
                     </div>
                 </div>
 
@@ -349,36 +386,7 @@ def render_index(issue, path: str):
         <div class="lowpass-caption">LOWPASS FILTER // VAPORIZING NOISE</div>
     </div>
 
-    <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
-    <header class="crown">
-        <a href="index.html" class="brand-wrapper">
-            <div class="brand-mark" aria-hidden="true">
-                <i></i><i></i><i></i><i></i>
-            </div>
-            <div class="brand-name">PITH</div>
-        </a>
-        <div class="nav-cluster">
-            <nav>
-                <a href="index.html" class="nav-link active" aria-current="page">Brief</a>
-                <a href="ledger.html" class="nav-link">Ledger</a>
-                <a href="patterns.html" class="nav-link">Patterns</a>
-            </nav>
-            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
-                <span class="elo-icon">◈</span>
-                <span class="elo-score" id="user-elo-score">1200</span>
-                <span class="elo-tier" id="user-elo-tier">Observer</span>
-            </div>
-            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
-                <span class="sound-wave-icon" aria-hidden="true">
-                    <i></i><i></i><i></i>
-                </span>
-                <span class="sound-label">Audio: On</span>
-            </button>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
-        </div>
-    </header>
+    {get_nav_html("index.html")}
 
     <div class="desk-container">
         <!-- Masthead -->
@@ -507,16 +515,7 @@ def render_index(issue, path: str):
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer class="desk-footer">
-            <div><strong>Pith</strong> &middot; Not what happened, but what it means for you and what to do about it this week.</div>
-            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or financial advice</div>
-            <div class="footer-nav">
-                <a href="index.html">Today's Issue</a>
-                <a href="ledger.html">Public Ledger</a>
-                <a href="patterns.html">Pattern Library</a>
-            </div>
-        </footer>
+        {get_footer_html()}
     </div>
     <script src="app.js"></script>
 </body>
@@ -596,35 +595,7 @@ def render_ledger(predictions, stats, path: str):
     <div class="scan-line" aria-hidden="true"></div>
     <div class="grain-overlay" aria-hidden="true"></div>
 
-    <header class="crown">
-        <a href="index.html" class="brand-wrapper">
-            <div class="brand-mark" aria-hidden="true">
-                <i></i><i></i><i></i><i></i>
-            </div>
-            <div class="brand-name">PITH</div>
-        </a>
-        <div class="nav-cluster">
-            <nav>
-                <a href="index.html" class="nav-link">Brief</a>
-                <a href="ledger.html" class="nav-link active" aria-current="page">Ledger</a>
-                <a href="patterns.html" class="nav-link">Patterns</a>
-            </nav>
-            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
-                <span class="elo-icon">◈</span>
-                <span class="elo-score" id="user-elo-score">1200</span>
-                <span class="elo-tier" id="user-elo-tier">Observer</span>
-            </div>
-            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
-                <span class="sound-wave-icon" aria-hidden="true">
-                    <i></i><i></i><i></i>
-                </span>
-                <span class="sound-label">Audio: On</span>
-            </button>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
-        </div>
-    </header>
+    {get_nav_html("ledger.html")}
 
     <div class="desk-container">
         <section class="masthead">
@@ -768,14 +739,7 @@ def render_ledger(predictions, stats, path: str):
             </table>
         </section>
 
-        <footer class="desk-footer">
-            <div><strong>Pith</strong> &middot; Public Prediction Ledger</div>
-            <div class="footer-nav">
-                <a href="index.html">Today's Issue</a>
-                <a href="ledger.html">Public Ledger</a>
-                <a href="patterns.html">Pattern Library</a>
-            </div>
-        </footer>
+        {get_footer_html()}
     </div>
     <script src="app.js"></script>
 </body>
@@ -894,35 +858,7 @@ def render_patterns(patterns, issue, path: str):
     <div class="scan-line" aria-hidden="true"></div>
     <div class="grain-overlay" aria-hidden="true"></div>
 
-    <header class="crown">
-        <a href="index.html" class="brand-wrapper">
-            <div class="brand-mark" aria-hidden="true">
-                <i></i><i></i><i></i><i></i>
-            </div>
-            <div class="brand-name">PITH</div>
-        </a>
-        <div class="nav-cluster">
-            <nav>
-                <a href="index.html" class="nav-link">Brief</a>
-                <a href="ledger.html" class="nav-link">Ledger</a>
-                <a href="patterns.html" class="nav-link active" aria-current="page">Patterns</a>
-            </nav>
-            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
-                <span class="elo-icon">◈</span>
-                <span class="elo-score" id="user-elo-score">1200</span>
-                <span class="elo-tier" id="user-elo-tier">Observer</span>
-            </div>
-            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
-                <span class="sound-wave-icon" aria-hidden="true">
-                    <i></i><i></i><i></i>
-                </span>
-                <span class="sound-label">Audio: On</span>
-            </button>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
-        </div>
-    </header>
+    {get_nav_html("patterns.html")}
 
     <div class="desk-container">
         <section class="masthead">
@@ -961,14 +897,7 @@ def render_patterns(patterns, issue, path: str):
             {"".join(patterns_html)}
         </main>
 
-        <footer class="desk-footer">
-            <div><strong>Pith</strong> &middot; Mental Models &amp; Pattern Library</div>
-            <div class="footer-nav">
-                <a href="index.html">Today's Issue</a>
-                <a href="ledger.html">Public Ledger</a>
-                <a href="patterns.html">Pattern Library</a>
-            </div>
-        </footer>
+        {get_footer_html()}
     </div>
     <script src="app.js"></script>
 </body>

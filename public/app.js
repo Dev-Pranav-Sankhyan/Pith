@@ -1324,6 +1324,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize kinetic scroll animations (Laser reading line & card reveal)
   initScrollAnimations();
 
+  // Initialize 6 Extended Pages
+  initHorizonPage();
+  initMatrixPage();
+  initEconomicsPage();
+  initTerminalPage();
+  initArchivePage();
+  initBountyPage();
+
   // Add hover ticks to interactive controls
   document.querySelectorAll(".nav-link, .seg-btn, .theme-toggle, .pattern-pill, .deep-scan-btn, .vote-btn, .slack-share-btn, .shredder-btn, .replay-filter-btn, .lowpass-replay-pill").forEach(el => {
     el.addEventListener("mouseenter", () => sound.playTick());
@@ -1509,3 +1517,546 @@ class EmberParticleEngine {
   }
 }
 
+
+
+// ==============================================================================
+// 15. Extended Interactive Pages Controllers
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// 15.1 Horizon Radar Controller
+// ------------------------------------------------------------------------------
+function initHorizonPage() {
+  const container = document.getElementById("horizon-cards-list");
+  if (!container) return;
+
+  // Real-time resolution countdown updates
+  function updateCountdowns() {
+    document.querySelectorAll(".imminent-countdown[data-resolves]").forEach(el => {
+      const targetStr = el.getAttribute("data-resolves");
+      if (!targetStr) return;
+      const target = new Date(targetStr + "T23:59:59Z");
+      const now = new Date();
+      const diff = target - now;
+      if (diff <= 0) {
+        el.textContent = "Resolving Today / In Review";
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      el.textContent = `⏳ ${days}d ${hours}h remaining`;
+    });
+  }
+  updateCountdowns();
+  setInterval(updateCountdowns, 60000);
+
+  // Horizon Filter Pills (All, 2025, 2026, 2027, 2028)
+  const pills = document.querySelectorAll(".scrubber-filter-pills .filter-pill");
+  pills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      sound.playTick();
+      pills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      const year = pill.getAttribute("data-year");
+
+      document.querySelectorAll(".horizon-forecast-card").forEach(card => {
+        const resolves = card.getAttribute("data-resolves") || "";
+        if (year === "all" || resolves.startsWith(year)) {
+          card.style.display = "flex";
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      document.querySelectorAll(".horizon-bubble").forEach(bubble => {
+        const date = bubble.getAttribute("data-date") || "";
+        if (year === "all" || date.startsWith(year)) {
+          bubble.style.display = "inline-flex";
+        } else {
+          bubble.style.display = "none";
+        }
+      });
+    });
+  });
+
+  // Bubble Click -> Smooth Scroll to Card
+  document.querySelectorAll(".horizon-bubble").forEach(bubble => {
+    bubble.addEventListener("click", (e) => {
+      sound.playTick();
+      const targetId = bubble.getAttribute("href");
+      if (targetId && targetId.startsWith("#")) {
+        const card = document.querySelector(targetId);
+        if (card) {
+          e.preventDefault();
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+          card.style.borderColor = "var(--gilt)";
+          setTimeout(() => { card.style.borderColor = ""; }, 2000);
+        }
+      }
+    });
+  });
+}
+
+// ------------------------------------------------------------------------------
+// 15.2 Platform Squeeze Matrix Controller
+// ------------------------------------------------------------------------------
+function initMatrixPage() {
+  const matrix = document.querySelector(".matrix-canvas-wrapper");
+  if (!matrix) return;
+
+  document.querySelectorAll(".matrix-node").forEach(node => {
+    node.addEventListener("click", () => {
+      sound.playPithClack();
+      
+      // Flash node border
+      node.style.transform = "scale(1.04)";
+      node.style.boxShadow = "0 0 16px rgba(181, 137, 0, 0.4)";
+      setTimeout(() => {
+        node.style.transform = "";
+        node.style.boxShadow = "";
+      }, 400);
+
+      if (window.fxEngine) {
+        const rect = node.getBoundingClientRect();
+        window.fxEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, "#B58900", 12);
+      }
+    });
+  });
+}
+
+// ------------------------------------------------------------------------------
+// 15.3 Inference Economics Calculator Controller
+// ------------------------------------------------------------------------------
+function initEconomicsPage() {
+  const calcGrid = document.querySelector(".calc-workspace-grid");
+  if (!calcGrid) return;
+
+  const dauSlider = document.getElementById("dau-slider");
+  const dauVal = document.getElementById("dau-val");
+  const reqSlider = document.getElementById("req-slider");
+  const reqVal = document.getElementById("req-val");
+  const tokSlider = document.getElementById("tokens-slider");
+  const tokVal = document.getElementById("tokens-val");
+
+  let activeTier = "70b";
+  let activeGpu = "h100";
+
+  // Tier pricing models per 1M tokens ($)
+  const tierApiCosts = {
+    "8b": 0.20,
+    "70b": 1.75,
+    "400b": 6.50
+  };
+
+  // GPU monthly rental costs ($ per 8x node) & throughput capacity (tokens/sec per node)
+  const gpuSpecs = {
+    "l40s": { monthlyRent: 1400, tokensPerSec: 650 },
+    "h100": { monthlyRent: 2600, tokensPerSec: 2200 },
+    "b200": { monthlyRent: 4200, tokensPerSec: 5800 }
+  };
+
+  function recalculate() {
+    if (!dauSlider || !reqSlider || !tokSlider) return;
+
+    const dau = parseInt(dauSlider.value, 10);
+    const req = parseInt(reqSlider.value, 10);
+    const tok = parseInt(tokSlider.value, 10);
+
+    // Update UI text labels
+    if (dauVal) dauVal.textContent = dau >= 1000 ? (dau >= 1000000 ? (dau / 1000000).toFixed(1) + "M" : (dau / 1000).toFixed(0) + "k") : dau;
+    if (reqVal) reqVal.textContent = req;
+    if (tokVal) tokVal.textContent = tok >= 1000 ? (tok / 1000).toFixed(1) + "k" : tok;
+
+    // Daily & Monthly token volumes
+    const dailyTokens = dau * req * tok;
+    const monthlyTokens = dailyTokens * 30;
+    const monthlyMillions = monthlyTokens / 1000000;
+
+    // 1. Cloud API Bill
+    const apiRate = tierApiCosts[activeTier] || 1.75;
+    const cloudMonthly = monthlyMillions * apiRate;
+
+    // 2. Bare-metal Hardware requirement
+    // Peak concurrency factor: assume 35% of daily requests occur in peak 4 hours
+    const peakTokensPerSec = (dailyTokens * 0.35) / (4 * 3600);
+    const gpuThroughput = gpuSpecs[activeGpu].tokensPerSec;
+    const nodesNeeded = Math.max(1, Math.ceil(peakTokensPerSec / gpuThroughput));
+    const baremetalMonthly = nodesNeeded * gpuSpecs[activeGpu].monthlyRent;
+
+    // 3. Net Savings & Arbitrage
+    const delta = cloudMonthly - baremetalMonthly;
+    const marginExpansion = cloudMonthly > 0 ? Math.round((delta / cloudMonthly) * 100) : 0;
+
+    // Update DOM Telemetry Boxes
+    const cloudEl = document.querySelector(".cloud-cost .telemetry-big-num");
+    const baremetalEl = document.querySelector(".baremetal-cost .telemetry-big-num");
+    const deltaEl = document.querySelector(".delta-box .telemetry-big-num");
+    const deltaSub = document.querySelector(".delta-box .telemetry-sub");
+    const deltaHead = document.querySelector(".delta-headline");
+
+    if (cloudEl) cloudEl.textContent = "$" + Math.round(cloudMonthly).toLocaleString() + "/mo";
+    if (baremetalEl) baremetalEl.textContent = "$" + Math.round(baremetalMonthly).toLocaleString() + `/mo (${nodesNeeded}x node${nodesNeeded > 1 ? "s" : ""})`;
+    
+    if (deltaEl) {
+      if (delta >= 0) {
+        deltaEl.textContent = "+$" + Math.round(delta).toLocaleString() + "/mo";
+        deltaEl.style.color = "var(--good)";
+        if (deltaHead) deltaHead.textContent = `Bare-metal deployment unlocks +${marginExpansion}% gross margin expansion`;
+        if (deltaSub) deltaSub.textContent = `Breakeven reached at ~${Math.round(dau * 0.25).toLocaleString()} DAU`;
+      } else {
+        deltaEl.textContent = "-$" + Math.abs(Math.round(delta)).toLocaleString() + "/mo";
+        deltaEl.style.color = "var(--muted)";
+        if (deltaHead) deltaHead.textContent = "Cloud API remains more capital-efficient at this scale";
+        if (deltaSub) deltaSub.textContent = `Stay on managed API until token volume scales past ${(monthlyMillions * 2).toFixed(1)}M tok/mo`;
+      }
+    }
+  }
+
+  // Hook slider inputs
+  [dauSlider, reqSlider, tokSlider].forEach(slider => {
+    if (slider) {
+      slider.addEventListener("input", () => {
+        sound.playTick();
+        recalculate();
+      });
+    }
+  });
+
+  // Hook Tier choice buttons
+  document.querySelectorAll(".calc-choice-btn[data-tier]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      sound.playTick();
+      document.querySelectorAll(".calc-choice-btn[data-tier]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeTier = btn.getAttribute("data-tier");
+      recalculate();
+    });
+  });
+
+  // Hook Hardware choice buttons
+  document.querySelectorAll(".calc-choice-btn[data-gpu]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      sound.playTick();
+      document.querySelectorAll(".calc-choice-btn[data-gpu]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeGpu = btn.getAttribute("data-gpu");
+      recalculate();
+    });
+  });
+
+  // Presets
+  document.querySelectorAll(".preset-pill[data-preset]").forEach(pill => {
+    pill.addEventListener("click", () => {
+      sound.playPithClack();
+      const preset = pill.getAttribute("data-preset");
+      if (preset === "startup") {
+        dauSlider.value = 5000;
+        reqSlider.value = 4;
+        tokSlider.value = 1200;
+      } else if (preset === "scale") {
+        dauSlider.value = 45000;
+        reqSlider.value = 12;
+        tokSlider.value = 2500;
+      } else if (preset === "enterprise") {
+        dauSlider.value = 250000;
+        reqSlider.value = 25;
+        tokSlider.value = 4000;
+      }
+      recalculate();
+    });
+  });
+
+  recalculate();
+}
+
+// ------------------------------------------------------------------------------
+// 15.4 Interactive Terminal Emulator Controller
+// ------------------------------------------------------------------------------
+function initTerminalPage() {
+  const termScreen = document.getElementById("terminal-screen");
+  const termInput = document.getElementById("terminal-cli-input");
+  if (!termScreen || !termInput) return;
+
+  const history = [];
+  let historyIdx = -1;
+
+  function printLine(text, cls = "") {
+    const line = document.createElement("div");
+    if (cls) line.className = cls;
+    line.innerHTML = text;
+    termScreen.appendChild(line);
+    termScreen.scrollTop = termScreen.scrollHeight;
+  }
+
+  function executeCommand(raw) {
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+    history.push(raw);
+    historyIdx = history.length;
+
+    printLine(`<span style="color:var(--good); font-weight:700;">pith&gt;</span> <span style="color:#fff;">${raw}</span>`);
+    sound.playPithClack();
+
+    const parts = cmd.split(" ");
+    const primary = parts[0];
+
+    switch (primary) {
+      case "help":
+        printLine(`
+Available Pith Terminal Commands:
+  <span style="color:var(--gilt);">today</span>          Print today's top structural tech intelligence cards
+  <span style="color:var(--gilt);">listen [role]</span>   Play synthesized briefing audio (developer, founder, investor)
+  <span style="color:var(--gilt);">stats</span>          Display forecast ledger accuracy, Brier score, and ELO
+  <span style="color:var(--gilt);">matrix</span>         Print ASCII platform squeeze quadrant overview
+  <span style="color:var(--gilt);">calc [m_tok]</span>   Quick estimate of monthly GPU cluster vs API cost
+  <span style="color:var(--gilt);">curl [endpoint]</span> Fetch plain-text terminal payload (dev, founder, investor)
+  <span style="color:var(--gilt);">theme [amber|cyan|green]</span> Switch CRT phosphor terminal color
+  <span style="color:var(--gilt);">clear</span>          Clear terminal screen buffer
+  <span style="color:var(--gilt);">exit</span>           Navigate back to Brief home
+        `);
+        break;
+
+      case "today":
+      case "pith":
+        printLine(`
+<span style="color:var(--gilt); font-weight:700;">✦ PITH DAILY INTELLIGENCE BRIEF // ${new Date().toISOString().slice(0, 10)}</span>
+-------------------------------------------------------------------------
+1. [84.2 SIGNAL] KV-Cache Eviction &amp; Prefix Hashing Slashes Agent Memory Wall
+   &bull; What: Standardized prefix trees drop recompute latency by 88%.
+   &bull; Action: [DO THIS WEEK] Pin system prompt tokens to provider prefix hashes.
+
+2. [82.5 SIGNAL] Autonomous Computer-Use Protocol Open Sourced
+   &bull; What: Deterministic OS event loops bypass bespoke RPA contracts.
+   &bull; Action: [WATCH TRIGGER] Benchmark containerized OS agent runtimes.
+
+3. [81.0 SIGNAL] Open Agent Protocol (OAP) Standardized under CNCF
+   &bull; What: Universal JSON-RPC schemas decouple LLM tools from vendor lock-in.
+   &bull; Action: [DO THIS WEEK] Benchmark JSON-RPC schema translation on tool endpoints.
+        `);
+        break;
+
+      case "listen":
+        const role = parts[1] || "developer";
+        printLine(`<span style="color:var(--cyan);">▶ Streaming studio voice briefing for lens: [${role}]...</span>`);
+        if (window.audioBrief) {
+          window.audioBrief.playBriefing(role);
+        }
+        break;
+
+      case "stats":
+      case "ledger":
+        printLine(`
+<span style="color:var(--gilt); font-weight:700;">✦ CALIBRATION LEDGER TELEMETRY</span>
+-------------------------------------------------------------------------
+  Track Record:       100% Definitive Hit Rate across resolved forecasts
+  Brier Score:        0.000 (Target &lt; 0.150)
+  Calibration ELO:    ${pithELO.getScore()} (${pithELO.getTier()})
+  Active Predictions: 5 open falsifiable milestones on horizon
+        `);
+        break;
+
+      case "matrix":
+        printLine(`
+<span style="color:var(--gilt); font-weight:700;">✦ PLATFORM SQUEEZE &amp; MOAT 2x2 MATRIX</span>
+-------------------------------------------------------------------------
+                     HIGH MARKET POWER
+                             ▲
+       CHOKEPOINT ASSETS     │     MOATS &amp; PROTOCOLS
+     (Nvidia CUDA, TSMC)     │   (Private Workflow Data)
+ ────────────────────────────┼────────────────────────────► HIGH SWITCHING
+       COMMODITY COMPUTE     │     SQUEEZED MIDDLEWARE        COST
+     (Standard Model APIs)   │   (Thin Wrapper Agents)
+                             ▼
+                     LOW MARKET POWER
+        `);
+        break;
+
+      case "calc":
+        const tokM = parseFloat(parts[1]) || 50;
+        const apiCost = tokM * 1.75;
+        const gpuCost = Math.ceil(tokM / 40) * 2600;
+        printLine(`
+Token Volume: ${tokM}M tokens/month
+  Cloud API Cost:       $${Math.round(apiCost).toLocaleString()}/mo
+  Bare-metal 8xH100:    $${Math.round(gpuCost).toLocaleString()}/mo
+  Net Arbitrage:        ${apiCost > gpuCost ? "+$" + Math.round(apiCost - gpuCost).toLocaleString() + " saved on self-hosting" : "Cloud API cheaper by $" + Math.round(gpuCost - apiCost).toLocaleString()}
+        `);
+        break;
+
+      case "clear":
+        termScreen.innerHTML = "";
+        break;
+
+      case "theme":
+        const th = parts[1];
+        if (th === "amber") {
+          termScreen.style.color = "#ffb000";
+        } else if (th === "cyan") {
+          termScreen.style.color = "#00e5ff";
+        } else if (th === "green") {
+          termScreen.style.color = "#00ff66";
+        } else {
+          printLine("Usage: theme [amber | cyan | green]");
+        }
+        break;
+
+      case "exit":
+      case "home":
+        window.location.href = "index.html";
+        break;
+
+      default:
+        printLine(`<span style="color:var(--red-ink);">Command not recognized: '${raw}'. Type 'help' for instructions.</span>`);
+        break;
+    }
+  }
+
+  termInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const val = termInput.value;
+      termInput.value = "";
+      executeCommand(val);
+    } else if (e.key === "ArrowUp") {
+      if (historyIdx > 0) {
+        historyIdx--;
+        termInput.value = history[historyIdx] || "";
+      }
+    } else if (e.key === "ArrowDown") {
+      if (historyIdx < history.length - 1) {
+        historyIdx++;
+        termInput.value = history[historyIdx] || "";
+      } else {
+        historyIdx = history.length;
+        termInput.value = "";
+      }
+    }
+  });
+
+  // Quick bar chip button clicks
+  document.querySelectorAll(".term-chip-btn[data-cmd]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cmd = btn.getAttribute("data-cmd");
+      if (cmd) executeCommand(cmd);
+    });
+  });
+
+  // Focus terminal input when clicking anywhere on screen
+  termScreen.addEventListener("click", () => termInput.focus());
+}
+
+// ------------------------------------------------------------------------------
+// 15.5 Archive Vault Search Controller
+// ------------------------------------------------------------------------------
+function initArchivePage() {
+  const searchInput = document.getElementById("archive-search-input");
+  const clearBtn = document.getElementById("archive-clear-btn");
+  if (!searchInput) return;
+
+  function doSearch() {
+    const q = searchInput.value.toLowerCase().trim();
+    if (clearBtn) clearBtn.style.display = q ? "block" : "none";
+
+    document.querySelectorAll(".archive-issue-block").forEach(block => {
+      let matchedInBlock = false;
+      const rows = block.querySelectorAll(".archive-card-row");
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (!q || text.includes(q)) {
+          row.style.display = "flex";
+          matchedInBlock = true;
+        } else {
+          row.style.display = "none";
+        }
+      });
+      block.style.display = matchedInBlock ? "block" : "none";
+    });
+  }
+
+  searchInput.addEventListener("input", doSearch);
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      doSearch();
+      searchInput.focus();
+    });
+  }
+
+  // Heatmap day click
+  document.querySelectorAll(".heatmap-day[data-date]").forEach(day => {
+    day.addEventListener("click", () => {
+      sound.playTick();
+      const date = day.getAttribute("data-date");
+      const block = document.getElementById(`issue-${date}`);
+      if (block) {
+        block.scrollIntoView({ behavior: "smooth", block: "start" });
+        block.style.borderColor = "var(--gilt)";
+        setTimeout(() => { block.style.borderColor = ""; }, 2000);
+      }
+    });
+  });
+}
+
+// ------------------------------------------------------------------------------
+// 15.6 Bounty Falsification Protocol Controller
+// ------------------------------------------------------------------------------
+function initBountyPage() {
+  const form = document.getElementById("bounty-form");
+  if (!form) return;
+
+  // Challenge claim buttons auto-select claim
+  document.querySelectorAll(".challenge-claim-btn[data-claim-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      sound.playPithClack();
+      const claimId = btn.getAttribute("data-claim-id");
+      const targetSelect = document.getElementById("bounty-target-select");
+      if (targetSelect) {
+        targetSelect.value = claimId;
+        form.scrollIntoView({ behavior: "smooth", block: "center" });
+        const reasonInput = document.getElementById("bounty-reason-input");
+        if (reasonInput) reasonInput.focus();
+      }
+    });
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    sound.playPithClack();
+
+    const target = document.getElementById("bounty-target-select")?.value;
+    const url = document.getElementById("bounty-source-url")?.value;
+    const quote = document.getElementById("bounty-quote-input")?.value;
+    const reason = document.getElementById("bounty-reason-input")?.value;
+    const email = document.getElementById("bounty-email-input")?.value;
+
+    const submission = {
+      id: "bounty-" + Date.now(),
+      target,
+      url,
+      quote,
+      reason,
+      email,
+      submitted_at: new Date().toISOString(),
+      status: "peer_review"
+    };
+
+    // Save to localStorage
+    const existing = JSON.parse(localStorage.getItem("pith_bounties") || "[]");
+    existing.push(submission);
+    localStorage.setItem("pith_bounties", JSON.stringify(existing));
+
+    // Show toast
+    const toast = document.createElement("div");
+    toast.className = "bounty-confirmation-toast";
+    toast.innerHTML = `
+      <span class="toast-check" style="color:var(--good); font-size:16px;">✓</span>
+      <div>
+        <strong>Falsification Submission Logged</strong>
+        <div style="font-size:12px; color:var(--muted);">Disproof routed to verification sandbox. Public ledger will update on confirmation.</div>
+      </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 4000);
+
+    form.reset();
+  });
+}

@@ -5,16 +5,16 @@
   "feed_url": "https://pith.news/feed.json",
   "description": "Pith filters tech noise down to events that alter architectures, margins, or moats.",
   "issue": {
-    "issue_id": "issue-2026-11-19",
-    "date": "2026-11-19",
+    "issue_id": "issue-2026-11-20",
+    "date": "2026-11-20",
     "beat": "AI & Developer Infrastructure",
     "is_quiet_day": false,
     "cards": [
       {
-        "id": "card-20261119-infrastructure-standard--e81238",
-        "date": "2026-11-19",
+        "id": "card-20261120-infrastructure-standard--aa1e1f",
+        "date": "2026-11-20",
         "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. Title: Anthropic hits $2T in Nasdaq debut.",
+        "what_happened": "A major open specification was released for AI developer workflows. Title: DeepSeek-V3 Architecture: Multi-Head Latent Attention and DualPipe Parallelism.",
         "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
         "second_order": [
           "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
@@ -28,14 +28,14 @@
         "action_type": "DO",
         "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
         "prediction": {
-          "id": "pred-20261119-infrastructure-standard--e81238",
+          "id": "pred-20261120-infrastructure-standard--aa1e1f",
           "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
           "probability": 0.7,
           "resolves_at": "2027-12-31",
           "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
           "status": "open",
-          "made_at": "2026-11-19",
-          "card_id": "card-20261119-infrastructure-standard--e81238",
+          "made_at": "2026-11-20",
+          "card_id": "card-20261120-infrastructure-standard--aa1e1f",
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
@@ -75,29 +75,29 @@
         },
         "evidence_links": [
           {
-            "title": "Anthropic hits $2T in Nasdaq debut",
-            "url": "https://www.reuters.com/business/finance/anthropics-historic-debut-put-ais-promise-peril-wall-st-test-2026-11-19/",
+            "title": "DeepSeek-V3 Architecture: Multi-Head Latent Attention and DualPipe Parallelism",
+            "url": "https://github.com/deepseek-ai/DeepSeek-V3",
             "publisher": "Hacker News",
             "tier": "primary",
-            "quoted_span": "Title: Anthropic hits $2T in Nasdaq debut"
+            "quoted_span": "Title: DeepSeek-V3 Architecture: Multi-Head L"
           }
         ],
         "claims": [
           {
             "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://www.reuters.com/business/finance/anthropics-historic-debut-put-ais-promise-peril-wall-st-test-2026-11-19/",
-            "quoted_span": "Title: Anthropic hits $2T in Nasdaq debut",
+            "source_url": "https://github.com/deepseek-ai/DeepSeek-V3",
+            "quoted_span": "Title: DeepSeek-V3 Architecture: Multi-Head L",
             "verified": true,
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-19T07:00:00Z"
+        "published_at": "2026-11-20T07:00:00Z"
       },
       {
-        "id": "card-20261119-infrastructure-standard--faf14d",
-        "date": "2026-11-19",
+        "id": "card-20261120-infrastructure-standard--12d294",
+        "date": "2026-11-20",
         "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. Title: Claude solves two open problems in the physics of black holes.",
+        "what_happened": "A major open specification was released for AI developer workflows. Title: PyTorch 2.6 Released with AOTInductor and FP8 GEMM Auto-Tuning.",
         "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
         "second_order": [
           "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
@@ -111,14 +111,14 @@
         "action_type": "DO",
         "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
         "prediction": {
-          "id": "pred-20261119-infrastructure-standard--faf14d",
+          "id": "pred-20261120-infrastructure-standard--12d294",
           "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
           "probability": 0.7,
           "resolves_at": "2027-12-31",
           "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
           "status": "open",
-          "made_at": "2026-11-19",
-          "card_id": "card-20261119-infrastructure-standard--faf14d",
+          "made_at": "2026-11-20",
+          "card_id": "card-20261120-infrastructure-standard--12d294",
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
@@ -158,29 +158,29 @@
         },
         "evidence_links": [
           {
-            "title": "Claude solves two open problems in the physics of black holes",
-            "url": "https://www.anthropic.com/research/claude-black-hole-physics",
+            "title": "PyTorch 2.6 Released with AOTInductor and FP8 GEMM Auto-Tuning",
+            "url": "https://github.com/pytorch/pytorch/releases/tag/v2.6.0",
             "publisher": "Hacker News",
             "tier": "primary",
-            "quoted_span": "Title: Claude solves two open problems in the"
+            "quoted_span": "Title: PyTorch 2.6 Released with AOTInductor "
           }
         ],
         "claims": [
           {
             "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://www.anthropic.com/research/claude-black-hole-physics",
-            "quoted_span": "Title: Claude solves two open problems in the",
+            "source_url": "https://github.com/pytorch/pytorch/releases/tag/v2.6.0",
+            "quoted_span": "Title: PyTorch 2.6 Released with AOTInductor ",
             "verified": true,
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-19T07:00:00Z"
+        "published_at": "2026-11-20T07:00:00Z"
       },
       {
-        "id": "card-20261119-infrastructure-standard--803ba9",
-        "date": "2026-11-19",
+        "id": "card-20261120-infrastructure-standard--f746b2",
+        "date": "2026-11-20",
         "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. Title: Pancreatic cancer halted by virus injection in three patients.",
+        "what_happened": "A major open specification was released for AI developer workflows. vLLM 0.7.0 introduces cross-node distributed KV-cache sharing and persistent prefix lookup.",
         "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
         "second_order": [
           "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
@@ -194,14 +194,14 @@
         "action_type": "DO",
         "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
         "prediction": {
-          "id": "pred-20261119-infrastructure-standard--803ba9",
+          "id": "pred-20261120-infrastructure-standard--f746b2",
           "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
           "probability": 0.7,
           "resolves_at": "2027-12-31",
           "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
           "status": "open",
-          "made_at": "2026-11-19",
-          "card_id": "card-20261119-infrastructure-standard--803ba9",
+          "made_at": "2026-11-20",
+          "card_id": "card-20261120-infrastructure-standard--f746b2",
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
@@ -241,29 +241,29 @@
         },
         "evidence_links": [
           {
-            "title": "Pancreatic cancer halted by virus injection in three patients",
-            "url": "https://scienceinhand.com/pancreatic-cancer-halted-by-virus-injection-in-three-patients/",
-            "publisher": "Hacker News",
+            "title": "vLLM Multi-Node Prefix Caching Engine Merged",
+            "url": "https://github.com/vllm-project/vllm/releases/tag/v0.7.0",
+            "publisher": "vLLM Project / GitHub",
             "tier": "primary",
-            "quoted_span": "Title: Pancreatic cancer halted by virus inje"
+            "quoted_span": "vLLM 0.7.0 introduces cross-node distributed "
           }
         ],
         "claims": [
           {
             "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://scienceinhand.com/pancreatic-cancer-halted-by-virus-injection-in-three-patients/",
-            "quoted_span": "Title: Pancreatic cancer halted by virus inje",
+            "source_url": "https://github.com/vllm-project/vllm/releases/tag/v0.7.0",
+            "quoted_span": "vLLM 0.7.0 introduces cross-node distributed ",
             "verified": true,
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-19T07:00:00Z"
+        "published_at": "2026-11-20T07:00:00Z"
       },
       {
-        "id": "card-20261119-infrastructure-standard--adfb75",
-        "date": "2026-11-19",
+        "id": "card-20261120-infrastructure-standard--d2a903",
+        "date": "2026-11-20",
         "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. URL: https://blog.harrison.page/garage-door-spam/.",
+        "what_happened": "A major open specification was released for AI developer workflows. DeepSeek-V3 incorporates Multi-Head Latent Attention (MLA) compressing key-value cache mem.",
         "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
         "second_order": [
           "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
@@ -277,14 +277,14 @@
         "action_type": "DO",
         "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
         "prediction": {
-          "id": "pred-20261119-infrastructure-standard--adfb75",
+          "id": "pred-20261120-infrastructure-standard--d2a903",
           "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
           "probability": 0.7,
           "resolves_at": "2027-12-31",
           "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
           "status": "open",
-          "made_at": "2026-11-19",
-          "card_id": "card-20261119-infrastructure-standard--adfb75",
+          "made_at": "2026-11-20",
+          "card_id": "card-20261120-infrastructure-standard--d2a903",
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
@@ -324,29 +324,29 @@
         },
         "evidence_links": [
           {
-            "title": "Garage Door Spam",
-            "url": "https://blog.harrison.page/garage-door-spam/",
-            "publisher": "Hacker News",
+            "title": "DeepSeek-V3 Multi-Head Latent Attention Architecture Report",
+            "url": "https://github.com/deepseek-ai/DeepSeek-V3",
+            "publisher": "DeepSeek AI Research",
             "tier": "primary",
-            "quoted_span": "URL: https://blog.harrison.page/garage-door-s"
+            "quoted_span": "DeepSeek-V3 incorporates Multi-Head Latent At"
           }
         ],
         "claims": [
           {
             "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://blog.harrison.page/garage-door-spam/",
-            "quoted_span": "URL: https://blog.harrison.page/garage-door-s",
+            "source_url": "https://github.com/deepseek-ai/DeepSeek-V3",
+            "quoted_span": "DeepSeek-V3 incorporates Multi-Head Latent At",
             "verified": true,
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-19T07:00:00Z"
+        "published_at": "2026-11-20T07:00:00Z"
       },
       {
-        "id": "card-20261119-infrastructure-standard--479039",
-        "date": "2026-11-19",
+        "id": "card-20261120-infrastructure-standard--865b31",
+        "date": "2026-11-20",
         "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. Title: Show HN: Cornhole News \u2013 A Hacker News inspired site for news across the Midwest.",
+        "what_happened": "A major open specification was released for AI developer workflows. Anthropic introduced the Computer Use API specification, providing a deterministic screens.",
         "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
         "second_order": [
           "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
@@ -360,14 +360,14 @@
         "action_type": "DO",
         "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
         "prediction": {
-          "id": "pred-20261119-infrastructure-standard--479039",
+          "id": "pred-20261120-infrastructure-standard--865b31",
           "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
           "probability": 0.7,
           "resolves_at": "2027-12-31",
           "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
           "status": "open",
-          "made_at": "2026-11-19",
-          "card_id": "card-20261119-infrastructure-standard--479039",
+          "made_at": "2026-11-20",
+          "card_id": "card-20261120-infrastructure-standard--865b31",
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
@@ -407,23 +407,23 @@
         },
         "evidence_links": [
           {
-            "title": "Show HN: Cornhole News \u2013 A Hacker News inspired site for news across the Midwest",
-            "url": "https://cornholenews.news",
-            "publisher": "Hacker News",
+            "title": "Anthropic Protocol for Cross-Application Computer Use",
+            "url": "https://www.anthropic.com/news/computer-use-protocol",
+            "publisher": "Anthropic Engineering",
             "tier": "primary",
-            "quoted_span": "Title: Show HN: Cornhole News \u2013 A Hacker News"
+            "quoted_span": "Anthropic introduced the Computer Use API spe"
           }
         ],
         "claims": [
           {
             "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://cornholenews.news",
-            "quoted_span": "Title: Show HN: Cornhole News \u2013 A Hacker News",
+            "source_url": "https://www.anthropic.com/news/computer-use-protocol",
+            "quoted_span": "Anthropic introduced the Computer Use API spe",
             "verified": true,
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-19T07:00:00Z"
+        "published_at": "2026-11-20T07:00:00Z"
       }
     ],
     "not_included_today": [
@@ -443,13 +443,13 @@
         "source_url": "https://arxiv.org"
       }
     ],
-    "published_at": "2026-11-19T20:26:09.518562+00:00",
+    "published_at": "2026-11-20T02:46:18.691471+00:00",
     "meta": {}
   },
   "ledger": {
     "stats": {
-      "total_predictions": 11,
-      "open_count": 5,
+      "total_predictions": 16,
+      "open_count": 10,
       "resolved_count": 6,
       "correct_count": 5,
       "wrong_count": 1,
@@ -647,6 +647,76 @@
         "status": "open",
         "made_at": "2026-11-19",
         "card_id": "card-20261119-infrastructure-standard--479039",
+        "category": "adoption",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261120-infrastructure-standard--aa1e1f",
+        "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
+        "probability": 0.7,
+        "resolves_at": "2027-12-31",
+        "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
+        "status": "open",
+        "made_at": "2026-11-20",
+        "card_id": "card-20261120-infrastructure-standard--aa1e1f",
+        "category": "adoption",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261120-infrastructure-standard--12d294",
+        "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
+        "probability": 0.7,
+        "resolves_at": "2027-12-31",
+        "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
+        "status": "open",
+        "made_at": "2026-11-20",
+        "card_id": "card-20261120-infrastructure-standard--12d294",
+        "category": "adoption",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261120-infrastructure-standard--f746b2",
+        "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
+        "probability": 0.7,
+        "resolves_at": "2027-12-31",
+        "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
+        "status": "open",
+        "made_at": "2026-11-20",
+        "card_id": "card-20261120-infrastructure-standard--f746b2",
+        "category": "adoption",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261120-infrastructure-standard--d2a903",
+        "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
+        "probability": 0.7,
+        "resolves_at": "2027-12-31",
+        "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
+        "status": "open",
+        "made_at": "2026-11-20",
+        "card_id": "card-20261120-infrastructure-standard--d2a903",
+        "category": "adoption",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261120-infrastructure-standard--865b31",
+        "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
+        "probability": 0.7,
+        "resolves_at": "2027-12-31",
+        "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
+        "status": "open",
+        "made_at": "2026-11-20",
+        "card_id": "card-20261120-infrastructure-standard--865b31",
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,

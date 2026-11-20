@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Terminal HUD &middot; Pith</title>
+    <meta name="description" content="Interactive browser ANSI terminal emulator for Pith Daily Tech Intelligence. Type commands, listen to briefings, cast votes.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="terminal-body-page">
+    
+    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
+    <div id="bar" aria-hidden="true"></div>
+
+    <!-- Particle Ember FX Canvas for Dynamic Animations -->
+    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
+
+    <!-- Atmospheric Cybernetic Background Elements -->
+    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
+    <div class="scan-line" aria-hidden="true"></div>
+    <div class="grain-overlay" aria-hidden="true"></div>
+    
+    
+    <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
+    <header class="crown">
+        <a href="index.html" class="brand-wrapper">
+            <div class="brand-mark" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+            </div>
+            <div class="brand-name">PITH</div>
+        </a>
+        <div class="nav-cluster">
+            <nav class="nav-pills-bar">
+                <a href="index.html" class="nav-link">Brief</a><a href="horizon.html" class="nav-link">Horizon</a><a href="matrix.html" class="nav-link">Matrix</a><a href="economics.html" class="nav-link">Economics</a><a href="terminal.html" class="nav-link active" aria-current="page">Terminal</a><a href="ledger.html" class="nav-link">Ledger</a><a href="archive.html" class="nav-link">Archive</a><a href="bounty.html" class="nav-link">Bounty</a><a href="patterns.html" class="nav-link">Patterns</a>
+            </nav>
+            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                <span class="elo-icon">◈</span>
+                <span class="elo-score" id="user-elo-score">1200</span>
+                <span class="elo-tier" id="user-elo-tier">Observer</span>
+            </div>
+            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
+                <span class="sound-wave-icon" aria-hidden="true">
+                    <i></i><i></i><i></i>
+                </span>
+                <span class="sound-label">Audio: On</span>
+            </button>
+            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
+                <div class="theme-icon-circle"></div>
+            </button>
+        </div>
+    </header>
+    
+
+    <div class="desk-container terminal-container">
+        <!-- Terminal Outer Window Frame -->
+        <div class="term-window">
+            <div class="term-titlebar">
+                <div class="term-traffic-lights">
+                    <span class="term-light close"></span>
+                    <span class="term-light min"></span>
+                    <span class="term-light max"></span>
+                </div>
+                <div class="term-title">pith-agent@station: ~ (VT100 &bull; 9600 BAUD &bull; ANSI COLOR)</div>
+                <div class="term-theme-toggle">
+                    <button class="term-font-btn active" data-phosphor="amber" type="button">Amber</button>
+                    <button class="term-font-btn" data-phosphor="emerald" type="button">Emerald</button>
+                    <button class="term-font-btn" data-phosphor="cyan" type="button">Cyan</button>
+                </div>
+            </div>
+
+            <!-- Terminal Screen -->
+            <div class="term-screen" id="term-screen">
+                <div class="term-welcome">
+<pre class="ascii-banner">
+██████╗ ██╗████████╗██╗  ██╗
+██╔══██╗██║╚══██╔══╝██║  ██║   P I T H   T E R M I N A L
+██████╔╝██║   ██║   ███████║   HIGH-SIGNAL TECH INTELLIGENCE
+██╔═══╝ ██║   ██║   ██╔══██║   OBSIDIAN ANSI WORKSTATION
+██║     ██║   ██║   ██║  ██║
+╚═╝     ╚═╝   ╚═╝   ╚═╝  ╚═╝
+</pre>
+                    <div class="term-meta-line">SYSTEM STATUS: <span style="color:#10B981;">ALL RUNTIMES OPTIMAL</span> &bull; DATE: 2026-11-20 &bull; BEAT: AI & Developer Infrastructure</div>
+                    <div class="term-help-hint">Type <span class="term-key">help</span> to list commands, or try <span class="term-key">today</span>, <span class="term-key">listen</span>, <span class="term-key">stats</span>, <span class="term-key">matrix</span>, <span class="term-key">calc</span>, <span class="term-key">clear</span>.</div>
+                </div>
+
+                <div class="term-output-history" id="term-output-history"></div>
+
+                <!-- Input Prompt Line -->
+                <div class="term-input-line">
+                    <span class="term-prompt">pith@intel:~$</span>
+                    <input type="text" id="term-input" class="term-cli-input" autofocus autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Terminal Command Pills -->
+        <div class="term-quick-bar">
+            <span>Quick Commands:</span>
+            <button class="term-chip-btn" data-cmd="today" type="button">today</button>
+            <button class="term-chip-btn" data-cmd="listen developer" type="button">listen developer</button>
+            <button class="term-chip-btn" data-cmd="stats" type="button">stats</button>
+            <button class="term-chip-btn" data-cmd="matrix" type="button">matrix</button>
+            <button class="term-chip-btn" data-cmd="calc 50000 15" type="button">calc 50000 15</button>
+            <button class="term-chip-btn" data-cmd="curl" type="button">curl</button>
+            <button class="term-chip-btn" data-cmd="clear" type="button">clear</button>
+        </div>
+
+        
+        <footer class="colophon">
+            <div><strong>Pith</strong> &middot; Not what happened, but what it means for you and what to do about it this week.</div>
+            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or financial advice</div>
+            <div class="footer-nav">
+                <a href="index.html">Brief</a>
+                <a href="horizon.html">Horizon</a>
+                <a href="matrix.html">Matrix</a>
+                <a href="economics.html">Economics</a>
+                <a href="terminal.html">Terminal</a>
+                <a href="ledger.html">Ledger</a>
+                <a href="archive.html">Archive</a>
+                <a href="bounty.html">Bounty</a>
+                <a href="patterns.html">Patterns</a>
+            </div>
+        </footer>
+    
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

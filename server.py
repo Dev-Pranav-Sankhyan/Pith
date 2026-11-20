@@ -53,6 +53,24 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         elif path == "/patterns":
             self.path = "/patterns.html"
             return super().do_GET()
+        elif path == "/horizon":
+            self.path = "/horizon.html"
+            return super().do_GET()
+        elif path == "/matrix":
+            self.path = "/matrix.html"
+            return super().do_GET()
+        elif path == "/economics":
+            self.path = "/economics.html"
+            return super().do_GET()
+        elif path == "/terminal":
+            self.path = "/terminal.html"
+            return super().do_GET()
+        elif path == "/archive":
+            self.path = "/archive.html"
+            return super().do_GET()
+        elif path == "/bounty":
+            self.path = "/bounty.html"
+            return super().do_GET()
         else:
             return super().do_GET()
 
