@@ -1,0 +1,99 @@
+name: Pith Daily Video & Social Distribution Pipeline
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Run daily at 06:00 UTC
+  workflow_dispatch:      # Enable manual one-click trigger
+    inputs:
+      role:
+        description: 'Persona lens to render and publish'
+        required: true
+        default: 'developer'
+        type: choice
+        options:
+          - developer
+          - founder
+          - investor
+      dry_run:
+        description: 'Dry run without publishing to social networks'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  build-render-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System Dependencies (FFmpeg & Chrome for Remotion)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'video/package.json'
+
+      - name: Install Video Engine Dependencies
+        run: |
+          cd video
+          npm install
+
+      - name: 1. Build Daily Issue JSON
+        run: |
+          python3 -m pipeline.build_issue
+          python3 -m pipeline.render_html
+
+      - name: 2. Generate 90-Second Audio Brief
+        run: |
+          python3 -m pipeline.audio_brief
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+
+      - name: 3. Word-Level Timestamp Alignment (Whisper / Lexical)
+        run: |
+          python3 -m pipeline.video_align ${{ github.event.inputs.role || 'developer' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: 4. Render 9:16 Vertical Video via Remotion (1080x1920)
+        run: |
+          mkdir -p out
+          cd video
+          npx remotion render src/index.ts PithDailyBrief ../out/pith-brief.mp4 --props="../public/audio/timestamps-${{ github.event.inputs.role || 'developer' }}.json"
+
+      - name: 5. Auto-Publish to YouTube Shorts, X, and LinkedIn
+        run: |
+          python3 -m pipeline.auto_publish --video out/pith-brief.mp4 --role "${{ github.event.inputs.role || 'developer' }}" ${{ (github.event.inputs.dry_run == 'false') && '' || '--dry-run' }}
+        env:
+          YOUTUBE_API_TOKEN: ${{ secrets.YOUTUBE_API_TOKEN }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+
+      - name: 6. Commit Updated Static Brief Artifacts
+        run: |
+          git config --global user.name "Pith Bot"
+          git config --global user.email "bot@pith.sh"
+          git add public/feed.json public/rss.xml public/audio/
+          git diff-index --quiet HEAD || git commit -m "chore(auto): daily audio & video timestamps update [skip ci]"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

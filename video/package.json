@@ -1,0 +1,21 @@
+{
+  "name": "pith-video-engine",
+  "version": "1.0.0",
+  "description": "Pith Automated 9:16 Vertical Video Engine for YouTube Shorts, X, and LinkedIn",
+  "scripts": {
+    "start": "remotion preview src/index.ts",
+    "build": "remotion render src/index.ts PithDailyBrief out/pith-brief.mp4",
+    "render": "remotion render src/index.ts PithDailyBrief"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.140",
+    "@remotion/media-utils": "^4.0.140",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.140"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.2.2"
+  }
+}
