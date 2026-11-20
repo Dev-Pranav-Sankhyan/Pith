@@ -712,9 +712,8 @@ body::before {
   padding: clamp(24px, 3.8vw, 36px);
   box-shadow: var(--shadow-card);
   position: relative;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.22s ease,
-              box-shadow 0.22s ease;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+  transform: none !important;
 }
 
 /* Precision Inner Gilt Hairline */
@@ -729,9 +728,9 @@ body::before {
 }
 
 .lab-card:hover {
-  transform: translateY(-4px) scale(1.005);
-  border-color: rgba(181, 137, 0, 0.25);
-  box-shadow: var(--shadow-hover), 0 0 30px rgba(181, 137, 0, 0.06);
+  transform: none !important;
+  border-color: rgba(181, 137, 0, 0.28);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 .lab-card.reading-active {
@@ -3066,20 +3065,32 @@ table.instrument-table tr:hover td {
    ========================================================================== */
 
 /* ==========================================================================
-   Smooth Top Reading Progress Bar (Scroll Animation.html)
+   Smooth Card Scroll Slide & Lens Transitions (Replaces top progress bar)
    ========================================================================== */
-#bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3.5px;
-  width: 100%;
-  transform-origin: 0 50%;
-  transform: scaleX(0);
-  background: linear-gradient(90deg, #C2301C 0%, #B58900 50%, #246B52 100%);
-  z-index: 9999;
-  pointer-events: none;
-  box-shadow: 0 0 10px rgba(194, 48, 28, 0.45), 0 0 30px rgba(194, 48, 28, 0.15);
+.slide-reveal-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.slide-reveal-card.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.role-slide-transition {
+  animation: roleSlideIn 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes roleSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Scan line sweep across the viewport */
@@ -4163,6 +4174,40 @@ table.instrument-table tr:hover td {
   color: #888;
   letter-spacing: 0.05em;
 }
+.term-theme-toggle {
+  display: flex;
+  gap: 6px;
+}
+.term-font-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #888;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: all 0.2s ease;
+}
+.term-font-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+.term-font-btn.active {
+  background: rgba(255, 176, 0, 0.2);
+  border-color: #ffb000;
+  color: #ffb000;
+}
+.term-window.phosphor-emerald .term-font-btn.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #10b981;
+}
+.term-window.phosphor-cyan .term-font-btn.active {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00e5ff;
+  color: #00e5ff;
+}
 .term-quick-bar {
   display: flex;
   gap: 8px;
@@ -4221,6 +4266,78 @@ table.instrument-table tr:hover td {
   font-family: var(--font-mono);
   font-size: 13.5px;
   outline: none;
+}
+
+/* Terminal Phosphor Themes */
+.term-window.phosphor-amber .term-prompt { color: #ffb000; }
+.term-window.phosphor-amber .ascii-banner { color: #ffb000; }
+.term-window.phosphor-amber .term-key { color: #ffe082; }
+
+.term-window.phosphor-emerald .term-prompt { color: #10b981; }
+.term-window.phosphor-emerald .ascii-banner { color: #10b981; }
+.term-window.phosphor-emerald .term-key { color: #a7f3d0; }
+
+.term-window.phosphor-cyan .term-prompt { color: #00e5ff; }
+.term-window.phosphor-cyan .ascii-banner { color: #00e5ff; }
+.term-window.phosphor-cyan .term-key { color: #a5f3fc; }
+
+.term-line {
+  margin: 6px 0;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.term-line.cmd-echo {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  color: #fff;
+  font-weight: 600;
+  margin-top: 10px;
+}
+.term-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-right: 6px;
+}
+.tag-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+.tag-warn {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.tag-info {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.term-error {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.08);
+  padding: 8px 12px;
+  border-left: 3px solid #ef4444;
+  border-radius: 4px;
+  margin: 6px 0;
+}
+.term-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+.term-key {
+  color: var(--gilt);
+  font-weight: 600;
+  padding: 0 2px;
 }
 
 /* --- 5. Archive Vault Styles --- */

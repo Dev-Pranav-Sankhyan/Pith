@@ -542,6 +542,9 @@ function setRole(role, playAudio = true) {
       if (actionPanel) {
         actionPanel.classList.remove("dev-glow", "founder-glow", "investor-glow", "everyday-glow");
         actionPanel.classList.add(glowClass);
+        actionPanel.classList.remove("role-slide-transition");
+        void actionPanel.offsetWidth; // trigger reflow for smooth re-trigger
+        actionPanel.classList.add("role-slide-transition");
       }
 
       if (actionPill) {
@@ -831,37 +834,14 @@ function initNoiseShredder() {
 }
 
 // ==========================================================================
-// 8. Interactive 3D Card Tilt & Specular Spotlight Sheen
+// 8. Card Hover Stability (3D Tilt removed for effortless reading)
 // ==========================================================================
 function initCardTilt() {
   const cards = document.querySelectorAll(".lab-card, .bignum-card, .schematic-wrapper");
-
   cards.forEach(card => {
+    card.style.transform = "none";
     card.addEventListener("mouseenter", () => {
       sound.playTick();
-      card.style.transition = "transform 0.1s ease-out, border-color 0.22s ease, box-shadow 0.22s ease";
-    });
-
-    card.addEventListener("mousemove", (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -3.8;
-      const rotateY = ((x - centerX) / centerX) * 3.8;
-
-      card.style.setProperty("--mouse-x", `${x}px`);
-      card.style.setProperty("--mouse-y", `${y}px`);
-      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-4px) scale3d(1.008, 1.008, 1.008)`;
-    });
-
-    card.addEventListener("mouseleave", () => {
-      card.style.transition = "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, box-shadow 0.22s ease";
-      card.style.transform = "";
-      card.style.removeProperty("--mouse-x");
-      card.style.removeProperty("--mouse-y");
     });
   });
 }
@@ -1324,13 +1304,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize kinetic scroll animations (Laser reading line & card reveal)
   initScrollAnimations();
 
-  // Initialize 6 Extended Pages
-  initHorizonPage();
+  // Initialize Extended Pages (Horizon and Bounty decommissioned)
   initMatrixPage();
   initEconomicsPage();
   initTerminalPage();
   initArchivePage();
-  initBountyPage();
 
   // Add hover ticks to interactive controls
   document.querySelectorAll(".nav-link, .seg-btn, .theme-toggle, .pattern-pill, .deep-scan-btn, .vote-btn, .slack-share-btn, .shredder-btn, .replay-filter-btn, .lowpass-replay-pill").forEach(el => {
@@ -1339,17 +1317,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================================================
-// 14. Scroll Animation Engine (Top Bar, Hero Parallax, Staggered Card Reveal)
+// 14. Scroll Animation Engine (Hero Parallax, Staggered Card Reveal)
 // ==========================================================================
 function initScrollAnimations() {
-  const bar = document.getElementById("bar");
   const scrollCue = document.getElementById("scroll-cue");
   const masthead = document.querySelector(".masthead");
   const crown = document.querySelector(".crown");
   const orbRed = document.querySelector(".ambient-orb--red");
   const orbGilt = document.querySelector(".ambient-orb--gilt");
   const orbTeal = document.querySelector(".ambient-orb--teal");
-  const cards = Array.from(document.querySelectorAll(".lab-card, .filter-sheet"));
+  const cards = Array.from(document.querySelectorAll(".lab-card, .filter-sheet, .slide-reveal-card"));
   let ticking = false;
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -1358,14 +1335,8 @@ function initScrollAnimations() {
     ticking = false;
     const y = window.scrollY || window.pageYOffset;
     const vh = window.innerHeight;
-    const max = document.documentElement.scrollHeight - vh;
 
-    // 1. Top reading laser progress bar (0..1 scaleX)
-    if (bar) {
-      bar.style.transform = `scaleX(${max > 0 ? clamp(y / max, 0, 1) : 0})`;
-    }
-
-    // 2. Crown Header frosted glass elevation on scroll
+    // 1. Crown Header frosted glass elevation on scroll
     if (crown) {
       crown.classList.toggle("scrolled", y > 15);
     }
@@ -1430,6 +1401,7 @@ function initScrollAnimations() {
           setTimeout(() => {
             entry.target.classList.add("show");
             entry.target.classList.add("in-view");
+            entry.target.classList.add("revealed");
           }, Math.max(0, idx * 80));
           io.unobserve(entry.target);
         }
@@ -1441,6 +1413,7 @@ function initScrollAnimations() {
     cards.forEach((card) => {
       card.classList.add("show");
       card.classList.add("in-view");
+      card.classList.add("revealed");
     });
   }
 }
@@ -1524,81 +1497,7 @@ class EmberParticleEngine {
 // ==============================================================================
 
 // ------------------------------------------------------------------------------
-// 15.1 Horizon Radar Controller
-// ------------------------------------------------------------------------------
-function initHorizonPage() {
-  const container = document.getElementById("horizon-cards-list");
-  if (!container) return;
-
-  // Real-time resolution countdown updates
-  function updateCountdowns() {
-    document.querySelectorAll(".imminent-countdown[data-resolves]").forEach(el => {
-      const targetStr = el.getAttribute("data-resolves");
-      if (!targetStr) return;
-      const target = new Date(targetStr + "T23:59:59Z");
-      const now = new Date();
-      const diff = target - now;
-      if (diff <= 0) {
-        el.textContent = "Resolving Today / In Review";
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      el.textContent = `⏳ ${days}d ${hours}h remaining`;
-    });
-  }
-  updateCountdowns();
-  setInterval(updateCountdowns, 60000);
-
-  // Horizon Filter Pills (All, 2025, 2026, 2027, 2028)
-  const pills = document.querySelectorAll(".scrubber-filter-pills .filter-pill");
-  pills.forEach(pill => {
-    pill.addEventListener("click", () => {
-      sound.playTick();
-      pills.forEach(p => p.classList.remove("active"));
-      pill.classList.add("active");
-      const year = pill.getAttribute("data-year");
-
-      document.querySelectorAll(".horizon-forecast-card").forEach(card => {
-        const resolves = card.getAttribute("data-resolves") || "";
-        if (year === "all" || resolves.startsWith(year)) {
-          card.style.display = "flex";
-        } else {
-          card.style.display = "none";
-        }
-      });
-
-      document.querySelectorAll(".horizon-bubble").forEach(bubble => {
-        const date = bubble.getAttribute("data-date") || "";
-        if (year === "all" || date.startsWith(year)) {
-          bubble.style.display = "inline-flex";
-        } else {
-          bubble.style.display = "none";
-        }
-      });
-    });
-  });
-
-  // Bubble Click -> Smooth Scroll to Card
-  document.querySelectorAll(".horizon-bubble").forEach(bubble => {
-    bubble.addEventListener("click", (e) => {
-      sound.playTick();
-      const targetId = bubble.getAttribute("href");
-      if (targetId && targetId.startsWith("#")) {
-        const card = document.querySelector(targetId);
-        if (card) {
-          e.preventDefault();
-          card.scrollIntoView({ behavior: "smooth", block: "center" });
-          card.style.borderColor = "var(--gilt)";
-          setTimeout(() => { card.style.borderColor = ""; }, 2000);
-        }
-      }
-    });
-  });
-}
-
-// ------------------------------------------------------------------------------
-// 15.2 Platform Squeeze Matrix Controller
+// 15.1 Platform Squeeze Matrix Controller
 // ------------------------------------------------------------------------------
 function initMatrixPage() {
   const matrix = document.querySelector(".matrix-canvas-wrapper");
@@ -1770,95 +1669,269 @@ function initEconomicsPage() {
 }
 
 // ------------------------------------------------------------------------------
-// 15.4 Interactive Terminal Emulator Controller
+// 15.3 Interactive Terminal Emulator Controller (Sandboxed & Authenticated)
 // ------------------------------------------------------------------------------
 function initTerminalPage() {
-  const termScreen = document.getElementById("terminal-screen");
-  const termInput = document.getElementById("terminal-cli-input");
+  const termScreen = document.getElementById("term-screen") || document.getElementById("terminal-screen");
+  const termInput = document.getElementById("term-input") || document.getElementById("terminal-cli-input");
+  const termHistory = document.getElementById("term-output-history");
+  const termWindow = document.querySelector(".term-window");
   if (!termScreen || !termInput) return;
 
   const history = [];
   let historyIdx = -1;
 
-  function printLine(text, cls = "") {
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function printLine(htmlContent, cls = "term-line") {
     const line = document.createElement("div");
     if (cls) line.className = cls;
-    line.innerHTML = text;
-    termScreen.appendChild(line);
+    line.innerHTML = htmlContent;
+    if (termHistory) {
+      termHistory.appendChild(line);
+    } else {
+      termScreen.insertBefore(line, termInput.closest(".term-input-line") || termInput);
+    }
     termScreen.scrollTop = termScreen.scrollHeight;
   }
 
+  function setPhosphorTheme(theme) {
+    const normalized = (theme === "green") ? "emerald" : theme;
+    if (!["amber", "emerald", "cyan"].includes(normalized)) return false;
+    
+    if (termWindow) {
+      termWindow.classList.remove("phosphor-amber", "phosphor-emerald", "phosphor-cyan");
+      termWindow.classList.add(`phosphor-${normalized}`);
+    }
+    document.querySelectorAll(".term-font-btn[data-phosphor]").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-phosphor") === normalized);
+    });
+    return true;
+  }
+
+  // Hook Phosphor Font Buttons in Titlebar
+  document.querySelectorAll(".term-font-btn[data-phosphor]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      sound.playTick();
+      const p = btn.getAttribute("data-phosphor");
+      if (p) setPhosphorTheme(p);
+    });
+  });
+
+  // Traffic Light Controls
+  const closeLight = document.querySelector(".term-light.close");
+  if (closeLight) {
+    closeLight.addEventListener("click", () => {
+      sound.playTick();
+      window.location.href = "index.html";
+    });
+  }
+  const minLight = document.querySelector(".term-light.min");
+  if (minLight) {
+    minLight.addEventListener("click", () => {
+      sound.playTick();
+      if (termHistory) termHistory.innerHTML = "";
+    });
+  }
+  const maxLight = document.querySelector(".term-light.max");
+  if (maxLight) {
+    maxLight.addEventListener("click", () => {
+      sound.playTick();
+      termScreen.style.maxHeight = termScreen.style.maxHeight === "850px" ? "640px" : "850px";
+    });
+  }
+
+  // Restricted Commands Definition (Realistic UNIX Guest Sandbox Restrictions)
+  const RESTRICTED_PATTERNS = [
+    {
+      regex: /^(sudo|su|doas)(\s+.*)?$/,
+      code: "EACCES 403 Forbidden",
+      msg: "Privilege escalation is prohibited. User 'guest' (uid=1001) is not in /etc/sudoers. Host elevation intercepted by sandbox supervisor."
+    },
+    {
+      regex: /^(rm|unlink|rmdir|del|erase|truncate)(\s+.*)?$/,
+      code: "EROFS Operation not permitted",
+      msg: "Read-only filesystem mount (/dev/ro_loop0 on /). File deletion and host mutation are disabled in this analyst container."
+    },
+    {
+      regex: /^(chmod|chown|chgrp|attrib)(\s+.*)?$/,
+      code: "EPERM Operation not permitted",
+      msg: "Permission modifications are prohibited. Container policy enforces immutable read-only permissions."
+    },
+    {
+      regex: /^(touch|mkdir|mv|cp|dd|mkfs|fdisk|parted|mount|umount|fsck)(\s+.*)?$/,
+      code: "EROFS Read-only filesystem",
+      msg: "Filesystem write and device block operations are prohibited on the live node."
+    },
+    {
+      regex: /^(bash|sh|zsh|csh|tcsh|dash|ksh|fish)(\s+.*)?$/,
+      code: "RESTRICTED SUB-SHELL",
+      msg: "Subshell breakout denied. Interactive PTY allocation is disabled in restricted guest mode."
+    },
+    {
+      regex: /^(python|python3|node|ruby|perl|lua|php|exec|eval)(\s+.*)?$/,
+      code: "RESTRICTED RUNTIME",
+      msg: "Arbitrary script interpreter execution is blocked by container policy. Use 'calc' for GPU & cost arbitration calculations."
+    },
+    {
+      regex: /^(ssh|scp|sftp|ftp|telnet|nc|netcat|nmap|traceroute|tcpdump|wget)(\s+.*)?$/,
+      code: "ENETUNREACH Egress Blocked",
+      msg: "Outbound network sockets and SSH tunnels are blocked by network firewall policy. Use 'curl' to query internal endpoints."
+    },
+    {
+      regex: /^(kill|killall|pkill|xkill)(\s+.*)?$/,
+      code: "EPERM PID Isolation",
+      msg: "PID namespace isolation enforced. Guest container cannot signal or terminate system processes."
+    },
+    {
+      regex: /^(reboot|shutdown|poweroff|halt|init)(\s+.*)?$/,
+      code: "EPERM Privileged Hardware Call",
+      msg: "System state transitions and hypervisor power control are reserved for node cluster admins."
+    },
+    {
+      regex: /^(passwd|useradd|userdel|groupadd|usermod)(\s+.*)?$/,
+      code: "EPERM Stateless Policy",
+      msg: "User identity mutation is prohibited on stateless containers."
+    },
+    {
+      regex: /^(apt|apt-get|yum|dnf|pacman|brew|apk|pip|npm|yarn|pnpm)(\s+.*)?$/,
+      code: "RESTRICTED PACKAGE MGMT",
+      msg: "Package installation is disabled on immutable base images."
+    }
+  ];
+
   function executeCommand(raw) {
-    const cmd = raw.trim().toLowerCase();
-    if (!cmd) return;
-    history.push(raw);
+    const rawTrimmed = raw.trim();
+    if (!rawTrimmed) return;
+    const cmd = rawTrimmed.toLowerCase();
+    history.push(rawTrimmed);
     historyIdx = history.length;
 
-    printLine(`<span style="color:var(--good); font-weight:700;">pith&gt;</span> <span style="color:#fff;">${raw}</span>`);
+    // Echo input
+    printLine(`<span class="term-prompt">pith@intel:~$</span> <span style="color:#fff; font-weight:600;">${escapeHtml(rawTrimmed)}</span>`, "term-line cmd-echo");
     sound.playPithClack();
 
-    const parts = cmd.split(" ");
+    // 1. Check Restricted Commands
+    for (const rule of RESTRICTED_PATTERNS) {
+      if (rule.regex.test(cmd)) {
+        printLine(`
+          <div class="term-error">
+            <span class="term-tag tag-error">${rule.code}</span>
+            <span>${rule.msg}</span>
+          </div>
+        `);
+        return;
+      }
+    }
+
+    // 2. Sensitive Path Traversal Check (cat /etc/passwd etc)
+    if (/^(cat|head|tail|more|less)\s+(\/etc|\/root|\/proc|\/sys|\/var|\/dev|\.\.\/)/.test(cmd)) {
+      printLine(`
+        <div class="term-error">
+          <span class="term-tag tag-error">EACCES ACCESS DENIED</span>
+          <span>Sandbox boundary restriction: Path is outside container root (/home/guest/pith-sandbox). Access denied.</span>
+        </div>
+      `);
+      return;
+    }
+
+    const parts = cmd.split(/\s+/);
     const primary = parts[0];
 
     switch (primary) {
       case "help":
+      case "?":
         printLine(`
-Available Pith Terminal Commands:
-  <span style="color:var(--gilt);">today</span>          Print today's top structural tech intelligence cards
-  <span style="color:var(--gilt);">listen [role]</span>   Play synthesized briefing audio (developer, founder, investor)
-  <span style="color:var(--gilt);">stats</span>          Display forecast ledger accuracy, Brier score, and ELO
-  <span style="color:var(--gilt);">matrix</span>         Print ASCII platform squeeze quadrant overview
-  <span style="color:var(--gilt);">calc [m_tok]</span>   Quick estimate of monthly GPU cluster vs API cost
-  <span style="color:var(--gilt);">curl [endpoint]</span> Fetch plain-text terminal payload (dev, founder, investor)
-  <span style="color:var(--gilt);">theme [amber|cyan|green]</span> Switch CRT phosphor terminal color
-  <span style="color:var(--gilt);">clear</span>          Clear terminal screen buffer
-  <span style="color:var(--gilt);">exit</span>           Navigate back to Brief home
+<div class="term-box">
+  <div style="color:var(--gilt); font-weight:700; margin-bottom:8px;">✦ PITH HARDENED ANSI WORKSTATION &bull; AVAILABLE COMMANDS</div>
+  <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Security Policy: Read-Only Guest Container (uid=1001, gid=1001). Privileged commands and system modifications are restricted.</div>
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); width:130px; font-weight:600;">today, news</td><td style="color:#d1d5db;">Print today's top structural tech intelligence cards &amp; directives</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">listen [role]</td><td style="color:#d1d5db;">Stream studio audio brief (<span style="color:var(--cyan);">developer</span>, <span style="color:var(--cyan);">founder</span>, <span style="color:var(--cyan);">investor</span>)</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">stats, ledger</td><td style="color:#d1d5db;">Display forecast calibration ledger, Brier score, and Reader ELO</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">matrix</td><td style="color:#d1d5db;">Render ASCII 2x2 Platform Squeeze &amp; Moat Quadrant</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">calc [M] [price]</td><td style="color:#d1d5db;">Arbitrate monthly Cloud API tokens vs Bare-Metal 8xH100 cluster</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">curl [endpoint]</td><td style="color:#d1d5db;">Fetch plain-text or JSON telemetry (<span style="color:var(--cyan);">dev</span>, <span style="color:var(--cyan);">founder</span>, <span style="color:var(--cyan);">investor</span>, <span style="color:var(--cyan);">matrix</span>)</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">ls [dir]</td><td style="color:#d1d5db;">List sandboxed files (<span style="color:var(--cyan);">today.md</span>, <span style="color:var(--cyan);">forecasts.json</span>, <span style="color:var(--cyan);">README.md</span>)</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">cat [file]</td><td style="color:#d1d5db;">Display file contents in sandbox terminal</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">whoami, pwd</td><td style="color:#d1d5db;">Print sandbox container identity and working directory</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">uname, uptime</td><td style="color:#d1d5db;">Inspect kernel build and system uptime telemetry</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">theme [name]</td><td style="color:#d1d5db;">Switch phosphor color: <span style="color:#ffb000;">amber</span>, <span style="color:#10b981;">emerald</span>, <span style="color:#00e5ff;">cyan</span></td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">clear</td><td style="color:#d1d5db;">Clear terminal output scrollback</td></tr>
+    <tr><td style="padding:3px 12px 3px 0; color:var(--gilt); font-weight:600;">exit</td><td style="color:#d1d5db;">Exit terminal and return to Daily News</td></tr>
+  </table>
+</div>
         `);
         break;
 
       case "today":
+      case "news":
       case "pith":
         printLine(`
-<span style="color:var(--gilt); font-weight:700;">✦ PITH DAILY INTELLIGENCE BRIEF // ${new Date().toISOString().slice(0, 10)}</span>
--------------------------------------------------------------------------
-1. [84.2 SIGNAL] KV-Cache Eviction &amp; Prefix Hashing Slashes Agent Memory Wall
-   &bull; What: Standardized prefix trees drop recompute latency by 88%.
-   &bull; Action: [DO THIS WEEK] Pin system prompt tokens to provider prefix hashes.
-
-2. [82.5 SIGNAL] Autonomous Computer-Use Protocol Open Sourced
-   &bull; What: Deterministic OS event loops bypass bespoke RPA contracts.
-   &bull; Action: [WATCH TRIGGER] Benchmark containerized OS agent runtimes.
-
-3. [81.0 SIGNAL] Open Agent Protocol (OAP) Standardized under CNCF
-   &bull; What: Universal JSON-RPC schemas decouple LLM tools from vendor lock-in.
-   &bull; Action: [DO THIS WEEK] Benchmark JSON-RPC schema translation on tool endpoints.
+<div class="term-box">
+  <div style="color:var(--gilt); font-weight:700; margin-bottom:6px;">✦ PITH DAILY INTELLIGENCE BRIEF // ${new Date().toISOString().slice(0, 10)}</div>
+  <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:8px; margin-top:4px;">
+    <div style="margin-bottom:12px;">
+      <div style="color:var(--cyan); font-weight:600;">1. [SIGNAL 84.2] KV-Cache Eviction &amp; Prefix Hashing Slashes Agent Memory Wall</div>
+      <div style="color:#d1d5db; margin:2px 0;">&bull; <strong>The Shift:</strong> Standardized prefix trees cut recompute latency by 88% across long-horizon agents.</div>
+      <div style="color:#10b981;">&bull; <strong>Action:</strong> [DO THIS WEEK] Pin system prompt tokens to provider prefix hash boundaries.</div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="color:var(--cyan); font-weight:600;">2. [SIGNAL 82.5] Autonomous Computer-Use Protocol Open Sourced</div>
+      <div style="color:#d1d5db; margin:2px 0;">&bull; <strong>The Shift:</strong> Deterministic OS event loops bypass brittle bespoke RPA contracts.</div>
+      <div style="color:#f59e0b;">&bull; <strong>Action:</strong> [WATCH TRIGGER] Benchmark containerized OS agent sandboxes against API latency.</div>
+    </div>
+    <div>
+      <div style="color:var(--cyan); font-weight:600;">3. [SIGNAL 81.0] Open Agent Protocol (OAP) Standardized under CNCF</div>
+      <div style="color:#d1d5db; margin:2px 0;">&bull; <strong>The Shift:</strong> Universal JSON-RPC schemas decouple LLM tools from single-vendor proprietary plugins.</div>
+      <div style="color:#10b981;">&bull; <strong>Action:</strong> [DO THIS WEEK] Benchmark JSON-RPC schema translation on tool microservices.</div>
+    </div>
+  </div>
+</div>
         `);
         break;
 
-      case "listen":
+      case "listen": {
         const role = parts[1] || "developer";
-        printLine(`<span style="color:var(--cyan);">▶ Streaming studio voice briefing for lens: [${role}]...</span>`);
+        printLine(`
+          <div style="color:var(--cyan); margin:4px 0;">
+            <span class="term-tag tag-info">AUDIO STREAM</span> Streaming studio voice briefing for lens: [<strong>${escapeHtml(role)}</strong>]...
+          </div>
+        `);
         if (window.audioBrief) {
           window.audioBrief.playBriefing(role);
+        } else {
+          printLine(`<div style="color:var(--muted); font-size:12px;">Audio synthesis engine ready. Check speaker volume.</div>`);
         }
         break;
+      }
 
       case "stats":
       case "ledger":
         printLine(`
-<span style="color:var(--gilt); font-weight:700;">✦ CALIBRATION LEDGER TELEMETRY</span>
--------------------------------------------------------------------------
-  Track Record:       100% Definitive Hit Rate across resolved forecasts
-  Brier Score:        0.000 (Target &lt; 0.150)
-  Calibration ELO:    ${pithELO.getScore()} (${pithELO.getTier()})
-  Active Predictions: 5 open falsifiable milestones on horizon
+<div class="term-box">
+  <div style="color:var(--gilt); font-weight:700; margin-bottom:8px;">✦ FORECAST CALIBRATION LEDGER TELEMETRY</div>
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <tr><td style="color:#9ca3af; width:180px;">Definitive Hit Rate:</td><td style="color:#10b981; font-weight:700;">100.0% (across resolved forecasts)</td></tr>
+    <tr><td style="color:#9ca3af;">Aggregate Brier Score:</td><td style="color:#10b981; font-weight:700;">0.0000 (Target: &lt; 0.150)</td></tr>
+    <tr><td style="color:#9ca3af;">Reader Calibration ELO:</td><td style="color:var(--gilt); font-weight:700;">${pithELO ? pithELO.getScore() : 1200} (${pithELO ? pithELO.getTier() : 'Observer'})</td></tr>
+    <tr><td style="color:#9ca3af;">Active Falsifiable Claims:</td><td style="color:#fff;">5 open verifiable predictions on horizon</td></tr>
+    <tr><td style="color:#9ca3af;">Validation Protocol:</td><td style="color:#d1d5db;">Automated cryptographic timestamping + peer falsification</td></tr>
+  </table>
+</div>
         `);
         break;
 
       case "matrix":
         printLine(`
-<span style="color:var(--gilt); font-weight:700;">✦ PLATFORM SQUEEZE &amp; MOAT 2x2 MATRIX</span>
--------------------------------------------------------------------------
+<pre style="color:var(--cyan); font-family:var(--font-mono); font-size:12px; line-height:1.2; margin:8px 0; background:rgba(0,0,0,0.5); padding:10px; border:1px solid rgba(255,255,255,0.1); border-radius:4px;">
                      HIGH MARKET POWER
                              ▲
        CHOKEPOINT ASSETS     │     MOATS &amp; PROTOCOLS
@@ -1868,60 +1941,203 @@ Available Pith Terminal Commands:
      (Standard Model APIs)   │   (Thin Wrapper Agents)
                              ▼
                      LOW MARKET POWER
+</pre>
+<div style="font-size:12px; color:var(--muted);">Visit the <strong>Market Map</strong> page for full interactive quadrant plotting and thesis inspection.</div>
         `);
         break;
 
-      case "calc":
+      case "calc": {
         const tokM = parseFloat(parts[1]) || 50;
-        const apiCost = tokM * 1.75;
-        const gpuCost = Math.ceil(tokM / 40) * 2600;
+        const apiRate = parseFloat(parts[2]) || 1.75;
+        const apiCost = tokM * apiRate;
+        const gpuNodes = Math.max(1, Math.ceil(tokM / 40));
+        const gpuCost = gpuNodes * 2600;
+        const diff = Math.abs(apiCost - gpuCost);
+        const selfCheaper = apiCost > gpuCost;
+
         printLine(`
-Token Volume: ${tokM}M tokens/month
-  Cloud API Cost:       $${Math.round(apiCost).toLocaleString()}/mo
-  Bare-metal 8xH100:    $${Math.round(gpuCost).toLocaleString()}/mo
-  Net Arbitrage:        ${apiCost > gpuCost ? "+$" + Math.round(apiCost - gpuCost).toLocaleString() + " saved on self-hosting" : "Cloud API cheaper by $" + Math.round(gpuCost - apiCost).toLocaleString()}
+<div class="term-box">
+  <div style="color:var(--gilt); font-weight:700; margin-bottom:6px;">✦ AI INFERENCE COST CALCULATOR // ${tokM.toLocaleString()}M TOKENS/MONTH</div>
+  <div style="color:#d1d5db; font-size:13px; line-height:1.6;">
+    &bull; API Inference Cost ($${apiRate.toFixed(2)}/M): <strong>$${Math.round(apiCost).toLocaleString()}/mo</strong><br>
+    &bull; Bare-Metal 8xH100 Cluster (${gpuNodes} node${gpuNodes > 1 ? 's' : ''}): <strong>$${Math.round(gpuCost).toLocaleString()}/mo</strong><br>
+    &bull; <strong>Verdict:</strong> <span style="color:${selfCheaper ? '#10b981' : 'var(--cyan)'}; font-weight:700;">
+      ${selfCheaper ? `Bare-metal cluster saves $${Math.round(diff).toLocaleString()}/mo (Break-even exceeded)` : `Cloud API is cheaper by $${Math.round(diff).toLocaleString()}/mo (Keep on API)`}
+    </span>
+  </div>
+</div>
         `);
         break;
+      }
+
+      case "curl": {
+        const target = parts[1] || "today";
+        if (target === "dev" || target === "developer") {
+          printLine(`{"role": "developer", "action": "DO THIS WEEK", "directive": "Pin system prompt tokens to provider prefix hash boundaries to cut recompute by 88%."}`);
+        } else if (target === "founder") {
+          printLine(`{"role": "founder", "action": "WATCH TRIGGER", "directive": "Budget GPU cluster reservation once monthly volume crosses 40M tokens."}`);
+        } else if (target === "investor") {
+          printLine(`{"role": "investor", "thesis": "Short thin agent wrappers; long private state schemas and chokepoint data access."}`);
+        } else {
+          printLine(`{"issue": "${new Date().toISOString().slice(0, 10)}", "status": "200 OK", "signal_count": 3, "top_story": "KV-Cache Eviction & Prefix Hashing"}`);
+        }
+        break;
+      }
+
+      case "ls": {
+        printLine(`
+<pre style="color:#d1d5db; font-size:12.5px; margin:4px 0;">
+drwxr-xr-x  2 guest guest  4096 Nov 20 06:00 <span style="color:var(--cyan);">.</span>
+drwxr-xr-x  3 root  root   4096 Nov 20 06:00 <span style="color:var(--muted);">..</span>
+-rw-r--r--  1 guest guest  3412 Nov 20 06:00 <span style="color:var(--good);">today.md</span>
+-rw-r--r--  1 guest guest  8910 Nov 20 06:00 <span style="color:var(--good);">forecasts.json</span>
+-rw-r--r--  1 guest guest  2104 Nov 20 06:00 <span style="color:var(--good);">market_matrix.csv</span>
+-rw-r--r--  1 guest guest   640 Nov 20 06:00 <span style="color:#9ca3af;">system_telemetry.log</span>
+-rw-r--r--  1 guest guest  1520 Nov 20 06:00 <span style="color:var(--gilt);">README.md</span>
+</pre>
+        `);
+        break;
+      }
+
+      case "cat": {
+        const filename = parts[1] || "";
+        if (!filename) {
+          printLine(`<div style="color:var(--red-ink);">cat: missing file operand. Try 'ls' to list files.</div>`);
+        } else if (filename === "readme.md" || filename === "readme") {
+          printLine(`
+<div class="term-box">
+  <div style="color:var(--gilt); font-weight:700;"># Pith Intelligence System</div>
+  <div style="color:#d1d5db; margin-top:6px; font-size:13px;">
+    Pith is a high-signal intelligence terminal for tracking structural shifts in artificial intelligence, chip infrastructure, and platform power.
+    All forecasts are logged into a public immutable calibration ledger with mathematical Brier scoring.
+  </div>
+</div>
+          `);
+        } else if (filename === "today.md") {
+          printLine(`
+<div class="term-box">
+  <div style="color:var(--gilt); font-weight:700;"># Today's Intelligence Brief</div>
+  <div style="color:#d1d5db; font-size:12.5px; margin-top:4px;">
+    1. KV-Cache Eviction &amp; Prefix Hashing Slashes Agent Memory Wall (Signal: 84.2)<br>
+    2. Autonomous Computer-Use Protocol Open Sourced (Signal: 82.5)<br>
+    3. Open Agent Protocol (OAP) Standardized under CNCF (Signal: 81.0)
+  </div>
+</div>
+          `);
+        } else if (filename === "forecasts.json") {
+          printLine(`
+<pre style="color:var(--cyan); font-size:12px; margin:4px 0;">
+[
+  {"id": "F-2025-01", "claim": "First commercial 1M-token context under $1/M", "status": "CONFIRMED", "brier": 0.00},
+  {"id": "F-2025-02", "claim": "Prefix cache sharing becomes default in OpenAI/Anthropic SDKs", "status": "CONFIRMED", "brier": 0.00},
+  {"id": "F-2026-01", "claim": "Open source agent protocol reaches Linux Foundation / CNCF", "status": "IN_REVIEW", "probability": 0.88}
+]
+</pre>
+          `);
+        } else if (filename === "market_matrix.csv") {
+          printLine(`
+<pre style="color:#d1d5db; font-size:12px; margin:4px 0;">
+quadrant,name,market_power,switching_cost,verdict
+chokepoint,Nvidia CUDA,very_high,extreme,DURABLE_MOAT
+chokepoint,TSMC Fab,extreme,extreme,DURABLE_MOAT
+moats_protocols,Private Workflow Data,high,high,COMPOUNDING
+squeezed_middleware,Thin Wrapper Agents,low,low,COMMODITIZED
+commodity_compute,Standard Model APIs,moderate,low,PRICE_WAR
+</pre>
+          `);
+        } else if (filename === "system_telemetry.log") {
+          printLine(`
+<pre style="color:#9ca3af; font-size:12px; margin:4px 0;">
+[INFO] Cluster state: ALL RUNTIMES OPTIMAL
+[INFO] Hit rate: 100% | Brier: 0.0000 | Active ELO: 1200
+[INFO] Telemetry stream verified across 7 static node endpoints.
+</pre>
+          `);
+        } else {
+          printLine(`<div style="color:var(--red-ink);">cat: ${escapeHtml(filename)}: No such file or directory</div>`);
+        }
+        break;
+      }
+
+      case "whoami":
+        printLine(`<div>pith-guest (uid=1001, gid=1001, security_level=read_only_analyst, sandbox=enforced)</div>`);
+        break;
+
+      case "pwd":
+        printLine(`<div>/home/guest/pith-sandbox</div>`);
+        break;
+
+      case "uname":
+        if (parts[1] === "-a" || parts[1] === "-r") {
+          printLine(`<div>Linux pith-station 6.6.1-hardened #1 SMP PREEMPT PithOS x86_64 GNU/Linux (Guest Sandbox)</div>`);
+        } else {
+          printLine(`<div>Linux (PithOS Sandboxed)</div>`);
+        }
+        break;
+
+      case "date":
+        printLine(`<div>${new Date().toUTCString()}</div>`);
+        break;
+
+      case "uptime":
+        printLine(`<div>12:05:40 up 42 days, 16:35, 1 user, load average: 0.06, 0.04, 0.01</div>`);
+        break;
+
+      case "echo":
+        const echoText = rawTrimmed.substring(5);
+        printLine(`<div>${escapeHtml(echoText)}</div>`);
+        break;
+
+      case "theme": {
+        const targetTheme = (parts[1] || "").toLowerCase();
+        if (targetTheme === "amber" || targetTheme === "emerald" || targetTheme === "green" || targetTheme === "cyan") {
+          setPhosphorTheme(targetTheme);
+          printLine(`<div style="color:var(--good);"><span class="term-tag tag-info">THEME</span> Terminal phosphor switched to <strong>${escapeHtml(targetTheme)}</strong>.</div>`);
+        } else {
+          printLine(`<div style="color:var(--muted);">Usage: theme [amber | emerald | cyan]</div>`);
+        }
+        break;
+      }
 
       case "clear":
-        termScreen.innerHTML = "";
-        break;
-
-      case "theme":
-        const th = parts[1];
-        if (th === "amber") {
-          termScreen.style.color = "#ffb000";
-        } else if (th === "cyan") {
-          termScreen.style.color = "#00e5ff";
-        } else if (th === "green") {
-          termScreen.style.color = "#00ff66";
+        if (termHistory) {
+          termHistory.innerHTML = "";
         } else {
-          printLine("Usage: theme [amber | cyan | green]");
+          termScreen.innerHTML = "";
         }
         break;
 
       case "exit":
       case "home":
-        window.location.href = "index.html";
+        printLine(`<div style="color:var(--cyan);">Navigating back to Daily News...</div>`);
+        setTimeout(() => { window.location.href = "index.html"; }, 300);
         break;
 
       default:
-        printLine(`<span style="color:var(--red-ink);">Command not recognized: '${raw}'. Type 'help' for instructions.</span>`);
+        printLine(`
+          <div class="term-error">
+            <span class="term-tag tag-error">COMMAND NOT FOUND</span>
+            <span>pith: command not found: '<strong>${escapeHtml(rawTrimmed)}</strong>'. Type '<span style="color:#fff; text-decoration:underline;">help</span>' for a list of permitted sandbox commands.</span>
+          </div>
+        `);
         break;
     }
   }
 
+  // Keyboard Navigation & Enter Execution
   termInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       const val = termInput.value;
       termInput.value = "";
       executeCommand(val);
     } else if (e.key === "ArrowUp") {
-      if (historyIdx > 0) {
-        historyIdx--;
+      e.preventDefault();
+      if (history.length > 0) {
+        if (historyIdx > 0) historyIdx--;
         termInput.value = history[historyIdx] || "";
       }
     } else if (e.key === "ArrowDown") {
+      e.preventDefault();
       if (historyIdx < history.length - 1) {
         historyIdx++;
         termInput.value = history[historyIdx] || "";
@@ -1932,20 +2148,23 @@ Token Volume: ${tokM}M tokens/month
     }
   });
 
-  // Quick bar chip button clicks
+  // Quick Command Chips Click Handler
   document.querySelectorAll(".term-chip-btn[data-cmd]").forEach(btn => {
     btn.addEventListener("click", () => {
       const cmd = btn.getAttribute("data-cmd");
-      if (cmd) executeCommand(cmd);
+      if (cmd) {
+        termInput.value = "";
+        executeCommand(cmd);
+      }
     });
   });
 
-  // Focus terminal input when clicking anywhere on screen
+  // Focus terminal input on container click
   termScreen.addEventListener("click", () => termInput.focus());
 }
 
 // ------------------------------------------------------------------------------
-// 15.5 Archive Vault Search Controller
+// 15.4 Archive Vault Search Controller
 // ------------------------------------------------------------------------------
 function initArchivePage() {
   const searchInput = document.getElementById("archive-search-input");
@@ -1993,70 +2212,5 @@ function initArchivePage() {
         setTimeout(() => { block.style.borderColor = ""; }, 2000);
       }
     });
-  });
-}
-
-// ------------------------------------------------------------------------------
-// 15.6 Bounty Falsification Protocol Controller
-// ------------------------------------------------------------------------------
-function initBountyPage() {
-  const form = document.getElementById("bounty-form");
-  if (!form) return;
-
-  // Challenge claim buttons auto-select claim
-  document.querySelectorAll(".challenge-claim-btn[data-claim-id]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      sound.playPithClack();
-      const claimId = btn.getAttribute("data-claim-id");
-      const targetSelect = document.getElementById("bounty-target-select");
-      if (targetSelect) {
-        targetSelect.value = claimId;
-        form.scrollIntoView({ behavior: "smooth", block: "center" });
-        const reasonInput = document.getElementById("bounty-reason-input");
-        if (reasonInput) reasonInput.focus();
-      }
-    });
-  });
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    sound.playPithClack();
-
-    const target = document.getElementById("bounty-target-select")?.value;
-    const url = document.getElementById("bounty-source-url")?.value;
-    const quote = document.getElementById("bounty-quote-input")?.value;
-    const reason = document.getElementById("bounty-reason-input")?.value;
-    const email = document.getElementById("bounty-email-input")?.value;
-
-    const submission = {
-      id: "bounty-" + Date.now(),
-      target,
-      url,
-      quote,
-      reason,
-      email,
-      submitted_at: new Date().toISOString(),
-      status: "peer_review"
-    };
-
-    // Save to localStorage
-    const existing = JSON.parse(localStorage.getItem("pith_bounties") || "[]");
-    existing.push(submission);
-    localStorage.setItem("pith_bounties", JSON.stringify(existing));
-
-    // Show toast
-    const toast = document.createElement("div");
-    toast.className = "bounty-confirmation-toast";
-    toast.innerHTML = `
-      <span class="toast-check" style="color:var(--good); font-size:16px;">✓</span>
-      <div>
-        <strong>Falsification Submission Logged</strong>
-        <div style="font-size:12px; color:var(--muted);">Disproof routed to verification sandbox. Public ledger will update on confirmation.</div>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    setTimeout(() => { toast.remove(); }, 4000);
-
-    form.reset();
   });
 }

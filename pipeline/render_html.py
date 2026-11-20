@@ -93,20 +93,25 @@ def render_all(db_path: str = "brief.sqlite3", output_dir: str = "public"):
     predictions = db.get_all_predictions()
     stats = LedgerEngine.calculate_statistics(predictions)
     all_issues = db.get_all_issues()
-    all_claims = db.get_all_claims()
 
+    # Clean up deprecated pages per user specification
+    for deprecated_file in ("horizon.html", "bounty.html"):
+        p = os.path.join(output_dir, deprecated_file)
+        if os.path.exists(p):
+            try:
+                os.remove(p)
+            except OSError:
+                pass
+
+    # Render active 7 self-explanatory pages
     render_index(latest_issue, f"{output_dir}/index.html")
-    render_ledger(predictions, stats, f"{output_dir}/ledger.html")
-    render_patterns(PATTERNS, latest_issue, f"{output_dir}/patterns.html")
-
-    # Render 6 extended interactive pages
-    render_horizon(predictions, latest_issue, f"{output_dir}/horizon.html")
     render_matrix(latest_issue, f"{output_dir}/matrix.html")
     render_economics(latest_issue, f"{output_dir}/economics.html")
     render_terminal(latest_issue, f"{output_dir}/terminal.html")
+    render_ledger(predictions, stats, f"{output_dir}/ledger.html")
     render_archive(all_issues, f"{output_dir}/archive.html")
-    render_bounty(all_claims, predictions, f"{output_dir}/bounty.html")
-    print("Rendered all 9 static intelligence pages successfully for Pith.")
+    render_patterns(PATTERNS, latest_issue, f"{output_dir}/patterns.html")
+    print("Rendered all 7 static intelligence pages successfully for Pith.")
 
 
 def render_index(issue, path: str):
@@ -347,7 +352,7 @@ def render_index(issue, path: str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pith &middot; Daily Tech Intelligence &middot; {escape(issue_date_formatted)}</title>
+    <title>Daily Tech News &middot; Pith &middot; {escape(issue_date_formatted)}</title>
     <meta name="description" content="Pith filters tech news down to 5 falsifiable events that alter architectures, unit economics, or platform moats.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
@@ -356,35 +361,15 @@ def render_index(issue, path: str):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
-    <div id="bar" aria-hidden="true"></div>
-
     <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
 
-    <!-- Atmospheric Cybernetic Background Elements -->
+    <!-- Atmospheric Subtle Background Elements -->
     <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
     <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
     <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
     <div class="scan-line" aria-hidden="true"></div>
     <div class="grain-overlay" aria-hidden="true"></div>
-
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
-    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Cybernetic Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
-
-    <!-- 0.8s Lowpass Noise-to-Signal Compression Hero Overlay -->
-    <div class="lowpass-overlay" id="lowpass-overlay" aria-hidden="true" style="display:none;">
-        <div class="noise-cloud" id="noise-cloud"></div>
-        <div class="laser-sweep-line" id="laser-sweep-line"></div>
-        <div class="lowpass-caption">LOWPASS FILTER // VAPORIZING NOISE</div>
-    </div>
 
     {get_nav_html("index.html")}
 
@@ -392,8 +377,9 @@ def render_index(issue, path: str):
         <!-- Masthead -->
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> BEAT &middot; {escape(issue.beat)}</div>
-                <h1 class="page-title">Pith <em>Intelligence</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> DAILY TECH INTELLIGENCE &middot; {escape(issue.beat)}</div>
+                <h1 class="page-title">Daily <em>Tech News</em></h1>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Today's 5 grounded architectural and market power shifts. Filtered down to events that alter software architectures, unit economics, or competitive moats.</p>
             </div>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> AUDITED</span>
@@ -401,8 +387,6 @@ def render_index(issue, path: str):
                 <span>{escape(issue_date_formatted)}</span>
                 <span>&middot;</span>
                 <span>ISSUE #01</span>
-                <span>&middot;</span>
-                <button class="lowpass-replay-pill" id="replay-lowpass-pill" title="Replay the 0.8s Lowpass Noise Compression" type="button">↻ Lowpass</button>
             </div>
             <div class="scroll-cue" id="scroll-cue" title="Scroll down to read today's 5 falsifiable shifts">
                 <span class="scroll-mouse-icon"><i class="scroll-mouse-dot"></i></span>
@@ -573,7 +557,7 @@ def render_ledger(predictions, stats, path: str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction Ledger &middot; Pith</title>
+    <title>Forecast Tracker &middot; Pith</title>
     <meta name="description" content="Public, unedited track record of dated falsifiable predictions, Brier accuracy scores, and calibration statistics for Pith.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
@@ -582,9 +566,6 @@ def render_ledger(predictions, stats, path: str):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
-    <div id="bar" aria-hidden="true"></div>
-
     <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
 
@@ -600,8 +581,9 @@ def render_ledger(predictions, stats, path: str):
     <div class="desk-container">
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD</div>
-                <h1 class="page-title">Prediction <em>Ledger</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD &middot; ACCURACY LEDGER</div>
+                <h1 class="page-title">Forecast <em>Tracker</em></h1>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Public, immutable ledger of all dated falsifiable predictions. Audited with mathematical Brier scoring to ensure rigorous forecasting calibration.</p>
             </div>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> ON-RECORD</span>
@@ -836,7 +818,7 @@ def render_patterns(patterns, issue, path: str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pattern Library &middot; Pith</title>
+    <title>Tech Patterns &middot; Pith</title>
     <meta name="description" content="Curated catalog of recurring tech dynamics, historical base rates, failure modes, and cognitive bias warnings for Pith.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
@@ -845,9 +827,6 @@ def render_patterns(patterns, issue, path: str):
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
-    <div id="bar" aria-hidden="true"></div>
-
     <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
 
@@ -863,8 +842,8 @@ def render_patterns(patterns, issue, path: str):
     <div class="desk-container">
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; BASE RATES &middot; BIAS PITFALLS</div>
-                <h1 class="page-title">Pattern <em>Library</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; HISTORICAL PRECEDENTS &middot; MENTAL MODELS</div>
+                <h1 class="page-title">Tech <em>Patterns</em></h1>
             </div>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> CATALOGUED</span>

@@ -25,15 +25,13 @@ def escape(text: Any) -> str:
 
 def get_nav_html(active_page: str) -> str:
     links = [
-        ("index.html", "Brief"),
-        ("horizon.html", "Horizon"),
-        ("matrix.html", "Matrix"),
-        ("economics.html", "Economics"),
-        ("terminal.html", "Terminal"),
-        ("ledger.html", "Ledger"),
-        ("archive.html", "Archive"),
-        ("bounty.html", "Bounty"),
-        ("patterns.html", "Patterns"),
+        ("index.html", "Daily News"),
+        ("matrix.html", "Market Map"),
+        ("economics.html", "Cost Calculator"),
+        ("terminal.html", "CLI Terminal"),
+        ("ledger.html", "Forecast Ledger"),
+        ("archive.html", "News Archive"),
+        ("patterns.html", "Tech Patterns"),
     ]
     nav_links_html = []
     for href, label in links:
@@ -76,9 +74,6 @@ def get_nav_html(active_page: str) -> str:
 
 def get_ambient_bg_html() -> str:
     return """
-    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
-    <div id="bar" aria-hidden="true"></div>
-
     <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
 
@@ -94,18 +89,16 @@ def get_ambient_bg_html() -> str:
 def get_footer_html() -> str:
     return """
         <footer class="colophon">
-            <div><strong>Pith</strong> &middot; Not what happened, but what it means for you and what to do about it this week.</div>
-            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or financial advice</div>
+            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
             <div class="footer-nav">
-                <a href="index.html">Brief</a>
-                <a href="horizon.html">Horizon</a>
-                <a href="matrix.html">Matrix</a>
-                <a href="economics.html">Economics</a>
-                <a href="terminal.html">Terminal</a>
-                <a href="ledger.html">Ledger</a>
-                <a href="archive.html">Archive</a>
-                <a href="bounty.html">Bounty</a>
-                <a href="patterns.html">Patterns</a>
+                <a href="index.html">Daily News</a>
+                <a href="matrix.html">Market Map</a>
+                <a href="economics.html">Cost Calculator</a>
+                <a href="terminal.html">CLI Terminal</a>
+                <a href="ledger.html">Forecast Ledger</a>
+                <a href="archive.html">News Archive</a>
+                <a href="patterns.html">Tech Patterns</a>
             </div>
         </footer>
     """
@@ -115,130 +108,12 @@ def get_footer_html() -> str:
 # 1. HORIZON.HTML - PREDICTION HORIZON RADAR
 # ==============================================================================
 def render_horizon(predictions: List[Prediction], latest_issue: DailyIssue, path: str):
-    # Sort predictions by resolution date
-    sorted_preds = sorted(predictions, key=lambda p: p.resolves_at)
-
-    horizon_cards_html = []
-    for idx, p in enumerate(sorted_preds):
-        prob_pct = int(p.probability * 100)
-        prob_color = "var(--good)" if prob_pct >= 70 else ("var(--warn)" if prob_pct >= 50 else "var(--red)")
-        
-        horizon_cards_html.append(f"""
-        <div class="horizon-forecast-card lab-card" data-resolves="{escape(p.resolves_at)}" data-prob="{prob_pct}">
-            <div class="horizon-card-top">
-                <span class="horizon-date-tag">Target: {escape(p.resolves_at)}</span>
-                <span class="horizon-prob-badge" style="background:{prob_color}22; color:{prob_color}; border-color:{prob_color}55;">{prob_pct}% PROBABILITY</span>
-            </div>
-            <h3 class="horizon-statement">{escape(p.statement)}</h3>
-            <div class="horizon-criteria-box">
-                <span class="horizon-criteria-label">Standard for resolution:</span>
-                <div class="horizon-criteria-text">{escape(p.resolution_criteria)}</div>
-            </div>
-            <div class="horizon-card-footer">
-                <span class="horizon-category-tag">{escape(p.category)}</span>
-                <span class="horizon-status-tag {p.status.lower()}">{escape(p.status.upper())}</span>
-                {f'<a href="index.html#{escape(p.card_id)}" class="horizon-jump-link">View Card in Brief &rarr;</a>' if p.card_id else ''}
-            </div>
-        </div>
-        """)
-
-    html = f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction Horizon Radar &middot; Pith</title>
-    <meta name="description" content="Chronological forward roadmap of falsifiable tech milestones, resolution horizons, and probability scatter plots for Pith.">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    {get_ambient_bg_html()}
-    {get_nav_html("horizon.html")}
-
-    <div class="desk-container">
-        <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> FORWARD RADAR &middot; 2025&ndash;2028 MILESTONES</div>
-                <h1 class="page-title">Prediction <em>Horizon</em></h1>
-            </div>
-            <div class="meta-pill-group">
-                <span class="live-telemetry-chip"><i class="radar-dot"></i> {len(predictions)} OPEN HORIZONS</span>
-                <span>&middot;</span>
-                <span>CHRONOLOGICAL TIME AXIS</span>
-                <span>&middot;</span>
-                <span>ZERO RETROSPECTIVE EDITS</span>
-            </div>
-            <div class="scroll-cue" id="scroll-cue">
-                <span class="scroll-mouse-icon"><i class="scroll-mouse-dot"></i></span>
-                <span class="scroll-cue-text">Scrub through the future</span>
-            </div>
-        </section>
-
-        <!-- Interactive Horizon Time Scrubber -->
-        <section class="horizon-scrubber-section">
-            <div class="horizon-scrubber-header">
-                <span class="scrubber-title">✦ Chronological Horizon Scrub</span>
-                <div class="scrubber-filter-pills" id="horizon-year-filters">
-                    <button class="filter-pill active" data-year="all" type="button">All Horizons</button>
-                    <button class="filter-pill" data-year="2025" type="button">2025</button>
-                    <button class="filter-pill" data-year="2026" type="button">2026</button>
-                    <button class="filter-pill" data-year="2027" type="button">2027+</button>
-                </div>
-            </div>
-
-            <!-- Visual SVG Horizon Timeline Rail -->
-            <div class="horizon-rail-card">
-                <div class="horizon-rail-axis">
-                    <div class="axis-mark"><span>2025 Q1</span></div>
-                    <div class="axis-mark"><span>2025 Q3</span></div>
-                    <div class="axis-mark"><span>2026 Q1</span></div>
-                    <div class="axis-mark"><span>2026 Q3</span></div>
-                    <div class="axis-mark"><span>2027 Q1</span></div>
-                    <div class="axis-mark"><span>2027 Q4</span></div>
-                </div>
-                <div class="horizon-bubbles-track" id="horizon-bubbles-track">
-                    <!-- Populated dynamically or statically rendered -->
-                    {"".join([f'''
-                    <div class="horizon-bubble" data-target-date="{p.resolves_at}" style="left:{min(95, max(5, (idx+1) * 18))}%;" title="{escape(p.statement)} ({int(p.probability*100)}%)">
-                        <span class="bubble-prob">{int(p.probability*100)}%</span>
-                        <span class="bubble-indicator"></span>
-                    </div>
-                    ''' for idx, p in enumerate(sorted_preds)])}
-                </div>
-            </div>
-        </section>
-
-        <!-- Next Imminent Resolutions Countdown Box -->
-        <section class="imminent-resolutions-box">
-            <div class="imminent-header">
-                <div class="imminent-badge">IMMINENT RESOLUTION COUNTDOWN</div>
-                <div class="imminent-title">Upcoming Falsifiable Milestones</div>
-            </div>
-            <div class="imminent-cards-grid">
-                {"".join([f'''
-                <div class="imminent-card">
-                    <div class="imminent-countdown" id="countdown-{idx}">--d --h --m</div>
-                    <div class="imminent-statement">{escape(p.statement[:90])}...</div>
-                    <div class="imminent-meta">Resolves {p.resolves_at} &middot; <strong style="color:var(--gilt);">{int(p.probability*100)}% target</strong></div>
-                </div>
-                ''' for idx, p in enumerate(sorted_preds[:3])])}
-            </div>
-        </section>
-
-        <!-- Detailed Forecast Cards Grid -->
-        <main class="horizon-cards-container" id="horizon-cards-container">
-            {"".join(horizon_cards_html)}
-        </main>
-
-        {get_footer_html()}
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
-"""
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(html)
+    # Horizon page removed per user specification
+    if os.path.exists(path):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
 
 
 # ==============================================================================
@@ -250,8 +125,8 @@ def render_matrix(cards: List[Card], path: str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform Squeeze & Moat Matrix &middot; Pith</title>
-    <meta name="description" content="Interactive 2x2 Market Power Matrix: Squeezed layers vs Chokepoints vs Commodities vs Compounding Moats in tech infrastructure.">
+    <title>Market Power Map &middot; Pith</title>
+    <meta name="description" content="Interactive 2x2 Market Power Map: Chokepoints vs Compounding Moats vs Commoditized Layers vs Squeezed Middleware in tech infrastructure.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -262,13 +137,14 @@ def render_matrix(cards: List[Card], path: str):
     <div class="desk-container">
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> MARKET POWER &middot; PLATFORM SQUEEZE &middot; COMMODITIZATION</div>
-                <h1 class="page-title">Moat <em>Matrix</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> MARKET POWER &middot; COMPETITIVE DEFENSIBILITY &middot; PLATFORM RISK</div>
+                <h1 class="page-title">Market <em>Power Map</em></h1>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">A 2×2 map of technology layers. Identifies true chokepoint monopolies, compounding proprietary moats, commoditized compute, and middleware vulnerable to platform sherlocking.</p>
             </div>
             <div class="meta-pill-group">
-                <span class="live-telemetry-chip"><i class="radar-dot"></i> ECONOMIC RENT INDEX</span>
+                <span class="live-telemetry-chip"><i class="radar-dot"></i> ECONOMIC POWER INDEX</span>
                 <span>&middot;</span>
-                <span>SHERLOCKING RISK</span>
+                <span>SHERLOCKING RADAR</span>
                 <span>&middot;</span>
                 <span>SWITCHING FRICTION</span>
             </div>
@@ -436,7 +312,7 @@ def render_economics(cards: List[Card], path: str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inference Economics & Hardware Reality Calculator &middot; Pith</title>
+    <title>AI Cost Calculator &middot; Pith</title>
     <meta name="description" content="Interactive token cost, KV cache memory footprint, and bare-metal vs cloud API breakeven calculator for AI engineering teams.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
@@ -448,15 +324,16 @@ def render_economics(cards: List[Card], path: str):
     <div class="desk-container">
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> UNIT ECONOMICS &middot; TOKEN COST &middot; BARE-METAL INFLECTION</div>
-                <h1 class="page-title">Inference <em>Economics</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> UNIT ECONOMICS &middot; CLOUD API VS BARE-METAL GPU CLUSTER</div>
+                <h1 class="page-title">AI <em>Cost Calculator</em></h1>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Model serving unit economics calculator. Adjust your user volume and token consumption to calculate exactly when self-hosting on dedicated GPUs becomes cheaper than managed cloud APIs.</p>
             </div>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> HARDWARE REALITY CHECK</span>
                 <span>&middot;</span>
-                <span>TOKEN PRICING VS BARE METAL</span>
+                <span>API VS DEDICATED GPUS</span>
                 <span>&middot;</span>
-                <span>KV CACHE MEMORY</span>
+                <span>KV CACHE SIZING</span>
             </div>
         </section>
 
@@ -576,8 +453,8 @@ def render_terminal(latest_issue: DailyIssue, path: str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Terminal HUD &middot; Pith</title>
-    <meta name="description" content="Interactive browser ANSI terminal emulator for Pith Daily Tech Intelligence. Type commands, listen to briefings, cast votes.">
+    <title>CLI Terminal &middot; Pith</title>
+    <meta name="description" content="Interactive browser ANSI terminal workstation for Pith. Type commands, listen to briefings, inspect forecasts in a developer sandbox.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -691,7 +568,7 @@ def render_archive(all_issues: List[DailyIssue], path: str):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Issue Vault &middot; Pith Archive</title>
+    <title>News Archive &middot; Pith</title>
     <meta name="description" content="Searchable historical archive of daily technology intelligence briefs, grounded shifts, and dated predictions.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
@@ -703,8 +580,9 @@ def render_archive(all_issues: List[DailyIssue], path: str):
     <div class="desk-container">
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> HISTORICAL VAULT &middot; SEARCHABLE INTELLIGENCE</div>
-                <h1 class="page-title">Issue <em>Archive</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> HISTORICAL RECORD &middot; SEARCHABLE INTELLIGENCE ARCHIVE</div>
+                <h1 class="page-title">News <em>Archive</em></h1>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Searchable historical catalog of daily technology shifts, verified claims, and dated falsifiable predictions across past issues.</p>
             </div>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> {len(all_issues)} ISSUES ARCHIVED</span>
@@ -756,131 +634,9 @@ def render_archive(all_issues: List[DailyIssue], path: str):
 # 6. BOUNTY.HTML - FALSIFICATION DESK & PEER-REVIEW PROTOCOL
 # ==============================================================================
 def render_bounty(all_claims: List[Dict[str, Any]], predictions: List[Prediction], path: str):
-    claims_rows_html = []
-    for c in all_claims:
-        claims_rows_html.append(f"""
-        <tr class="claim-row">
-            <td>
-                <div class="claim-text">{escape(c.get('text', ''))}</div>
-                <div class="claim-quote">&ldquo;{escape(c.get('quoted_span', '') or '')}&rdquo;</div>
-            </td>
-            <td>
-                <a href="{escape(c.get('source_url', ''))}" target="_blank" rel="noopener" class="claim-source-link">
-                    Source Link &rarr;
-                </a>
-            </td>
-            <td>
-                <span class="status-pill open">✓ Grounded</span>
-            </td>
-            <td>
-                <button class="challenge-claim-btn" data-claim-id="{c.get('id', '')}" data-claim-text="{escape(c.get('text', ''))[:60]}" type="button">Challenge</button>
-            </td>
-        </tr>
-        """)
-
-    html = f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Falsification Desk &middot; Pith Bounty</title>
-    <meta name="description" content="Open peer-review protocol for Pith. Challenge factual claims, submit counter-evidence, and claim calibration bounties.">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    {get_ambient_bg_html()}
-    {get_nav_html("bounty.html")}
-
-    <div class="desk-container">
-        <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> SCIENTIFIC RIGOR &middot; PEER-REVIEW PROTOCOL</div>
-                <h1 class="page-title">Falsification <em>Desk</em></h1>
-            </div>
-            <div class="meta-pill-group">
-                <span class="live-telemetry-chip"><i class="radar-dot"></i> OPEN CLAIMS PROTOCOL</span>
-                <span>&middot;</span>
-                <span>ZERO DEFENSIVE POSTURING</span>
-                <span>&middot;</span>
-                <span>CALIBRATION BOUNTIES</span>
-            </div>
-        </section>
-
-        <!-- Falsification Submission Form Console -->
-        <section class="bounty-submit-card lab-card" id="bounty-submit-section">
-            <div class="bounty-card-header">
-                <span class="bounty-badge">SUBMIT COUNTER-EVIDENCE FOR BOUNTY</span>
-                <h3>Challenge an Open Claim or Invalidate a Prediction</h3>
-                <p>Traditional journalism defends errors. Pith invites falsification. If you find a verified primary source (official commit, paper, CVE, vendor announcement) that disproves an active claim or resolves a prediction ahead of schedule, submit it below.</p>
-            </div>
-
-            <form class="bounty-form" id="bounty-challenge-form">
-                <div class="form-row">
-                    <label for="bounty-target-select">Target Claim / Prediction to Challenge</label>
-                    <select id="bounty-target-select" required>
-                        {"".join([f'<option value="{p.id}">Prediction: {escape(p.statement[:80])}... (Resolves {p.resolves_at})</option>' for p in predictions])}
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <label for="bounty-source-url">Primary Source Counter-Evidence URL</label>
-                    <input type="url" id="bounty-source-url" placeholder="https://github.com/.../commit or https://arxiv.org/abs/..." required>
-                </div>
-
-                <div class="form-row">
-                    <label for="bounty-quote-span">Exact Verbatim Quoted Span of Evidence</label>
-                    <textarea id="bounty-quote-span" rows="3" placeholder="Paste exact sentence from the primary source proving the falsification..." required></textarea>
-                </div>
-
-                <div class="form-row">
-                    <label for="bounty-researcher-handle">Your Handle / Public Key (For Ledger Credit)</label>
-                    <input type="text" id="bounty-researcher-handle" placeholder="e.g. @researcher or dev-pranav">
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="submit-bounty-btn" id="submit-bounty-btn">Submit Proof to Review Tribunal</button>
-                    <span class="bounty-reward-hint">⚡ Validated submissions earn +50 ELO &amp; permanent ledger attribution</span>
-                </div>
-            </form>
-
-            <div class="bounty-confirmation-toast" id="bounty-toast" style="display:none;">
-                <span class="toast-check">✓</span>
-                <div>
-                    <strong>Proof Registered on Peer-Review Docket</strong>
-                    <div style="font-size:12px; opacity:0.8;">Verification tribunal will inspect hash and update resolution ledger.</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Grounded Claims Table -->
-        <section class="claims-table-section">
-            <div class="claims-header">
-                <span class="claims-badge">GROUNDED CLAIMS DOCKET ({len(all_claims)})</span>
-                <h3>Every factual assertion is backed by a verified quote span</h3>
-            </div>
-            <div class="claims-table-card">
-                <table class="claims-table">
-                    <thead>
-                        <tr>
-                            <th>Audited Assertion &amp; Primary Quote</th>
-                            <th>Primary Source</th>
-                            <th>Verification</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {"".join(claims_rows_html)}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        {get_footer_html()}
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
-"""
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(html)
+    # Bounty page removed per user specification
+    if os.path.exists(path):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
