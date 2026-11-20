@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Power Map &middot; Pith</title>
+    <meta name="description" content="Interactive 2x2 Market Power Map: Chokepoints vs Compounding Moats vs Commoditized Layers vs Squeezed Middleware in tech infrastructure.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <!-- Particle Ember FX Canvas for Dynamic Animations -->
+    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
+
+    <!-- Atmospheric Cybernetic Background Elements -->
+    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
+    <div class="scan-line" aria-hidden="true"></div>
+    <div class="grain-overlay" aria-hidden="true"></div>
+    
+    
+    <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
+    <header class="crown">
+        <a href="index.html" class="brand-wrapper">
+            <div class="brand-mark" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+            </div>
+            <div class="brand-name">PITH</div>
+        </a>
+        <div class="nav-cluster">
+            <nav class="nav-pills-bar">
+                <a href="index.html" class="nav-link">Daily News</a><a href="matrix.html" class="nav-link active" aria-current="page">Market Map</a><a href="economics.html" class="nav-link">Cost Calculator</a><a href="terminal.html" class="nav-link">CLI Terminal</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a>
+            </nav>
+            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                <span class="elo-icon">◈</span>
+                <span class="elo-score" id="user-elo-score">1200</span>
+                <span class="elo-tier" id="user-elo-tier">Observer</span>
+            </div>
+            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
+                <span class="sound-wave-icon" aria-hidden="true">
+                    <i></i><i></i><i></i>
+                </span>
+                <span class="sound-label">Audio: On</span>
+            </button>
+            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
+                <div class="theme-icon-circle"></div>
+            </button>
+        </div>
+    </header>
+    
+
+    <div class="desk-container">
+        <section class="masthead">
+            <div>
+                <div class="eyebrow"><span class="gilt-dot"></span> MARKET POWER &middot; COMPETITIVE DEFENSIBILITY &middot; PLATFORM RISK</div>
+                <h1 class="page-title">Market <em>Power Map</em></h1>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">A 2×2 map of technology layers. Identifies true chokepoint monopolies, compounding proprietary moats, commoditized compute, and middleware vulnerable to platform sherlocking.</p>
+            </div>
+            <div class="meta-pill-group">
+                <span class="live-telemetry-chip"><i class="radar-dot"></i> ECONOMIC POWER INDEX</span>
+                <span>&middot;</span>
+                <span>SHERLOCKING RADAR</span>
+                <span>&middot;</span>
+                <span>SWITCHING FRICTION</span>
+            </div>
+        </section>
+
+        <!-- 2x2 Interactive Ecosystem Matrix Canvas -->
+        <section class="matrix-canvas-wrapper">
+            <div class="matrix-axis-label vertical">▲ ECONOMIC RENT &amp; MARGIN DEFENSIBILITY (HIGH)</div>
+            
+            <div class="matrix-grid">
+                <!-- Q1: The Chokepoints -->
+                <div class="matrix-quadrant chokepoint" id="quad-chokepoint">
+                    <div class="quad-header">
+                        <span class="quad-badge chokepoint">QUADRANT II &middot; CHOKEPOINTS</span>
+                        <span class="quad-sub">Monopoly Pricing Power &bull; High Switching Cost</span>
+                    </div>
+                    <div class="quad-nodes">
+                        <div class="matrix-node" data-risk="15%" data-layer="Hardware Packaging">
+                            <strong>CoWoS &amp; Optical Interconnects</strong>
+                            <span>Nvidia, TSMC packaging allocation bottleneck</span>
+                        </div>
+                        <div class="matrix-node" data-risk="20%" data-layer="Frontier Weights">
+                            <strong>Proprietary Reasoning Models</strong>
+                            <span>Massive capital barrier ($1B+ training clusters)</span>
+                        </div>
+                        <div class="matrix-node" data-risk="25%" data-layer="OS Integration">
+                            <strong>Native OS Permission Sandboxes</strong>
+                            <span>Apple Intelligence, Android OS-level agent APIs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q2: Compounding Moats -->
+                <div class="matrix-quadrant moat" id="quad-moat">
+                    <div class="quad-header">
+                        <span class="quad-badge moat">QUADRANT IV &middot; COMPOUNDING MOATS</span>
+                        <span class="quad-sub">Network Effects &bull; Standard Protocol Ownership</span>
+                    </div>
+                    <div class="quad-nodes">
+                        <div class="matrix-node" data-risk="30%" data-layer="Protocol Standards">
+                            <strong>Open Agent Protocol (Model Context Protocol)</strong>
+                            <span>Ecosystem standard with multi-client network effects</span>
+                        </div>
+                        <div class="matrix-node" data-risk="35%" data-layer="OSS Runtime Kernels">
+                            <strong>vLLM &amp; PyTorch 2.6 AOTInductor Kernels</strong>
+                            <span>Open-source community optimization engine</span>
+                        </div>
+                        <div class="matrix-node" data-risk="25%" data-layer="Data Workflows">
+                            <strong>Production Evaluation Datasets</strong>
+                            <span>Proprietary task ground-truth and telemetry</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q3: The Squeezed (Sherlocked) -->
+                <div class="matrix-quadrant squeezed" id="quad-squeezed">
+                    <div class="quad-header">
+                        <span class="quad-badge squeezed">QUADRANT I &middot; THE SQUEEZED</span>
+                        <span class="quad-sub">Extreme Sherlocking Risk &bull; Zero Pricing Power</span>
+                    </div>
+                    <div class="quad-nodes">
+                        <div class="matrix-node danger" data-risk="92%" data-layer="UI Wrappers">
+                            <strong>Thin LLM Wrapper Tools</strong>
+                            <span>Vulnerable to single platform feature updates</span>
+                        </div>
+                        <div class="matrix-node danger" data-risk="85%" data-layer="Single-Vendor Agents">
+                            <strong>Closed Desktop UI Clickers</strong>
+                            <span>Bypassed by native OS Computer Use APIs</span>
+                        </div>
+                        <div class="matrix-node danger" data-risk="78%" data-layer="Prompt Middleware">
+                            <strong>Basic Prompt Chaining Libraries</strong>
+                            <span>Subsumed into standardized runtime RPC endpoints</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q4: The Commodities -->
+                <div class="matrix-quadrant commodity" id="quad-commodity">
+                    <div class="quad-header">
+                        <span class="quad-badge commodity">QUADRANT III &middot; COMMODITIES</span>
+                        <span class="quad-sub">Deflationary Race to Zero &bull; Margin Compression</span>
+                    </div>
+                    <div class="quad-nodes">
+                        <div class="matrix-node warn" data-risk="65%" data-layer="Compute Hosting">
+                            <strong>Generic GPU Cloud Resellers</strong>
+                            <span>Aggressive price competition and spot commoditization</span>
+                        </div>
+                        <div class="matrix-node warn" data-risk="70%" data-layer="Token Generation">
+                            <strong>Unspecialized Open-Weights Hosting</strong>
+                            <span>Per-token pricing racing toward zero electricity cost</span>
+                        </div>
+                        <div class="matrix-node warn" data-risk="60%" data-layer="Vector Indexing">
+                            <strong>Generic Vector DB Plugins</strong>
+                            <span>Natively integrated into PostgreSQL (pgvector) and SQLite</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="matrix-axis-label horizontal">SWITCHING COST / FRICTION (LOW &rarr; EXTREME LOCK-IN) ▶</div>
+        </section>
+
+        <!-- Sherlocking Risk Threat Radar Table -->
+        <section class="sherlock-radar-section">
+            <div class="sherlock-header">
+                <span class="sherlock-badge">PLATFORM SHERLOCKING RISK INDEX</span>
+                <h3>Who is actively capturing margin from developer startups?</h3>
+            </div>
+            <div class="sherlock-table-card">
+                <table class="sherlock-table">
+                    <thead>
+                        <tr>
+                            <th>Platform Aggressor</th>
+                            <th>Target Startup Layer</th>
+                            <th>Vulnerability Mechanism</th>
+                            <th>Sherlock Risk</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Anthropic / OpenAI</strong></td>
+                            <td>RPA &amp; Screen Scraper SaaS</td>
+                            <td>Native Computer Use API standardizes desktop GUI input</td>
+                            <td><span class="status-pill critical">92% Critical</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Google / Chrome</strong></td>
+                            <td>Browser Automation Extensions</td>
+                            <td>Chromium native virtualized OS agent permissions</td>
+                            <td><span class="status-pill critical">88% Critical</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Open Source (vLLM/SGLang)</strong></td>
+                            <td>Proprietary Inference Middleware</td>
+                            <td>Prefix caching and FP8 GEMM kernels standardized in OSS</td>
+                            <td><span class="status-pill high">78% High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>PostgreSQL / SQLite</strong></td>
+                            <td>Pure Vector Database Startups</td>
+                            <td>pgvector + sqlite-vec subsumes 90% of production RAG</td>
+                            <td><span class="status-pill high">74% High</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        
+        <footer class="colophon">
+            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
+            <div class="footer-nav">
+                <a href="index.html">Daily News</a>
+                <a href="matrix.html">Market Map</a>
+                <a href="economics.html">Cost Calculator</a>
+                <a href="terminal.html">CLI Terminal</a>
+                <a href="ledger.html">Forecast Ledger</a>
+                <a href="archive.html">News Archive</a>
+                <a href="patterns.html">Tech Patterns</a>
+            </div>
+        </footer>
+    
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

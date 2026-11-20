@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction Ledger &middot; Pith</title>
+    <title>Forecast Tracker &middot; Pith</title>
     <meta name="description" content="Public, unedited track record of dated falsifiable predictions, Brier accuracy scores, and calibration statistics for Pith.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
@@ -12,9 +12,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
-    <div id="bar" aria-hidden="true"></div>
+    <!-- Particle Ember FX Canvas for Dynamic Animations -->
+    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
 
+    <!-- Atmospheric Cybernetic Background Elements -->
+    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
+    <div class="scan-line" aria-hidden="true"></div>
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    
+    <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
     <header class="crown">
         <a href="index.html" class="brand-wrapper">
             <div class="brand-mark" aria-hidden="true">
@@ -23,10 +32,8 @@
             <div class="brand-name">PITH</div>
         </a>
         <div class="nav-cluster">
-            <nav>
-                <a href="index.html" class="nav-link">Brief</a>
-                <a href="ledger.html" class="nav-link active" aria-current="page">Ledger</a>
-                <a href="patterns.html" class="nav-link">Patterns</a>
+            <nav class="nav-pills-bar">
+                <a href="index.html" class="nav-link">Daily News</a><a href="matrix.html" class="nav-link">Market Map</a><a href="economics.html" class="nav-link">Cost Calculator</a><a href="terminal.html" class="nav-link">CLI Terminal</a><a href="ledger.html" class="nav-link active" aria-current="page">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a>
             </nav>
             <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
                 <span class="elo-icon">◈</span>
@@ -44,14 +51,18 @@
             </button>
         </div>
     </header>
+    
 
     <div class="desk-container">
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD</div>
-                <h1 class="page-title">Prediction <em>Ledger</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD &middot; ACCURACY LEDGER</div>
+                <h1 class="page-title">Forecast <em>Tracker</em></h1>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Public, immutable ledger of all dated falsifiable predictions. Audited with mathematical Brier scoring to ensure rigorous forecasting calibration.</p>
             </div>
             <div class="meta-pill-group">
+                <span class="live-telemetry-chip"><i class="radar-dot"></i> ON-RECORD</span>
+                <span>&middot;</span>
                 <span>IMMUTABLE PROBABILITIES</span>
                 <span>&middot;</span>
                 <span>ZERO RETROSPECTIVE EDITS</span>
@@ -76,7 +87,7 @@
                 <div class="bignum-sub">Preliminary (need >= 20)</div>
             </div>
             <div class="bignum-card">
-                <div class="bignum" data-target="5" data-format="int">5</div>
+                <div class="bignum" data-target="10" data-format="int">10</div>
                 <div class="bignum-label">Active Forecasts</div>
                 <div class="bignum-sub">Under evaluation</div>
             </div>
@@ -397,18 +408,105 @@
             <td>&mdash;</td>
         </tr>
         
+        <tr data-status="open" data-category="adoption">
+            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
+            <td>
+                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+                    <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
+                </div>
+                
+            </td>
+            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
+            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="status-pill open">open</span></td>
+            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
+            <td>&mdash;</td>
+        </tr>
+        
+        <tr data-status="open" data-category="adoption">
+            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
+            <td>
+                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+                    <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
+                </div>
+                
+            </td>
+            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
+            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="status-pill open">open</span></td>
+            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
+            <td>&mdash;</td>
+        </tr>
+        
+        <tr data-status="open" data-category="adoption">
+            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
+            <td>
+                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+                    <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
+                </div>
+                
+            </td>
+            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
+            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="status-pill open">open</span></td>
+            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
+            <td>&mdash;</td>
+        </tr>
+        
+        <tr data-status="open" data-category="adoption">
+            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
+            <td>
+                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+                    <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
+                </div>
+                
+            </td>
+            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
+            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="status-pill open">open</span></td>
+            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
+            <td>&mdash;</td>
+        </tr>
+        
+        <tr data-status="open" data-category="adoption">
+            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
+            <td>
+                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+                    <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
+                </div>
+                
+            </td>
+            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
+            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="status-pill open">open</span></td>
+            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
+            <td>&mdash;</td>
+        </tr>
+        
                 </tbody>
             </table>
         </section>
 
-        <footer class="desk-footer">
-            <div><strong>Pith</strong> &middot; Public Prediction Ledger</div>
+        
+        <footer class="colophon">
+            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
             <div class="footer-nav">
-                <a href="index.html">Today's Issue</a>
-                <a href="ledger.html">Public Ledger</a>
-                <a href="patterns.html">Pattern Library</a>
+                <a href="index.html">Daily News</a>
+                <a href="matrix.html">Market Map</a>
+                <a href="economics.html">Cost Calculator</a>
+                <a href="terminal.html">CLI Terminal</a>
+                <a href="ledger.html">Forecast Ledger</a>
+                <a href="archive.html">News Archive</a>
+                <a href="patterns.html">Tech Patterns</a>
             </div>
         </footer>
+    
     </div>
     <script src="app.js"></script>
 </body>

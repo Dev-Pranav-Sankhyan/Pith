@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pattern Library &middot; Pith</title>
+    <title>Tech Patterns &middot; Pith</title>
     <meta name="description" content="Curated catalog of recurring tech dynamics, historical base rates, failure modes, and cognitive bias warnings for Pith.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
@@ -12,9 +12,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Scroll-Driven Laser Progress Bar (Scroll Animation.html) -->
-    <div id="bar" aria-hidden="true"></div>
+    <!-- Particle Ember FX Canvas for Dynamic Animations -->
+    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
 
+    <!-- Atmospheric Cybernetic Background Elements -->
+    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
+    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
+    <div class="scan-line" aria-hidden="true"></div>
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    
+    <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
     <header class="crown">
         <a href="index.html" class="brand-wrapper">
             <div class="brand-mark" aria-hidden="true">
@@ -23,10 +32,8 @@
             <div class="brand-name">PITH</div>
         </a>
         <div class="nav-cluster">
-            <nav>
-                <a href="index.html" class="nav-link">Brief</a>
-                <a href="ledger.html" class="nav-link">Ledger</a>
-                <a href="patterns.html" class="nav-link active" aria-current="page">Patterns</a>
+            <nav class="nav-pills-bar">
+                <a href="index.html" class="nav-link">Daily News</a><a href="matrix.html" class="nav-link">Market Map</a><a href="economics.html" class="nav-link">Cost Calculator</a><a href="terminal.html" class="nav-link">CLI Terminal</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link active" aria-current="page">Tech Patterns</a>
             </nav>
             <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
                 <span class="elo-icon">◈</span>
@@ -44,14 +51,17 @@
             </button>
         </div>
     </header>
+    
 
     <div class="desk-container">
         <section class="masthead">
             <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; BASE RATES &middot; BIAS PITFALLS</div>
-                <h1 class="page-title">Pattern <em>Library</em></h1>
+                <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; HISTORICAL PRECEDENTS &middot; MENTAL MODELS</div>
+                <h1 class="page-title">Tech <em>Patterns</em></h1>
             </div>
             <div class="meta-pill-group">
+                <span class="live-telemetry-chip"><i class="radar-dot"></i> CATALOGUED</span>
+                <span>&middot;</span>
                 <span>MENTAL MODELS</span>
                 <span>&middot;</span>
                 <span>6 ARCHITECTURAL DYNAMICS</span>
@@ -410,14 +420,21 @@
         
         </main>
 
-        <footer class="desk-footer">
-            <div><strong>Pith</strong> &middot; Mental Models &amp; Pattern Library</div>
+        
+        <footer class="colophon">
+            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
             <div class="footer-nav">
-                <a href="index.html">Today's Issue</a>
-                <a href="ledger.html">Public Ledger</a>
-                <a href="patterns.html">Pattern Library</a>
+                <a href="index.html">Daily News</a>
+                <a href="matrix.html">Market Map</a>
+                <a href="economics.html">Cost Calculator</a>
+                <a href="terminal.html">CLI Terminal</a>
+                <a href="ledger.html">Forecast Ledger</a>
+                <a href="archive.html">News Archive</a>
+                <a href="patterns.html">Tech Patterns</a>
             </div>
         </footer>
+    
     </div>
     <script src="app.js"></script>
 </body>
