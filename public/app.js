@@ -855,6 +855,97 @@ function initNoiseShredder() {
 }
 
 // ==========================================================================
+// 7.5 Daily News Headlines-Only Collapsible Disclosure Controller
+// ==========================================================================
+function initDailyNewsHeadlines() {
+  const cards = document.querySelectorAll(".lab-card.news-story-card");
+  if (!cards.length) return;
+
+  const toggleAllBtn = document.getElementById("toggle-all-headlines-btn");
+
+  cards.forEach(card => {
+    const trigger = card.querySelector(".card-headline-trigger");
+    const drawer = card.querySelector(".card-details-drawer");
+    if (!trigger || !drawer) return;
+
+    const badgeText = card.querySelector(".expand-badge-text");
+
+    function toggleCard(expand) {
+      const shouldExpand = (typeof expand === "boolean") ? expand : card.classList.contains("is-collapsed");
+      if (shouldExpand) {
+        card.classList.remove("is-collapsed");
+        card.classList.add("is-expanded");
+        trigger.setAttribute("aria-expanded", "true");
+        if (badgeText) badgeText.textContent = "Collapse";
+        sound.playExpand();
+      } else {
+        card.classList.remove("is-expanded");
+        card.classList.add("is-collapsed");
+        trigger.setAttribute("aria-expanded", "false");
+        if (badgeText) badgeText.textContent = "Details";
+        sound.playCollapse();
+      }
+      updateToggleAllBtn();
+    }
+
+    trigger.addEventListener("click", (e) => {
+      if (e.target.closest("a")) return;
+      toggleCard();
+    });
+
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleCard();
+      }
+    });
+  });
+
+  function updateToggleAllBtn() {
+    if (!toggleAllBtn) return;
+    const allExpanded = Array.from(cards).every(c => c.classList.contains("is-expanded"));
+    const icon = toggleAllBtn.querySelector(".expand-all-icon");
+    const text = toggleAllBtn.querySelector(".expand-all-text");
+    toggleAllBtn.setAttribute("aria-expanded", String(allExpanded));
+    if (allExpanded) {
+      if (icon) icon.textContent = "⊟";
+      if (text) text.textContent = "Collapse All";
+    } else {
+      if (icon) icon.textContent = "⊞";
+      if (text) text.textContent = "Expand All";
+    }
+  }
+
+  if (toggleAllBtn) {
+    toggleAllBtn.addEventListener("click", () => {
+      const isAllExpanded = Array.from(cards).every(c => c.classList.contains("is-expanded"));
+      const nextState = !isAllExpanded;
+      cards.forEach(card => {
+        const trigger = card.querySelector(".card-headline-trigger");
+        const badgeText = card.querySelector(".expand-badge-text");
+        if (nextState) {
+          card.classList.remove("is-collapsed");
+          card.classList.add("is-expanded");
+          if (trigger) trigger.setAttribute("aria-expanded", "true");
+          if (badgeText) badgeText.textContent = "Collapse";
+        } else {
+          card.classList.remove("is-expanded");
+          card.classList.add("is-collapsed");
+          if (trigger) trigger.setAttribute("aria-expanded", "false");
+          if (badgeText) badgeText.textContent = "Details";
+        }
+      });
+      if (nextState) {
+        sound.playExpand();
+      } else {
+        sound.playCollapse();
+      }
+      updateToggleAllBtn();
+    });
+  }
+}
+
+// ==========================================================================
 // 8. Card Hover Stability (3D Tilt removed for effortless reading)
 // ==========================================================================
 function initCardTilt() {
@@ -1314,6 +1405,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Animate ledger counters if on ledger page
   animateLedgerCounters();
 
+  // Initialize Headlines-Only Collapsible Disclosure System
+  initDailyNewsHeadlines();
+
   // Initialize Beat the Brief, Noise Shredder, and Slack Share
   initBeatTheBrief();
   initNoiseShredder();
@@ -1545,7 +1639,7 @@ function initMatrixPage() {
 }
 
 // ------------------------------------------------------------------------------
-// 15.3 Inference Economics Calculator Controller
+// 15.2 Inference Economics Calculator Controller
 // ------------------------------------------------------------------------------
 function initEconomicsPage() {
   const calcGrid = document.querySelector(".calc-workspace-grid");
@@ -1555,137 +1649,203 @@ function initEconomicsPage() {
   const dauVal = document.getElementById("dau-val");
   const reqSlider = document.getElementById("req-slider");
   const reqVal = document.getElementById("req-val");
-  const tokSlider = document.getElementById("tokens-slider");
-  const tokVal = document.getElementById("tokens-val");
+  const inputTokSlider = document.getElementById("input-tok-slider");
+  const inputTokVal = document.getElementById("input-tok-val");
+  const outputTokSlider = document.getElementById("output-tok-slider");
+  const outputTokVal = document.getElementById("output-tok-val");
 
-  let activeTier = "70b";
-  let activeGpu = "h100";
+  if (!dauSlider || !reqSlider || !inputTokSlider || !outputTokSlider) return;
 
-  // Tier pricing models per 1M tokens ($)
-  const tierApiCosts = {
-    "8b": 0.20,
-    "70b": 1.75,
-    "400b": 6.50
-  };
+  let activeTier = "medium"; // "small" (8B), "medium" (70B), "frontier" (MoE)
 
-  // GPU monthly rental costs ($ per 8x node) & throughput capacity (tokens/sec per node)
-  const gpuSpecs = {
-    "l40s": { monthlyRent: 1400, tokensPerSec: 650 },
-    "h100": { monthlyRent: 2600, tokensPerSec: 2200 },
-    "b200": { monthlyRent: 4200, tokensPerSec: 5800 }
+  // Pricing models per 1M tokens ($) [input, output]
+  const tierPricing = {
+    "small": {
+      name: "8B Edge (Llama 3.1)",
+      inputRate: 0.15,
+      outputRate: 0.60,
+      gpuType: "2x L40S (48GB)",
+      nodeCost: 1200,
+      tpsPerNode: 2200,
+      kvBytesPerTok: 0.000004
+    },
+    "medium": {
+      name: "70B Parameter (Llama 3.3)",
+      inputRate: 1.25,
+      outputRate: 5.00,
+      gpuType: "4x H100 (80GB)",
+      nodeCost: 4800,
+      tpsPerNode: 1400,
+      kvBytesPerTok: 0.000008
+    },
+    "frontier": {
+      name: "Frontier MoE (DeepSeek-V3)",
+      inputRate: 3.00,
+      outputRate: 12.00,
+      gpuType: "8x H100 SXM5",
+      nodeCost: 9600,
+      tpsPerNode: 950,
+      kvBytesPerTok: 0.000014
+    }
   };
 
   function recalculate() {
-    if (!dauSlider || !reqSlider || !tokSlider) return;
-
     const dau = parseInt(dauSlider.value, 10);
     const req = parseInt(reqSlider.value, 10);
-    const tok = parseInt(tokSlider.value, 10);
+    const inTok = parseInt(inputTokSlider.value, 10);
+    const outTok = parseInt(outputTokSlider.value, 10);
 
-    // Update UI text labels
-    if (dauVal) dauVal.textContent = dau >= 1000 ? (dau >= 1000000 ? (dau / 1000000).toFixed(1) + "M" : (dau / 1000).toFixed(0) + "k") : dau;
-    if (reqVal) reqVal.textContent = req;
-    if (tokVal) tokVal.textContent = tok >= 1000 ? (tok / 1000).toFixed(1) + "k" : tok;
+    // Update Slider text labels
+    if (dauVal) dauVal.textContent = dau >= 1000 ? (dau >= 1000000 ? (dau / 1000000).toFixed(1) + "M" : (dau / 1000).toFixed(0) + ",000") : dau.toLocaleString();
+    if (reqVal) reqVal.textContent = req + " reqs";
+    if (inputTokVal) inputTokVal.textContent = inTok >= 1000 ? (inTok / 1000).toFixed(1) + "k tok" : inTok + " tok";
+    if (outputTokVal) outputTokVal.textContent = outTok >= 1000 ? (outTok / 1000).toFixed(1) + "k tok" : outTok + " tok";
+
+    const tier = tierPricing[activeTier] || tierPricing["medium"];
 
     // Daily & Monthly token volumes
-    const dailyTokens = dau * req * tok;
-    const monthlyTokens = dailyTokens * 30;
-    const monthlyMillions = monthlyTokens / 1000000;
+    const dailyRequests = dau * req;
+    const monthlyRequests = dailyRequests * 30;
+    const monthlyInputTokens = monthlyRequests * inTok;
+    const monthlyOutputTokens = monthlyRequests * outTok;
+    const totalMonthlyTokens = monthlyInputTokens + monthlyOutputTokens;
 
     // 1. Cloud API Bill
-    const apiRate = tierApiCosts[activeTier] || 1.75;
-    const cloudMonthly = monthlyMillions * apiRate;
+    const cloudInputCost = (monthlyInputTokens / 1000000) * tier.inputRate;
+    const cloudOutputCost = (monthlyOutputTokens / 1000000) * tier.outputRate;
+    const cloudTotalMonthly = Math.round(cloudInputCost + cloudOutputCost);
 
-    // 2. Bare-metal Hardware requirement
-    // Peak concurrency factor: assume 35% of daily requests occur in peak 4 hours
-    const peakTokensPerSec = (dailyTokens * 0.35) / (4 * 3600);
-    const gpuThroughput = gpuSpecs[activeGpu].tokensPerSec;
-    const nodesNeeded = Math.max(1, Math.ceil(peakTokensPerSec / gpuThroughput));
-    const baremetalMonthly = nodesNeeded * gpuSpecs[activeGpu].monthlyRent;
+    // 2. Bare-Metal GPU Hardware Requirement
+    // Peak concurrency: 35% of daily volume concentrated in peak 4 hours
+    const peakQPS = (dailyRequests * 0.35) / (4 * 3600);
+    const peakOutTPS = peakQPS * outTok;
+    const nodesNeeded = Math.max(1, Math.ceil(peakOutTPS / tier.tpsPerNode));
+    const baremetalTotalMonthly = nodesNeeded * tier.nodeCost;
 
-    // 3. Net Savings & Arbitrage
-    const delta = cloudMonthly - baremetalMonthly;
-    const marginExpansion = cloudMonthly > 0 ? Math.round((delta / cloudMonthly) * 100) : 0;
+    // 3. Hardware Footprint & KV Cache
+    const totalBillionTok = (totalMonthlyTokens / 1000000000).toFixed(2);
+    const kvMemoryGB = Math.round((inTok + outTok) * tier.kvBytesPerTok * Math.max(16, peakQPS * 12) * 10) / 10 + 16;
 
-    // Update DOM Telemetry Boxes
-    const cloudEl = document.querySelector(".cloud-cost .telemetry-big-num");
-    const baremetalEl = document.querySelector(".baremetal-cost .telemetry-big-num");
-    const deltaEl = document.querySelector(".delta-box .telemetry-big-num");
-    const deltaSub = document.querySelector(".delta-box .telemetry-sub");
-    const deltaHead = document.querySelector(".delta-headline");
+    // 4. Net Savings & Arbitrage
+    const delta = cloudTotalMonthly - baremetalTotalMonthly;
+    const marginPct = cloudTotalMonthly > 0 ? Math.round((delta / cloudTotalMonthly) * 100) : 0;
 
-    if (cloudEl) cloudEl.textContent = "$" + Math.round(cloudMonthly).toLocaleString() + "/mo";
-    if (baremetalEl) baremetalEl.textContent = "$" + Math.round(baremetalMonthly).toLocaleString() + `/mo (${nodesNeeded}x node${nodesNeeded > 1 ? "s" : ""})`;
-    
-    if (deltaEl) {
+    // Inflection point DAU
+    const costPerDauOnCloud = cloudTotalMonthly / Math.max(1, dau);
+    const inflectionDau = Math.round(tier.nodeCost / Math.max(0.001, costPerDauOnCloud));
+
+    // Update DOM Telemetry
+    const cloudCostEl = document.getElementById("cloud-monthly-cost");
+    const cloudSubEl = document.getElementById("cloud-cost-sub");
+    const baremetalCostEl = document.getElementById("baremetal-monthly-cost");
+    const baremetalSubEl = document.getElementById("baremetal-cost-sub");
+    const deltaSavingsEl = document.getElementById("delta-savings");
+    const deltaInflectionEl = document.getElementById("delta-inflection");
+
+    const specKvEl = document.getElementById("spec-kv-memory");
+    const specTokensEl = document.getElementById("spec-total-tokens");
+    const specGpuEl = document.getElementById("spec-gpu-count");
+    const specSavingsEl = document.getElementById("spec-cache-savings");
+
+    if (cloudCostEl) cloudCostEl.innerHTML = "$" + cloudTotalMonthly.toLocaleString() + "<small>/mo</small>";
+    if (cloudSubEl) cloudSubEl.textContent = `Based on $${tier.inputRate.toFixed(2)}/M in + $${tier.outputRate.toFixed(2)}/M out`;
+
+    if (baremetalCostEl) baremetalCostEl.innerHTML = "$" + baremetalTotalMonthly.toLocaleString() + "<small>/mo</small>";
+    if (baremetalSubEl) baremetalSubEl.textContent = `${nodesNeeded}x ${tier.gpuType} rented on reserve bare metal`;
+
+    if (deltaSavingsEl) {
       if (delta >= 0) {
-        deltaEl.textContent = "+$" + Math.round(delta).toLocaleString() + "/mo";
-        deltaEl.style.color = "var(--good)";
-        if (deltaHead) deltaHead.textContent = `Bare-metal deployment unlocks +${marginExpansion}% gross margin expansion`;
-        if (deltaSub) deltaSub.textContent = `Breakeven reached at ~${Math.round(dau * 0.25).toLocaleString()} DAU`;
+        deltaSavingsEl.textContent = `Save +$${delta.toLocaleString()} / mo (${marginPct}%)`;
+        deltaSavingsEl.style.color = "var(--good)";
       } else {
-        deltaEl.textContent = "-$" + Math.abs(Math.round(delta)).toLocaleString() + "/mo";
-        deltaEl.style.color = "var(--muted)";
-        if (deltaHead) deltaHead.textContent = "Cloud API remains more capital-efficient at this scale";
-        if (deltaSub) deltaSub.textContent = `Stay on managed API until token volume scales past ${(monthlyMillions * 2).toFixed(1)}M tok/mo`;
+        deltaSavingsEl.textContent = `Cloud API cheaper by $${Math.abs(delta).toLocaleString()} / mo`;
+        deltaSavingsEl.style.color = "var(--cyan)";
       }
     }
+
+    if (deltaInflectionEl) {
+      if (delta >= 0) {
+        deltaInflectionEl.innerHTML = `<strong>Migration Inflection Point Exceeded:</strong> Self-hosting became profitable at <strong>${inflectionDau.toLocaleString()} DAU</strong>.`;
+      } else {
+        deltaInflectionEl.innerHTML = `<strong>Migration Inflection Point:</strong> Keep on Cloud API until volume crosses <strong>${inflectionDau.toLocaleString()} DAU</strong>.`;
+      }
+    }
+
+    if (specKvEl) specKvEl.textContent = `${kvMemoryGB.toFixed(1)} GB`;
+    if (specTokensEl) specTokensEl.textContent = `${totalBillionTok} Billion`;
+    if (specGpuEl) specGpuEl.textContent = `${nodesNeeded}x ${tier.gpuType}`;
+    if (specSavingsEl) specSavingsEl.textContent = activeTier === "frontier" ? "~42% latency cut (DualPipe)" : "~35% latency cut (Prefix Cache)";
   }
 
   // Hook slider inputs
-  [dauSlider, reqSlider, tokSlider].forEach(slider => {
-    if (slider) {
-      slider.addEventListener("input", () => {
-        sound.playTick();
-        recalculate();
+  [dauSlider, reqSlider, inputTokSlider, outputTokSlider].forEach(slider => {
+    slider.addEventListener("input", () => {
+      try { sound.playTick(); } catch (e) {}
+      recalculate();
+    });
+  });
+
+  // Hook Model Tier Choice buttons
+  document.querySelectorAll("#model-tier-buttons .calc-choice-btn[data-tier]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      try { sound.playTick(); } catch (e) {}
+      document.querySelectorAll("#model-tier-buttons .calc-choice-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeTier = btn.getAttribute("data-tier") || "medium";
+      recalculate();
+    });
+  });
+
+  // Presets Handlers
+  const presetDeepseek = document.getElementById("preset-deepseek");
+  if (presetDeepseek) {
+    presetDeepseek.addEventListener("click", () => {
+      try { sound.playPithClack(); } catch (e) {}
+      dauSlider.value = 45000;
+      reqSlider.value = 16;
+      inputTokSlider.value = 3200;
+      outputTokSlider.value = 600;
+      activeTier = "frontier";
+      document.querySelectorAll("#model-tier-buttons .calc-choice-btn").forEach(b => {
+        b.classList.toggle("active", b.getAttribute("data-tier") === "frontier");
       });
-    }
-  });
-
-  // Hook Tier choice buttons
-  document.querySelectorAll(".calc-choice-btn[data-tier]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      sound.playTick();
-      document.querySelectorAll(".calc-choice-btn[data-tier]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeTier = btn.getAttribute("data-tier");
       recalculate();
     });
-  });
+  }
 
-  // Hook Hardware choice buttons
-  document.querySelectorAll(".calc-choice-btn[data-gpu]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      sound.playTick();
-      document.querySelectorAll(".calc-choice-btn[data-gpu]").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeGpu = btn.getAttribute("data-gpu");
+  const presetCloudflare = document.getElementById("preset-cloudflare");
+  if (presetCloudflare) {
+    presetCloudflare.addEventListener("click", () => {
+      try { sound.playPithClack(); } catch (e) {}
+      dauSlider.value = 80000;
+      reqSlider.value = 25;
+      inputTokSlider.value = 1200;
+      outputTokSlider.value = 250;
+      activeTier = "small";
+      document.querySelectorAll("#model-tier-buttons .calc-choice-btn").forEach(b => {
+        b.classList.toggle("active", b.getAttribute("data-tier") === "small");
+      });
       recalculate();
     });
-  });
+  }
 
-  // Presets
-  document.querySelectorAll(".preset-pill[data-preset]").forEach(pill => {
-    pill.addEventListener("click", () => {
-      sound.playPithClack();
-      const preset = pill.getAttribute("data-preset");
-      if (preset === "startup") {
-        dauSlider.value = 5000;
-        reqSlider.value = 4;
-        tokSlider.value = 1200;
-      } else if (preset === "scale") {
-        dauSlider.value = 45000;
-        reqSlider.value = 12;
-        tokSlider.value = 2500;
-      } else if (preset === "enterprise") {
-        dauSlider.value = 250000;
-        reqSlider.value = 25;
-        tokSlider.value = 4000;
-      }
+  const presetVllm = document.getElementById("preset-vllm");
+  if (presetVllm) {
+    presetVllm.addEventListener("click", () => {
+      try { sound.playPithClack(); } catch (e) {}
+      dauSlider.value = 25000;
+      reqSlider.value = 12;
+      inputTokSlider.value = 2400;
+      outputTokSlider.value = 450;
+      activeTier = "medium";
+      document.querySelectorAll("#model-tier-buttons .calc-choice-btn").forEach(b => {
+        b.classList.toggle("active", b.getAttribute("data-tier") === "medium");
+      });
       recalculate();
     });
-  });
+  }
 
+  // Initial calculation on page load
   recalculate();
 }
 

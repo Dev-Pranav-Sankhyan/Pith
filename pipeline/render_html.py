@@ -184,21 +184,30 @@ def render_index(issue, path: str):
         schematic_html = get_card_schematic(card.id)
 
         cards_html.append(f"""
-        <article class="lab-card" id="{escape(card.id)}" data-role-views='{role_views_json}'>
-            <div class="card-header-line">
-                <span class="card-roman">{roman} &middot; {escape(card.beat)}</span>
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    {pattern_badge}
-                    <span class="card-sources-count">{len(card.evidence_links)} primary source</span>
+        <article class="lab-card news-story-card is-collapsed" id="{escape(card.id)}" data-role-views='{role_views_json}'>
+            <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
+                <div class="card-header-line">
+                    <span class="card-roman">{roman} &middot; {escape(card.beat)}</span>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        {pattern_badge}
+                        <span class="card-sources-count">{len(card.evidence_links)} primary source</span>
+                    </div>
+                </div>
+
+                <div class="headline-flex-row">
+                    <h2 class="card-headline">{escape(card.headline)}</h2>
+                    <span class="headline-expand-badge" aria-hidden="true">
+                        <span class="expand-badge-icon">+</span>
+                        <span class="expand-badge-text">Details</span>
+                    </span>
                 </div>
             </div>
 
-            <h2 class="card-headline">{escape(card.headline)}</h2>
-
-            <div class="story-block">
-                <span class="story-lead">What Happened:</span>
-                <span>{escape(card.what_happened)}</span>
-            </div>
+            <div class="card-details-drawer">
+                <div class="story-block">
+                    <span class="story-lead">What Happened:</span>
+                    <span>{escape(card.what_happened)}</span>
+                </div>
 
             <div class="story-block">
                 <span class="story-lead">Why It Matters:</span>
@@ -328,6 +337,7 @@ def render_index(issue, path: str):
                     </ul>
                 </div>
             </div>
+            </div>
         </article>
         """)
 
@@ -412,7 +422,7 @@ def render_index(issue, path: str):
                                     <span></span><span></span><span></span><span></span>
                                 </div>
                             </div>
-                            <div class="audio-brief-sub">ElevenLabs Voice (Adam) &middot; Studio-mastered &middot; Natural breathing &middot; -45dB room tone &middot; -16 LUFS</div>
+                            <div class="audio-brief-sub">ElevenLabs Voice (Nicole) &middot; Studio-mastered &middot; Natural breathing &middot; -45dB room tone &middot; -16 LUFS</div>
                         </div>
                     </div>
 
@@ -456,6 +466,17 @@ def render_index(issue, path: str):
 
         <!-- Cards Flow -->
         <main class="cards-flow">
+            <div class="headlines-toolbar">
+                <div class="headlines-toolbar-status">
+                    <span class="live-pulse-dot"></span>
+                    <span>Daily Filtered Shifts &middot; Click any headline to inspect full briefing</span>
+                </div>
+                <button class="expand-all-btn" id="toggle-all-headlines-btn" type="button" aria-expanded="false" title="Expand or collapse all intelligence cards">
+                    <span class="expand-all-icon">⊞</span>
+                    <span class="expand-all-text">Expand All</span>
+                </button>
+            </div>
+
             {"".join(cards_html)}
 
             <!-- "Zero-FOMO" Completion Card -->

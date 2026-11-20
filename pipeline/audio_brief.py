@@ -168,9 +168,9 @@ def synthesize_speech_macos(speech_text: str, output_aiff_path: str) -> bool:
 
 
 def synthesize_speech_elevenlabs(script: str, output_mp3_path: str) -> bool:
-    """Uses ElevenLabs TTS API with Adam voice (calm, intellectual tech narrative tone)."""
+    """Uses ElevenLabs TTS API with Nicole voice (calm, crisp, authoritative intelligence narrative tone)."""
     api_key = os.environ.get("ELEVENLABS_API_KEY") or "sk_2f20e5d26c9c8200fa2a79044638ad3fb05c31520635d9d0"
-    voice_id = "pNInz6obpgDQGcFmaJgB"  # Adam
+    voice_id = "piTKgcLEGmPE4e6mEKli"  # Nicole
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     
     clean_text = script.replace("[[slnc 650]]", "\n\n... ").strip()
@@ -234,7 +234,7 @@ def synthesize_speech_openai(script: str, output_mp3_path: str) -> bool:
 
 def synthesize_raw_audio(script: str, temp_raw_path: str) -> bool:
     """Tries ElevenLabs -> OpenAI -> macOS 'say' (Daniel)."""
-    print("  Using ElevenLabs Voice Synthesis (Adam - Narrative Tech Lead)...")
+    print("  Using ElevenLabs Voice Synthesis (Nicole - Intelligence Brief Lead)...")
     if synthesize_speech_elevenlabs(script, temp_raw_path):
         return True
 
