@@ -492,6 +492,7 @@ def render_terminal(latest_issue: DailyIssue, path: str):
 </pre>
                     <div class="term-meta-line">SYSTEM STATUS: <span style="color:#10B981;">ALL RUNTIMES OPTIMAL</span> &bull; DATE: {latest_issue.date} &bull; BEAT: {latest_issue.beat}</div>
                     <div class="term-help-hint">Type <span class="term-key">help</span> to list commands, or try <span class="term-key">today</span>, <span class="term-key">listen</span>, <span class="term-key">stats</span>, <span class="term-key">matrix</span>, <span class="term-key">calc</span>, <span class="term-key">clear</span>.</div>
+                    <div class="term-security-notice" style="font-size:11.5px; color:#888; margin-top:6px;">SESSION RESTRICTION: Commands outside the approved intelligence whitelist are strictly blocked.</div>
                 </div>
 
                 <div class="term-output-history" id="term-output-history"></div>

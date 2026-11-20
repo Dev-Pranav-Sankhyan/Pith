@@ -1872,6 +1872,38 @@ function initTerminalPage() {
     const parts = cmd.split(/\s+/);
     const primary = parts[0];
 
+    // Strict Whitelist Enforcement - Zero Unapproved Command Access
+    const ALLOWED_COMMANDS = new Set([
+      "help", "?",
+      "today", "news", "pith",
+      "listen",
+      "stats", "ledger",
+      "matrix",
+      "calc",
+      "curl",
+      "ls",
+      "cat",
+      "whoami",
+      "pwd",
+      "uname",
+      "date",
+      "uptime",
+      "theme",
+      "clear",
+      "exit", "home",
+      "echo"
+    ]);
+
+    if (!ALLOWED_COMMANDS.has(primary)) {
+      printLine(`
+        <div class="term-error">
+          <span class="term-tag tag-error">PERMISSION DENIED</span>
+          <span>pith: access restricted: command '<strong>${escapeHtml(primary)}</strong>' is not permitted. Access is strictly restricted to approved intelligence terminal commands (<span class="term-key">today</span>, <span class="term-key">listen</span>, <span class="term-key">stats</span>, <span class="term-key">matrix</span>, <span class="term-key">calc</span>, <span class="term-key">curl</span>, <span class="term-key">ls</span>, <span class="term-key">cat</span>, <span class="term-key">clear</span>, <span class="term-key">theme</span>, <span class="term-key">exit</span>). Type '<span style="color:#fff; text-decoration:underline;">help</span>' to list permitted commands.</span>
+        </div>
+      `);
+      return;
+    }
+
     switch (primary) {
       case "help":
       case "?":
@@ -1998,15 +2030,31 @@ function initTerminalPage() {
       }
 
       case "curl": {
-        const target = parts[1] || "today";
-        if (target === "dev" || target === "developer") {
+        const target = (parts[1] || "today").toLowerCase();
+        if (target.startsWith("http://") || target.startsWith("https://") || target.startsWith("-")) {
+          printLine(`
+            <div class="term-error">
+              <span class="term-tag tag-error">EGRESS BLOCKED</span>
+              <span>pith: network egress blocked: external HTTP queries restricted by firewall security policy. Permitted local telemetry endpoints: 'curl dev', 'curl founder', 'curl investor', 'curl matrix', 'curl news'.</span>
+            </div>
+          `);
+        } else if (target === "dev" || target === "developer") {
           printLine(`{"role": "developer", "action": "DO THIS WEEK", "directive": "Pin system prompt tokens to provider prefix hash boundaries to cut recompute by 88%."}`);
-        } else if (target === "founder") {
+        } else if (target === "founder" || target === "founders") {
           printLine(`{"role": "founder", "action": "WATCH TRIGGER", "directive": "Budget GPU cluster reservation once monthly volume crosses 40M tokens."}`);
-        } else if (target === "investor") {
+        } else if (target === "investor" || target === "investors") {
           printLine(`{"role": "investor", "thesis": "Short thin agent wrappers; long private state schemas and chokepoint data access."}`);
-        } else {
+        } else if (target === "matrix") {
+          printLine(`{"quadrants": 4, "chokepoint": ["Nvidia CUDA", "TSMC"], "commodity": ["Standard Model APIs"], "squeezed": ["Thin Wrappers"]}`);
+        } else if (target === "today" || target === "news") {
           printLine(`{"issue": "${new Date().toISOString().slice(0, 10)}", "status": "200 OK", "signal_count": 3, "top_story": "KV-Cache Eviction & Prefix Hashing"}`);
+        } else {
+          printLine(`
+            <div class="term-error">
+              <span class="term-tag tag-error">PERMISSION DENIED</span>
+              <span>pith: curl: endpoint '<strong>${escapeHtml(target)}</strong>' not permitted. Allowed local endpoints: <span class="term-key">curl dev</span>, <span class="term-key">curl founder</span>, <span class="term-key">curl investor</span>, <span class="term-key">curl matrix</span>, <span class="term-key">curl today</span>.</span>
+            </div>
+          `);
         }
         break;
       }
@@ -2081,7 +2129,12 @@ commodity_compute,Standard Model APIs,moderate,low,PRICE_WAR
 </pre>
           `);
         } else {
-          printLine(`<div style="color:var(--red-ink);">cat: ${escapeHtml(filename)}: No such file or directory</div>`);
+          printLine(`
+            <div class="term-error">
+              <span class="term-tag tag-error">PERMISSION DENIED</span>
+              <span>pith: cat: file '<strong>${escapeHtml(filename)}</strong>' is not permitted. File access is strictly restricted to sandbox intelligence files (<span class="term-key">today.md</span>, <span class="term-key">forecasts.json</span>, <span class="term-key">market_matrix.csv</span>, <span class="term-key">system_telemetry.log</span>, <span class="term-key">README.md</span>).</span>
+            </div>
+          `);
         }
         break;
       }
@@ -2143,8 +2196,8 @@ commodity_compute,Standard Model APIs,moderate,low,PRICE_WAR
       default:
         printLine(`
           <div class="term-error">
-            <span class="term-tag tag-error">COMMAND NOT FOUND</span>
-            <span>pith: command not found: '<strong>${escapeHtml(rawTrimmed)}</strong>'. Type '<span style="color:#fff; text-decoration:underline;">help</span>' for a list of permitted sandbox commands.</span>
+            <span class="term-tag tag-error">PERMISSION DENIED</span>
+            <span>pith: permission denied: command '<strong>${escapeHtml(rawTrimmed)}</strong>' is not permitted. Access is strictly restricted to approved intelligence terminal commands. Type '<span style="color:#fff; text-decoration:underline;">help</span>' for authorized commands.</span>
           </div>
         `);
         break;
