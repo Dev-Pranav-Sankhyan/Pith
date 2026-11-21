@@ -68,6 +68,7 @@ def connect(db_path: str = FOR_YOU_DB) -> Iterator[sqlite3.Connection]:
     try:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA foreign_keys=ON")
+        conn.execute("PRAGMA busy_timeout=10000")
         yield conn
         conn.commit()
     except BaseException:
@@ -167,6 +168,17 @@ def init_schema(db_path: str = FOR_YOU_DB) -> None:
             publisher TEXT NOT NULL,
             PRIMARY KEY (user_id, publisher)
         );
+
+        -- Reader calls on Pith's forecasts ("Beat the Brief"). One current call per reader per card.
+        CREATE TABLE IF NOT EXISTS forecast_votes (
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            card_id TEXT NOT NULL,
+            vote TEXT NOT NULL CHECK (vote IN ('higher', 'agree', 'lower')),
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            PRIMARY KEY (user_id, card_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_forecast_votes_card ON forecast_votes(card_id);
         """)
 
 
@@ -325,10 +337,19 @@ def article_count(db_path: str = FOR_YOU_DB) -> int:
         return conn.execute("SELECT COUNT(*) FROM articles").fetchone()[0]
 
 
-def prune_old(db_path: str = FOR_YOU_DB, keep_days: int = 21) -> None:
-    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=keep_days)).isoformat()
+EVENT_RETENTION_DAYS = 180  # raw behaviour log; learned affinities already summarise older history
+
+
+def prune_old(db_path: str = FOR_YOU_DB, keep_days: int = 21,
+              event_days: int = EVENT_RETENTION_DAYS) -> Dict[str, int]:
+    now = dt.datetime.now(dt.timezone.utc)
+    cutoff = (now - dt.timedelta(days=keep_days)).isoformat(timespec="seconds")
+    event_cutoff = (now - dt.timedelta(days=event_days)).isoformat(timespec="seconds")
     with _write_lock, connect(db_path) as conn:
-        conn.execute("""
+        arts = conn.execute("""
             DELETE FROM articles WHERE published_at < ? AND id NOT IN (
                 SELECT article_id FROM user_articles WHERE saved = 1)
-        """, (cutoff,))
+        """, (cutoff,)).rowcount
+        events = conn.execute("DELETE FROM events WHERE created_at < ?", (event_cutoff,)).rowcount
+        sessions = conn.execute("DELETE FROM sessions WHERE expires_at < ?", (now_iso(),)).rowcount
+    return {"articles": arts, "events": events, "sessions": sessions}

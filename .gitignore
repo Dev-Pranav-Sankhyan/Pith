@@ -10,3 +10,8 @@ temp-raw-*.wav
 
 # Personalised feed: user accounts, sessions & reading history
 foryou.sqlite3*
+
+# SQLite side files (brief.sqlite3 must be fully contained in the main file when committed)
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal

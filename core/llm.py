@@ -121,8 +121,13 @@ class OpenAIProvider(BaseLLMProvider):
             raise RuntimeError(f"OpenAI API error ({e.code}): {err_body}") from e
 
 
+ANTHROPIC_DEFAULT_MODEL = "claude-opus-5-5"
+
+
 class AnthropicProvider(BaseLLMProvider):
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-3-5-sonnet-20241022"):
+    """Raw-HTTP Messages API client (the project is stdlib-only, so no SDK dependency)."""
+
+    def __init__(self, api_key: Optional[str] = None, model: str = ANTHROPIC_DEFAULT_MODEL):
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         self.model = model
         if not self.api_key:
@@ -130,32 +135,44 @@ class AnthropicProvider(BaseLLMProvider):
 
     def complete(self, system_prompt: str, user_prompt: str, json_mode: bool = True) -> str:
         url = "https://api.anthropic.com/v1/messages"
+        # Current models think by default and reject sampling params (temperature/top_p),
+        # so none are sent. Thinking tokens count toward max_tokens, hence the headroom.
         payload = {
             "model": self.model,
-            "max_tokens": 4096,
+            "max_tokens": 16000,
             "system": system_prompt,
             "messages": [
                 {"role": "user", "content": user_prompt}
             ],
-            "temperature": 0.2
+            # If a safety classifier declines, the API retries on a fallback model in the same call.
+            "fallbacks": "default",
         }
         headers = {
             "Content-Type": "application/json",
             "x-api-key": self.api_key,
-            "anthropic-version": "2023-06-01"
+            "anthropic-version": "2023-06-01",
+            "anthropic-beta": "server-side-fallback-2026-07-01",
         }
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         try:
-            with urllib.request.urlopen(req, timeout=45) as resp:
+            with urllib.request.urlopen(req, timeout=180) as resp:
                 res_json = json.loads(resp.read().decode("utf-8"))
-                contents = res_json.get("content", [])
-                if contents:
-                    return contents[0].get("text", "")
-                raise RuntimeError(f"Unexpected Anthropic response: {res_json}")
         except urllib.error.HTTPError as e:
             err_body = e.read().decode("utf-8", errors="ignore")
             raise RuntimeError(f"Anthropic API error ({e.code}): {err_body}") from e
+
+        stop = res_json.get("stop_reason")
+        if stop == "refusal":
+            details = res_json.get("stop_details") or {}
+            raise RuntimeError(f"Anthropic declined the request (category: {details.get('category')})")
+        # The response can start with thinking blocks; join only the text blocks.
+        text = "".join(b.get("text", "") for b in res_json.get("content", []) if b.get("type") == "text")
+        if not text:
+            raise RuntimeError(f"Anthropic returned no text (stop_reason={stop})")
+        if stop == "max_tokens":
+            raise RuntimeError("Anthropic response was cut off at max_tokens")
+        return text
 
 
 class OllamaProvider(BaseLLMProvider):
@@ -307,7 +324,7 @@ def get_llm_provider(
     elif p_name in ("openai", "groq", "deepseek"):
         return OpenAIProvider(api_key=api_key, base_url=base_url, model=model or "gpt-4o-mini")
     elif p_name == "anthropic":
-        return AnthropicProvider(api_key=api_key, model=model or "claude-3-5-sonnet-20241022")
+        return AnthropicProvider(api_key=api_key, model=model or ANTHROPIC_DEFAULT_MODEL)
     elif p_name == "ollama":
         return OllamaProvider(base_url=base_url or "http://localhost:11434", model=model or "llama3.2")
     elif p_name == "simulated":
