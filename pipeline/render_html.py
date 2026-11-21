@@ -14,6 +14,7 @@ from core.ledger import LedgerEngine
 from core.patterns_data import PATTERNS
 from core.schematics import get_card_schematic
 from core.models import Prediction
+from core.ledger import LedgerEngine
 from pipeline.render_extended import (
     render_horizon,
     render_matrix,
@@ -525,11 +526,12 @@ def render_ledger(predictions, stats, path: str):
     rows_html = []
     for p in predictions:
         status_cls = p.status.lower()
+        horizon = LedgerEngine.get_horizon(p)
         postmortem_html = f'<div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> {escape(p.postmortem)}</div>' if p.postmortem else ""
         evidence_html = f'<a href="{escape(p.evidence_url)}" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a>' if p.evidence_url else "&mdash;"
 
         rows_html.append(f"""
-        <tr data-status="{escape(p.status)}" data-category="{escape(p.category)}">
+        <tr data-status="{escape(p.status)}" data-category="{escape(p.category)}" data-horizon="{escape(horizon)}">
             <td style="font-family:var(--font-mono); font-size:12px;">{escape(p.made_at)}</td>
             <td>
                 <div style="font-weight:600; color:var(--ink);">{escape(p.statement)}</div>
@@ -538,6 +540,7 @@ def render_ledger(predictions, stats, path: str):
                 </div>
                 {postmortem_html}
             </td>
+            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">{escape(horizon)}</span></td>
             <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">{escape(p.category)}</span></td>
             <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">{int(p.probability * 100)}%</td>
             <td><span class="status-pill {status_cls}">{escape(p.status)}</span></td>
@@ -563,6 +566,41 @@ def render_ledger(predictions, stats, path: str):
 
     brier_val = f"{stats['brier_score']:.4f}" if stats['brier_score'] is not None else "N/A"
     hit_rate_val = f"{stats['hit_rate_pct']:.1f}%" if stats['hit_rate_pct'] is not None else "N/A"
+
+    horizon_stats = stats.get("horizon_breakdown", {})
+    h30 = horizon_stats.get("30-day", {})
+    h90 = horizon_stats.get("90-day", {})
+    h365 = horizon_stats.get("365-day", {})
+
+    horizon_cards_html = f"""
+        <!-- Forecast Horizons Segmentation Strip -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; margin-bottom:28px;">
+            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">⚡ 30-Day Horizon</span>
+                    <span class="status-pill correct" style="font-size:10px;">{h30.get('hit_rate_pct', 'N/A')}% Hit</span>
+                </div>
+                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Immediate Tooling &amp; SDK Shifts</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h30.get('resolved', 0)} resolved &middot; {h30.get('open', 0)} active &middot; Brier: {h30.get('brier_score', 'N/A')}</div>
+            </div>
+            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">◈ 90-Day Horizon</span>
+                    <span class="status-pill correct" style="font-size:10px;">{h90.get('hit_rate_pct', 'N/A')}% Hit</span>
+                </div>
+                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Quarterly Architecture Milestones</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h90.get('resolved', 0)} resolved &middot; {h90.get('open', 0)} active &middot; Brier: {h90.get('brier_score', 'N/A')}</div>
+            </div>
+            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">✦ 365-Day Horizon</span>
+                    <span class="status-pill correct" style="font-size:10px;">{h365.get('hit_rate_pct', 'N/A')}% Hit</span>
+                </div>
+                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Annual Platform &amp; Economic Regimes</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h365.get('resolved', 0)} resolved &middot; {h365.get('open', 0)} active &middot; Brier: {h365.get('brier_score', 'N/A')}</div>
+            </div>
+        </div>
+    """
 
     html_content = f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -629,6 +667,8 @@ def render_ledger(predictions, stats, path: str):
                 <div class="bignum-sub">Under evaluation</div>
             </div>
         </div>
+
+        {horizon_cards_html}
 
         <!-- Calibration Sheet -->
         <section class="table-sheet">
@@ -703,6 +743,15 @@ def render_ledger(predictions, stats, path: str):
                 </select>
             </div>
             <div class="filter-select-wrap">
+                <label for="horizon-filter">Horizon:</label>
+                <select id="horizon-filter" class="filter-select">
+                    <option value="all">All Horizons</option>
+                    <option value="30-day">30-Day (Immediate)</option>
+                    <option value="90-day">90-Day (Quarterly)</option>
+                    <option value="365-day">365-Day (Annual)</option>
+                </select>
+            </div>
+            <div class="filter-select-wrap">
                 <label for="category-filter">Category:</label>
                 <select id="category-filter" class="filter-select">
                     <option value="all">All Categories</option>
@@ -720,6 +769,7 @@ def render_ledger(predictions, stats, path: str):
                     <tr>
                         <th>Made</th>
                         <th>Prediction &amp; Resolution Standard</th>
+                        <th>Horizon</th>
                         <th>Category</th>
                         <th>Prob</th>
                         <th>Status</th>

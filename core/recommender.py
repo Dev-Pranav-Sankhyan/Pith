@@ -195,10 +195,26 @@ class Recommender:
                         ON CONFLICT(user_id, topic) DO UPDATE SET successes=successes+excluded.successes,
                         failures=failures+excluded.failures""", (user_id, topic, success, failure))
 
-    def _ua(self, conn, user_id: int, aid: str, **sets):
+    def _ua(self, conn, user_id: int, aid: str, **fields):
         conn.execute("INSERT OR IGNORE INTO user_articles (user_id, article_id) VALUES (?, ?)", (user_id, aid))
-        for col, expr in sets.items():
-            conn.execute(f"UPDATE user_articles SET {col} = {expr} WHERE user_id=? AND article_id=?", (user_id, aid))
+        allowed_cols = {"impressions", "clicked", "dwell_seconds", "reaction", "saved", "hidden", "last_seen"}
+        set_clauses = []
+        params = []
+        for col, val in fields.items():
+            if col not in allowed_cols:
+                continue
+            if col == "impressions" and val == "+1":
+                set_clauses.append("impressions = COALESCE(impressions, 0) + 1")
+            elif col == "dwell_seconds" and isinstance(val, (int, float)):
+                set_clauses.append("dwell_seconds = COALESCE(dwell_seconds, 0) + ?")
+                params.append(float(val))
+            else:
+                set_clauses.append(f"{col} = ?")
+                params.append(val)
+        if set_clauses:
+            params.extend([user_id, aid])
+            sql = f"UPDATE user_articles SET {', '.join(set_clauses)} WHERE user_id=? AND article_id=?"
+            conn.execute(sql, params)
 
     def onboard(self, user_id: int, topics: List[str], sources: Optional[List[str]] = None):
         topics = [t for t in topics if t in TOPICS]
@@ -245,10 +261,11 @@ class Recommender:
                 return
 
             primary = next(iter(a["topics"]), None)
+            now_str = now_iso()
             if kind == "impression":
                 row = conn.execute("SELECT impressions, clicked FROM user_articles WHERE user_id=? AND article_id=?",
                                    (user_id, aid)).fetchone()
-                self._ua(conn, user_id, aid, impressions="impressions + 1", last_seen=f"'{now_iso()}'")
+                self._ua(conn, user_id, aid, impressions="+1", last_seen=now_str)
                 # Skips only count as weak negatives, and only the first couple of times.
                 if not row or (row["impressions"] < 2 and not row["clicked"]):
                     self._learn_article(conn, user_id, a, SIGNALS["impression"], part)
@@ -257,33 +274,34 @@ class Recommender:
             elif kind == "click":
                 row = conn.execute("SELECT clicked FROM user_articles WHERE user_id=? AND article_id=?",
                                    (user_id, aid)).fetchone()
-                self._ua(conn, user_id, aid, clicked="1", last_seen=f"'{now_iso()}'")
+                self._ua(conn, user_id, aid, clicked=1, last_seen=now_str)
                 if not row or not row["clicked"]:
                     self._learn_article(conn, user_id, a, SIGNALS["click"], part)
                     if primary:
                         self._bandit(conn, user_id, primary, success=1.0)
             elif kind == "dwell":
                 secs = max(0.0, min(value, 900.0))
-                self._ua(conn, user_id, aid, dwell_seconds=f"dwell_seconds + {secs:.1f}")
+                self._ua(conn, user_id, aid, dwell_seconds=secs, last_seen=now_str)
                 if secs < 8:  # bounced straight back: the headline over-promised
-                    self._learn_article(conn, user_id, a, -0.6, part)
+                    # Net must be negative: click added +1.0, so -1.5 results in a net -0.5 penalty
+                    self._learn_article(conn, user_id, a, -1.5, part)
                     if primary:
-                        self._bandit(conn, user_id, primary, failure=0.5)
+                        self._bandit(conn, user_id, primary, failure=1.2)
                 else:
                     ratio = secs / estimate_read_seconds(a["word_count"])
                     self._learn_article(conn, user_id, a, 0.8 * min(ratio, 2.0), part)
             elif kind in ("like", "dislike"):
-                self._ua(conn, user_id, aid, reaction="1" if kind == "like" else "-1")
+                self._ua(conn, user_id, aid, reaction=1 if kind == "like" else -1, last_seen=now_str)
                 self._learn_article(conn, user_id, a, SIGNALS[kind], part)
                 if primary:
                     self._bandit(conn, user_id, primary, success=2.0 if kind == "like" else 0, failure=2.0 if kind == "dislike" else 0)
             elif kind in ("save", "unsave"):
-                self._ua(conn, user_id, aid, saved="1" if kind == "save" else "0")
+                self._ua(conn, user_id, aid, saved=1 if kind == "save" else 0, last_seen=now_str)
                 self._learn_article(conn, user_id, a, SIGNALS[kind], part)
             elif kind == "share":
                 self._learn_article(conn, user_id, a, SIGNALS["share"], part)
             elif kind == "hide":
-                self._ua(conn, user_id, aid, hidden="1")
+                self._ua(conn, user_id, aid, hidden=1, last_seen=now_str)
                 self._learn_article(conn, user_id, a, SIGNALS["hide"], part)
                 if primary:
                     self._bandit(conn, user_id, primary, failure=1.5)
@@ -466,11 +484,15 @@ class Recommender:
                 if not samples:
                     break
                 t = max(samples, key=samples.get)
-                cand = next((aid for aid in corpus.order if aid not in used and t in corpus.articles[aid]["topics"]
-                             and not state.get(aid, {}).get("hidden") and not state.get(aid, {}).get("clicked")
-                             and corpus.articles[aid]["publisher"] not in muted), None)
-                if cand:
-                    chosen.insert(slot, (0.0, cand, {}))
+                # Pick the highest-scoring candidate for this topic from scored, rather than raw newest
+                cand_match = next((item for item in scored if item[1] not in used
+                                   and t in corpus.articles[item[1]]["topics"]
+                                   and not state.get(item[1], {}).get("hidden")
+                                   and not state.get(item[1], {}).get("clicked")
+                                   and corpus.articles[item[1]]["publisher"] not in muted), None)
+                if cand_match:
+                    s_score, cand, best_why = cand_match
+                    chosen.insert(slot, (s_score, cand, best_why))
                     explore_ids[cand] = t
                     used.add(cand)
             chosen = chosen[:limit]
@@ -521,10 +543,11 @@ class Recommender:
                            why={"type": "search", "text": f"Matches “{query.strip()[:40]}”"}) for s, aid in hits[:limit]]
 
     def library(self, user_id: int, which: str, limit: int = 60) -> List[Dict[str, Any]]:
-        col = {"saved": "saved = 1", "history": "clicked = 1"}[which]
+        sql = ("SELECT * FROM user_articles WHERE user_id=? AND saved = 1 ORDER BY last_seen DESC LIMIT ?"
+               if which == "saved" else
+               "SELECT * FROM user_articles WHERE user_id=? AND clicked = 1 ORDER BY last_seen DESC LIMIT ?")
         with connect(self.db) as conn:
-            rows = conn.execute(f"SELECT * FROM user_articles WHERE user_id=? AND {col} ORDER BY last_seen DESC LIMIT ?",
-                                (user_id, limit)).fetchall()
+            rows = conn.execute(sql, (user_id, limit)).fetchall()
         out = []
         for r in rows:
             a = CORPUS.article(r["article_id"], self.db)

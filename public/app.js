@@ -1029,17 +1029,20 @@ function animateLedgerCounters() {
 function filterLedger() {
   sound.playSnap();
   const statusFilter = document.getElementById("status-filter")?.value || "all";
+  const horizonFilter = document.getElementById("horizon-filter")?.value || "all";
   const catFilter = document.getElementById("category-filter")?.value || "all";
   const rows = document.querySelectorAll("#ledger-table-body tr");
 
   rows.forEach(row => {
     const status = row.getAttribute("data-status");
     const category = row.getAttribute("data-category");
+    const horizon = row.getAttribute("data-horizon");
 
     const statusMatch = statusFilter === "all" || status === statusFilter;
     const catMatch = catFilter === "all" || category === catFilter;
+    const horizonMatch = horizonFilter === "all" || horizon === horizonFilter;
 
-    if (statusMatch && catMatch) {
+    if (statusMatch && catMatch && horizonMatch) {
       row.style.display = "";
     } else {
       row.style.display = "none";
@@ -1396,8 +1399,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Hook ledger filters
   const statusSelect = document.getElementById("status-filter");
+  const horizonSelect = document.getElementById("horizon-filter");
   const catSelect = document.getElementById("category-filter");
   if (statusSelect) statusSelect.addEventListener("change", filterLedger);
+  if (horizonSelect) horizonSelect.addEventListener("change", filterLedger);
   if (catSelect) catSelect.addEventListener("change", filterLedger);
 
   // Initialize interactive 3D card tilt & spotlight

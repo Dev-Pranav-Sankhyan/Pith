@@ -3,8 +3,9 @@ Prediction Ledger and Calibration Engine for Daily Tech Intelligence Brief.
 Follows Section 1 (Prediction Ledger Rules), Section 5.4, and Section 11 (Success Metrics).
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import math
+import datetime
 from core.models import Prediction
 
 
@@ -13,11 +14,84 @@ class LedgerEngine:
     Computes public track record statistics:
     - Brier score (BS = 1/N * sum((p - outcome)^2))
     - Hit rate
+    - Horizon breakdown (30-day, 90-day, 365-day)
     - Calibration curve across probability buckets
+    - Automated resolution queue for due predictions
     - Sample size safeguards
     """
 
     MIN_CALIBRATION_SAMPLE = 20  # Section 1: threshold before calibration is marked definitive
+
+    @staticmethod
+    def get_horizon(p: Prediction) -> str:
+        """
+        Classifies prediction into 30-day, 90-day, or 365-day horizon based on resolves_at - made_at.
+        """
+        try:
+            d_made = datetime.date.fromisoformat(str(p.made_at)[:10])
+            d_resolves = datetime.date.fromisoformat(str(p.resolves_at)[:10])
+            days = (d_resolves - d_made).days
+            if days <= 45:
+                return "30-day"
+            elif days <= 120:
+                return "90-day"
+            else:
+                return "365-day"
+        except (ValueError, TypeError):
+            return "365-day"
+
+    @classmethod
+    def calculate_horizon_breakdown(cls, predictions: List[Prediction]) -> Dict[str, Dict[str, Any]]:
+        """
+        Computes count, hit rate, and Brier score segmented by forecast horizon.
+        """
+        by_horizon: Dict[str, List[Prediction]] = {"30-day": [], "90-day": [], "365-day": []}
+        for p in predictions:
+            h = cls.get_horizon(p)
+            by_horizon.setdefault(h, []).append(p)
+
+        stats = {}
+        for h, preds in by_horizon.items():
+            resolved = [p for p in preds if p.status in ("correct", "wrong")]
+            correct = [p for p in resolved if p.status == "correct"]
+            brier = cls.calculate_brier_score(preds)
+            stats[h] = {
+                "total": len(preds),
+                "resolved": len(resolved),
+                "open": len([p for p in preds if p.status == "open"]),
+                "correct": len(correct),
+                "wrong": len(resolved) - len(correct),
+                "hit_rate_pct": round(len(correct) / len(resolved) * 100, 1) if resolved else None,
+                "brier_score": round(brier, 4) if brier is not None else None,
+            }
+        return stats
+
+    @classmethod
+    def get_due_predictions(cls, predictions: List[Prediction], as_of_date: Optional[str] = None) -> List[Prediction]:
+        """
+        Returns open predictions whose resolves_at date is due or past due as of a given date.
+        """
+        today = as_of_date or datetime.date.today().isoformat()
+        return [p for p in predictions if p.status == "open" and str(p.resolves_at)[:10] <= today]
+
+    @staticmethod
+    def resolve_prediction(
+        prediction: Prediction,
+        status: str,
+        evidence_url: str,
+        postmortem: str,
+        resolved_at: Optional[str] = None
+    ) -> Prediction:
+        """
+        Resolves an open prediction with verifiable evidence and post-mortem audit notes.
+        """
+        if status not in ("correct", "wrong", "void"):
+            raise ValueError(f"Invalid resolution status: {status}")
+        prediction.status = status
+        prediction.evidence_url = evidence_url
+        prediction.postmortem = postmortem
+        prediction.resolved_at = resolved_at or datetime.date.today().isoformat()
+        return prediction
 
     @staticmethod
     def calculate_brier_score(predictions: List[Prediction]) -> Optional[float]:
@@ -98,5 +172,6 @@ class LedgerEngine:
             "brier_benchmark": "Target < 0.25 (better than chance)",
             "is_preliminary": is_preliminary,
             "min_sample_threshold": cls.MIN_CALIBRATION_SAMPLE,
+            "horizon_breakdown": cls.calculate_horizon_breakdown(predictions),
             "calibration": calibration_chart,
         }

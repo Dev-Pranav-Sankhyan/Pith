@@ -11,114 +11,114 @@
     "is_quiet_day": false,
     "cards": [
       {
-        "id": "card-20261120-infrastructure-standard--aa1e1f",
-        "date": "2026-11-20",
-        "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. Title: DeepSeek-V3 Architecture: Multi-Head Latent Attention and DualPipe Parallelism.",
-        "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
+        "id": "card-20261119-cache-cut",
+        "date": "2026-11-21",
+        "headline": "Tier-1 API Providers Cut Context Caching Rates by 90%, Slashing Agent Run Costs",
+        "what_happened": "Major AI providers cut the cost of reusing repeated text and instructions by up to 90%. Long conversations and multi-step agent workflows now run at a fraction of their previous bill.",
+        "why_it_matters": "Apps that process long documents or run multi-step tasks become dramatically cheaper to operate today. However, structuring your prompts to claim these discounts deepens lock-in to that specific provider.",
         "second_order": [
-          "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
-          "Internal service proxies enforce access control policies at the organization network perimeter",
-          "Switching costs between frontier model providers drop significantly"
+          "Agent frameworks prioritize static prompt architecture to maximize cache hit rates over dynamic assembly",
+          "Switching costs rise as teams optimize backend memory layouts for specific provider KV-cache eviction policies",
+          "Boutique single-model wrapper SaaS providers face intense margin compression unless they add workflow orchestration"
         ],
-        "signal_score": 83.9,
+        "signal_score": 86.5,
         "signal_level": "High",
-        "signal_reason": "Broad industry impact (broad ecosystem-wide impact)",
+        "signal_reason": "Broad ecosystem impact (alters switching costs and platform dependencies)",
         "confidence": "High",
         "action_type": "DO",
-        "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
+        "action_text": "Refactor agent system prompts into static prefixes to trigger automatic cache hits and benchmark billing changes.",
         "prediction": {
-          "id": "pred-20261120-infrastructure-standard--aa1e1f",
-          "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
-          "probability": 0.7,
-          "resolves_at": "2027-12-31",
-          "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
+          "id": "pred-20261119-01",
+          "statement": "By 30 June 2027, at least three leading open-source inference runtimes (vLLM, SGLang, TensorRT-LLM) natively support cross-session shared KV-cache eviction APIs matching commercial cloud standards.",
+          "probability": 0.75,
+          "resolves_at": "2027-06-30",
+          "resolution_criteria": "Published release notes in official GitHub repositories documenting standardized shared KV-cache session eviction endpoint.",
           "status": "open",
-          "made_at": "2026-11-20",
-          "card_id": "card-20261120-infrastructure-standard--aa1e1f",
-          "category": "adoption",
+          "made_at": "2026-11-21",
+          "card_id": "card-20261119-cache-cut",
+          "category": "technology",
           "resolved_at": null,
           "evidence_url": null,
           "postmortem": null
         },
         "role_views": {
           "developer": {
-            "impact": "Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.",
+            "impact": "Your prompt engineering shifts from dynamic template injection to strict static prefix isolation to maximize the 90% cache discount window.",
             "action_type": "DO",
-            "action_text": "Benchmark JSON-RPC schema translation on your core internal tool endpoints.",
-            "stakes": "Medium"
+            "action_text": "Audit prompt formatting utilities this week; split user state and variable data to the tail of the prompt sequence.",
+            "stakes": "High"
           },
           "everyday": {
-            "impact": "Apps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.",
-            "action_type": "IGNORE",
-            "action_text": "No action needed; future consumer app updates will connect smoothly.",
+            "impact": "The everyday AI tools you use just got 90% cheaper for companies to run. They can now remember much longer conversations and documents without crashing or cutting you off.",
+            "action_type": "WATCH",
+            "action_text": "Notice if your writing apps start handling 50-page PDFs without asking you to buy an expensive add-on.",
             "stakes": "Low"
           },
           "founder": {
-            "impact": "Lowers distribution friction: your platform can connect to any conforming agent client without custom bilateral partnerships.",
-            "action_type": "WATCH",
-            "action_text": "Monitor whether major client IDEs and models commit to standard protocol conformance.",
+            "impact": "Gross margins on conversational and reasoning agent features improve by 30-45%, giving runway buffer or pricing leverage against competitors.",
+            "action_type": "DO",
+            "action_text": "Recalculate monthly per-active-user COGS and evaluate expanding agent search depth without raising customer subscription tiers.",
             "stakes": "High"
           },
           "investor": {
-            "impact": "Commoditizes thin tool-routing middleware; enterprise defensibility concentrates in proprietary data ownership and sandboxed execution.",
+            "impact": "Unit economics for token-heavy verticals (code generation, legal document parsing) stabilize; defensive moats shift from raw token volume to orchestration stickiness.",
             "action_type": "WATCH",
-            "action_text": "Review developer tooling portfolio companies to ensure they do not depend on proprietary routing lock-in.",
+            "action_text": "Review portfolio company gross margins to verify teams have captured cache discounts rather than subsidizing inefficient prompt construction.",
             "stakes": "Medium"
           }
         },
         "beat": "AI & Developer Infrastructure",
-        "cluster_id": null,
+        "cluster_id": "cluster-cache-pricing",
         "historical_analogue": {
-          "analogue": "Resembles the Container Network Interface (CNI) standardization in cloud-native container runtimes (2016-2017).",
-          "where_it_breaks": "Agent tool schemas carry state and prompt context far more dynamic than network block routing."
+          "analogue": "Resembles AWS S3 Infrequent Access pricing tier introduced to anchor high-volume data lakes in 2015.",
+          "where_it_breaks": "KV-cache requires GPU SRAM/HBM residency with microseconds eviction pressure, unlike cold object storage tiering."
         },
         "evidence_links": [
           {
-            "title": "DeepSeek-V3 Architecture: Multi-Head Latent Attention and DualPipe Parallelism",
-            "url": "https://github.com/deepseek-ai/DeepSeek-V3",
-            "publisher": "Hacker News",
+            "title": "API Pricing & Caching Architecture Update",
+            "url": "https://platform.openai.com/docs/guides/prompt-caching",
+            "publisher": "OpenAI Platform Documentation",
             "tier": "primary",
-            "quoted_span": "Title: DeepSeek-V3 Architecture: Multi-Head L"
+            "quoted_span": "cached input tokens receive an automatic 50% to 90% discount when hitting identical prompt prefixes"
           }
         ],
         "claims": [
           {
-            "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://github.com/deepseek-ai/DeepSeek-V3",
-            "quoted_span": "Title: DeepSeek-V3 Architecture: Multi-Head L",
+            "text": "Prompt caching read costs dropped by up to 90% for identical prefixes.",
+            "source_url": "https://platform.openai.com/docs/guides/prompt-caching",
+            "quoted_span": "cached input tokens receive an automatic 50% to 90% discount when hitting identical prompt prefixes",
             "verified": true,
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-20T07:00:00Z"
+        "published_at": "2026-11-21T07:00:00Z"
       },
       {
-        "id": "card-20261120-infrastructure-standard--12d294",
-        "date": "2026-11-20",
-        "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. Title: PyTorch 2.6 Released with AOTInductor and FP8 GEMM Auto-Tuning.",
-        "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
+        "id": "card-20261119-computer-use",
+        "date": "2026-11-21",
+        "headline": "Anthropic Introduces Native OS Computer Use API, Standardizing Desktop Agent Automation",
+        "what_happened": "Anthropic launched an API that allows AI models to directly view desktop screens, move mouse cursors, click buttons, and type text inside any computer application.",
+        "why_it_matters": "Automating routine computer work no longer requires custom API integrations or fragile web scrapers. Software can now be operated by an AI agent just like a human team member.",
         "second_order": [
-          "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
-          "Internal service proxies enforce access control policies at the organization network perimeter",
-          "Switching costs between frontier model providers drop significantly"
+          "Enterprise security teams mandate isolated sandbox hypervisors for agent environments to prevent unauthorized credential access",
+          "Traditional robotic process automation (RPA) vendors face existential commoditization from native model-driven action spaces",
+          "Synthetic UI training data generation explodes as agents self-record interaction trajectories"
         ],
-        "signal_score": 83.9,
+        "signal_score": 84.0,
         "signal_level": "High",
-        "signal_reason": "Broad industry impact (broad ecosystem-wide impact)",
+        "signal_reason": "Broad ecosystem impact (alters switching costs and automation platform dependencies)",
         "confidence": "High",
         "action_type": "DO",
-        "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
+        "action_text": "Benchmark a prototype UI regression suite using vision-driven coordinate actions against existing Selenium/Playwright tests.",
         "prediction": {
-          "id": "pred-20261120-infrastructure-standard--12d294",
-          "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
-          "probability": 0.7,
-          "resolves_at": "2027-12-31",
-          "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
+          "id": "pred-20261119-04",
+          "statement": "By 31 August 2027, at least two major browser vendors (Chromium, Firefox, WebKit) merge native virtualized OS agent permission sandboxes.",
+          "probability": 0.65,
+          "resolves_at": "2027-08-31",
+          "resolution_criteria": "Official browser release notes document isolated agent sandbox profile with restricted credential access and synthetic input isolation.",
           "status": "open",
-          "made_at": "2026-11-20",
-          "card_id": "card-20261120-infrastructure-standard--12d294",
+          "made_at": "2026-11-21",
+          "card_id": "card-20261119-computer-use",
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
@@ -126,304 +126,304 @@
         },
         "role_views": {
           "developer": {
-            "impact": "Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.",
+            "impact": "Enables end-to-end automation across legacy desktop software, CLI tools, and web apps that lack programmatic REST APIs.",
             "action_type": "DO",
-            "action_text": "Benchmark JSON-RPC schema translation on your core internal tool endpoints.",
-            "stakes": "Medium"
+            "action_text": "Build a test sandbox VM and evaluate coordinate latency on your internal testing workflow.",
+            "stakes": "High"
           },
           "everyday": {
-            "impact": "Apps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.",
-            "action_type": "IGNORE",
-            "action_text": "No action needed; future consumer app updates will connect smoothly.",
-            "stakes": "Low"
+            "impact": "Instead of you clicking and typing across 5 websites to complete boring tasks, an AI can now see your screen and move the mouse to fill out forms and book appointments for you.",
+            "action_type": "TRY",
+            "action_text": "Watch a 2-minute demo of computer-use automation to see if your repetitive office chores could be handed off.",
+            "stakes": "Medium"
           },
           "founder": {
-            "impact": "Lowers distribution friction: your platform can connect to any conforming agent client without custom bilateral partnerships.",
-            "action_type": "WATCH",
-            "action_text": "Monitor whether major client IDEs and models commit to standard protocol conformance.",
+            "impact": "Lowers build costs for autonomous vertical agents (accounting, claims processing, legal onboarding) by bypassing API integration backlogs.",
+            "action_type": "DO",
+            "action_text": "Audit which customer onboarding tasks can be converted from manual operator labor to supervised OS agents.",
             "stakes": "High"
           },
           "investor": {
-            "impact": "Commoditizes thin tool-routing middleware; enterprise defensibility concentrates in proprietary data ownership and sandboxed execution.",
+            "impact": "Puts intense margin pressure on legacy RPA giants (UiPath, Automation Anywhere) whose seat-based licensing models depend on brittle workflow recorders.",
             "action_type": "WATCH",
-            "action_text": "Review developer tooling portfolio companies to ensure they do not depend on proprietary routing lock-in.",
+            "action_text": "Assess exposure to workflow automation incumbents without foundational multi-modal agent roadmaps.",
             "stakes": "Medium"
           }
         },
         "beat": "AI & Developer Infrastructure",
-        "cluster_id": null,
+        "cluster_id": "cluster-os-computer-use",
         "historical_analogue": {
-          "analogue": "Resembles the Container Network Interface (CNI) standardization in cloud-native container runtimes (2016-2017).",
-          "where_it_breaks": "Agent tool schemas carry state and prompt context far more dynamic than network block routing."
+          "analogue": "Resembles the introduction of the WebDriver W3C standard in 2011, replacing ad-hoc browser automation hacks.",
+          "where_it_breaks": "Computer Use relies on pixel-space visual reasoning rather than deterministic DOM element selectors."
         },
         "evidence_links": [
           {
-            "title": "PyTorch 2.6 Released with AOTInductor and FP8 GEMM Auto-Tuning",
-            "url": "https://github.com/pytorch/pytorch/releases/tag/v2.6.0",
-            "publisher": "Hacker News",
-            "tier": "primary",
-            "quoted_span": "Title: PyTorch 2.6 Released with AOTInductor "
-          }
-        ],
-        "claims": [
-          {
-            "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://github.com/pytorch/pytorch/releases/tag/v2.6.0",
-            "quoted_span": "Title: PyTorch 2.6 Released with AOTInductor ",
-            "verified": true,
-            "drop_reason": null
-          }
-        ],
-        "published_at": "2026-11-20T07:00:00Z"
-      },
-      {
-        "id": "card-20261120-infrastructure-standard--f746b2",
-        "date": "2026-11-20",
-        "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. vLLM 0.7.0 introduces cross-node distributed KV-cache sharing and persistent prefix lookup.",
-        "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
-        "second_order": [
-          "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
-          "Internal service proxies enforce access control policies at the organization network perimeter",
-          "Switching costs between frontier model providers drop significantly"
-        ],
-        "signal_score": 83.9,
-        "signal_level": "High",
-        "signal_reason": "Broad industry impact (broad ecosystem-wide impact)",
-        "confidence": "High",
-        "action_type": "DO",
-        "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
-        "prediction": {
-          "id": "pred-20261120-infrastructure-standard--f746b2",
-          "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
-          "probability": 0.7,
-          "resolves_at": "2027-12-31",
-          "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
-          "status": "open",
-          "made_at": "2026-11-20",
-          "card_id": "card-20261120-infrastructure-standard--f746b2",
-          "category": "adoption",
-          "resolved_at": null,
-          "evidence_url": null,
-          "postmortem": null
-        },
-        "role_views": {
-          "developer": {
-            "impact": "Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.",
-            "action_type": "DO",
-            "action_text": "Benchmark JSON-RPC schema translation on your core internal tool endpoints.",
-            "stakes": "Medium"
-          },
-          "everyday": {
-            "impact": "Apps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.",
-            "action_type": "IGNORE",
-            "action_text": "No action needed; future consumer app updates will connect smoothly.",
-            "stakes": "Low"
-          },
-          "founder": {
-            "impact": "Lowers distribution friction: your platform can connect to any conforming agent client without custom bilateral partnerships.",
-            "action_type": "WATCH",
-            "action_text": "Monitor whether major client IDEs and models commit to standard protocol conformance.",
-            "stakes": "High"
-          },
-          "investor": {
-            "impact": "Commoditizes thin tool-routing middleware; enterprise defensibility concentrates in proprietary data ownership and sandboxed execution.",
-            "action_type": "WATCH",
-            "action_text": "Review developer tooling portfolio companies to ensure they do not depend on proprietary routing lock-in.",
-            "stakes": "Medium"
-          }
-        },
-        "beat": "AI & Developer Infrastructure",
-        "cluster_id": null,
-        "historical_analogue": {
-          "analogue": "Resembles the Container Network Interface (CNI) standardization in cloud-native container runtimes (2016-2017).",
-          "where_it_breaks": "Agent tool schemas carry state and prompt context far more dynamic than network block routing."
-        },
-        "evidence_links": [
-          {
-            "title": "vLLM Multi-Node Prefix Caching Engine Merged",
-            "url": "https://github.com/vllm-project/vllm/releases/tag/v0.7.0",
-            "publisher": "vLLM Project / GitHub",
-            "tier": "primary",
-            "quoted_span": "vLLM 0.7.0 introduces cross-node distributed "
-          }
-        ],
-        "claims": [
-          {
-            "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://github.com/vllm-project/vllm/releases/tag/v0.7.0",
-            "quoted_span": "vLLM 0.7.0 introduces cross-node distributed ",
-            "verified": true,
-            "drop_reason": null
-          }
-        ],
-        "published_at": "2026-11-20T07:00:00Z"
-      },
-      {
-        "id": "card-20261120-infrastructure-standard--d2a903",
-        "date": "2026-11-20",
-        "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. DeepSeek-V3 incorporates Multi-Head Latent Attention (MLA) compressing key-value cache mem.",
-        "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
-        "second_order": [
-          "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
-          "Internal service proxies enforce access control policies at the organization network perimeter",
-          "Switching costs between frontier model providers drop significantly"
-        ],
-        "signal_score": 83.9,
-        "signal_level": "High",
-        "signal_reason": "Broad industry impact (broad ecosystem-wide impact)",
-        "confidence": "High",
-        "action_type": "DO",
-        "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
-        "prediction": {
-          "id": "pred-20261120-infrastructure-standard--d2a903",
-          "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
-          "probability": 0.7,
-          "resolves_at": "2027-12-31",
-          "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
-          "status": "open",
-          "made_at": "2026-11-20",
-          "card_id": "card-20261120-infrastructure-standard--d2a903",
-          "category": "adoption",
-          "resolved_at": null,
-          "evidence_url": null,
-          "postmortem": null
-        },
-        "role_views": {
-          "developer": {
-            "impact": "Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.",
-            "action_type": "DO",
-            "action_text": "Benchmark JSON-RPC schema translation on your core internal tool endpoints.",
-            "stakes": "Medium"
-          },
-          "everyday": {
-            "impact": "Apps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.",
-            "action_type": "IGNORE",
-            "action_text": "No action needed; future consumer app updates will connect smoothly.",
-            "stakes": "Low"
-          },
-          "founder": {
-            "impact": "Lowers distribution friction: your platform can connect to any conforming agent client without custom bilateral partnerships.",
-            "action_type": "WATCH",
-            "action_text": "Monitor whether major client IDEs and models commit to standard protocol conformance.",
-            "stakes": "High"
-          },
-          "investor": {
-            "impact": "Commoditizes thin tool-routing middleware; enterprise defensibility concentrates in proprietary data ownership and sandboxed execution.",
-            "action_type": "WATCH",
-            "action_text": "Review developer tooling portfolio companies to ensure they do not depend on proprietary routing lock-in.",
-            "stakes": "Medium"
-          }
-        },
-        "beat": "AI & Developer Infrastructure",
-        "cluster_id": null,
-        "historical_analogue": {
-          "analogue": "Resembles the Container Network Interface (CNI) standardization in cloud-native container runtimes (2016-2017).",
-          "where_it_breaks": "Agent tool schemas carry state and prompt context far more dynamic than network block routing."
-        },
-        "evidence_links": [
-          {
-            "title": "DeepSeek-V3 Multi-Head Latent Attention Architecture Report",
-            "url": "https://github.com/deepseek-ai/DeepSeek-V3",
-            "publisher": "DeepSeek AI Research",
-            "tier": "primary",
-            "quoted_span": "DeepSeek-V3 incorporates Multi-Head Latent At"
-          }
-        ],
-        "claims": [
-          {
-            "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://github.com/deepseek-ai/DeepSeek-V3",
-            "quoted_span": "DeepSeek-V3 incorporates Multi-Head Latent At",
-            "verified": true,
-            "drop_reason": null
-          }
-        ],
-        "published_at": "2026-11-20T07:00:00Z"
-      },
-      {
-        "id": "card-20261120-infrastructure-standard--865b31",
-        "date": "2026-11-20",
-        "headline": "Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In",
-        "what_happened": "A major open specification was released for AI developer workflows. Anthropic introduced the Computer Use API specification, providing a deterministic screens.",
-        "why_it_matters": "Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.",
-        "second_order": [
-          "Tool providers standardize on unified RPC schemas rather than vendor-specific SDK wrappers",
-          "Internal service proxies enforce access control policies at the organization network perimeter",
-          "Switching costs between frontier model providers drop significantly"
-        ],
-        "signal_score": 83.9,
-        "signal_level": "High",
-        "signal_reason": "Broad industry impact (broad ecosystem-wide impact)",
-        "confidence": "High",
-        "action_type": "DO",
-        "action_text": "Audit tool schema formatting utilities this week to standardize endpoint definitions.",
-        "prediction": {
-          "id": "pred-20261120-infrastructure-standard--865b31",
-          "statement": "By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
-          "probability": 0.7,
-          "resolves_at": "2027-12-31",
-          "resolution_criteria": "Official repository release documentation details native endpoint protocol support without external bridge proxies.",
-          "status": "open",
-          "made_at": "2026-11-20",
-          "card_id": "card-20261120-infrastructure-standard--865b31",
-          "category": "adoption",
-          "resolved_at": null,
-          "evidence_url": null,
-          "postmortem": null
-        },
-        "role_views": {
-          "developer": {
-            "impact": "Eliminates the maintenance overhead of synchronizing separate function-calling schemas for multiple LLM client libraries.",
-            "action_type": "DO",
-            "action_text": "Benchmark JSON-RPC schema translation on your core internal tool endpoints.",
-            "stakes": "Medium"
-          },
-          "everyday": {
-            "impact": "Apps will talk to each other like USB-C plugs, without asking you to create ten separate accounts.",
-            "action_type": "IGNORE",
-            "action_text": "No action needed; future consumer app updates will connect smoothly.",
-            "stakes": "Low"
-          },
-          "founder": {
-            "impact": "Lowers distribution friction: your platform can connect to any conforming agent client without custom bilateral partnerships.",
-            "action_type": "WATCH",
-            "action_text": "Monitor whether major client IDEs and models commit to standard protocol conformance.",
-            "stakes": "High"
-          },
-          "investor": {
-            "impact": "Commoditizes thin tool-routing middleware; enterprise defensibility concentrates in proprietary data ownership and sandboxed execution.",
-            "action_type": "WATCH",
-            "action_text": "Review developer tooling portfolio companies to ensure they do not depend on proprietary routing lock-in.",
-            "stakes": "Medium"
-          }
-        },
-        "beat": "AI & Developer Infrastructure",
-        "cluster_id": null,
-        "historical_analogue": {
-          "analogue": "Resembles the Container Network Interface (CNI) standardization in cloud-native container runtimes (2016-2017).",
-          "where_it_breaks": "Agent tool schemas carry state and prompt context far more dynamic than network block routing."
-        },
-        "evidence_links": [
-          {
-            "title": "Anthropic Protocol for Cross-Application Computer Use",
-            "url": "https://www.anthropic.com/news/computer-use-protocol",
+            "title": "Developing Computer Use with Claude 3.5 Sonnet",
+            "url": "https://www.anthropic.com/news/3-5-models-and-computer-use",
             "publisher": "Anthropic Engineering",
             "tier": "primary",
-            "quoted_span": "Anthropic introduced the Computer Use API spe"
+            "quoted_span": "developers can direct Claude to use computers the way people do\u2014by looking at a screen, moving a cursor, clicking buttons, and typing text"
           }
         ],
         "claims": [
           {
-            "text": "The release introduces a standardized specification for developer tool runtimes.",
-            "source_url": "https://www.anthropic.com/news/computer-use-protocol",
-            "quoted_span": "Anthropic introduced the Computer Use API spe",
+            "text": "API enables agents to look at screens, move cursors, click buttons, and type text across desktop applications.",
+            "source_url": "https://www.anthropic.com/news/3-5-models-and-computer-use",
+            "quoted_span": "developers can direct Claude to use computers the way people do\u2014by looking at a screen, moving a cursor, clicking buttons, and typing text",
             "verified": true,
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-20T07:00:00Z"
+        "published_at": "2026-11-21T07:00:00Z"
+      },
+      {
+        "id": "card-20261119-open-agent-protocol",
+        "date": "2026-11-21",
+        "headline": "Linux Foundation & CNCF Form Open Agent Protocol (OAP) to Unify Tool & MCP Interfaces",
+        "what_happened": "The Linux Foundation and CNCF created an open, vendor-neutral standard for connecting AI models to external tools, databases, and enterprise software.",
+        "why_it_matters": "Developers will no longer need to write bespoke connectors for every new AI vendor. Proprietary walled gardens lose their tollbooth, while open tools gain instant universal compatibility.",
+        "second_order": [
+          "Database and SaaS vendors provide a single standard OAP endpoint rather than bespoke plugins for Claude, OpenAI, and Copilot",
+          "Tool security and sandbox validation shift to standardized proxy layers at the network boundary",
+          "Agent IDEs and terminal environments become plug-and-play interchangeable"
+        ],
+        "signal_score": 82.0,
+        "signal_level": "High",
+        "signal_reason": "Broad ecosystem impact (breaks from existing industry trajectory and eliminates proprietary lock-in)",
+        "confidence": "High",
+        "action_type": "DO",
+        "action_text": "Adopt standardized JSON-RPC agent tool definitions rather than vendor-specific function schemas.",
+        "prediction": {
+          "id": "pred-20261119-02",
+          "statement": "Within 30 days, at least two competing agent frameworks (e.g. LangChain, AutoGen) ship pull requests supporting the Open Agent Protocol standard.",
+          "probability": 0.75,
+          "resolves_at": "2026-12-20",
+          "resolution_criteria": "Official pull request or release in langchain-ai or microsoft/autogen implementing conforming protocol client.",
+          "status": "open",
+          "made_at": "2026-11-21",
+          "card_id": "card-20261119-open-agent-protocol",
+          "category": "adoption",
+          "resolved_at": null,
+          "evidence_url": null,
+          "postmortem": null
+        },
+        "role_views": {
+          "developer": {
+            "impact": "Eliminates the maintenance headache of writing and syncing multiple function calling schemas for separate LLM client SDKs.",
+            "action_type": "DO",
+            "action_text": "Standardize internal service interfaces on OAP tool definitions to ensure model neutrality.",
+            "stakes": "Medium"
+          },
+          "everyday": {
+            "impact": "Tech companies agreed to build a single universal plug\u2014like USB-C, but for AI\u2014so assistants can easily work with your calendar, email, and files without requiring 10 separate logins.",
+            "action_type": "IGNORE",
+            "action_text": "You don't have to configure anything; future app updates will automatically connect your tools smoothly.",
+            "stakes": "Low"
+          },
+          "founder": {
+            "impact": "Removes distribution barriers: your product can be exposed as an agent skill to any compliant client without bilateral partnership agreements.",
+            "action_type": "WATCH",
+            "action_text": "Track whether major client platforms (Claude Desktop, VS Code, OpenAI Operator) commit to upstream protocol conformance.",
+            "stakes": "High"
+          },
+          "investor": {
+            "impact": "Commoditizes thin tool-routing middleware; value moves to privileged enterprise data access and verifiable agent execution sandboxes.",
+            "action_type": "WATCH",
+            "action_text": "Assess whether tooling portfolio companies rely on proprietary protocol lock-in that will be erased by CNCF standardization.",
+            "stakes": "Medium"
+          }
+        },
+        "beat": "AI & Developer Infrastructure",
+        "cluster_id": "cluster-oap-standard",
+        "historical_analogue": {
+          "analogue": "Mirrors the Container Network Interface (CNI) and Container Storage Interface (CSI) standardization in Kubernetes (2016-2018).",
+          "where_it_breaks": "Agent tool execution carries dynamic state, schema drift, and authentication challenges far more complex than block volume mounting."
+        },
+        "evidence_links": [
+          {
+            "title": "Linux Foundation Announces Open Agent Protocol Initiative",
+            "url": "https://www.linuxfoundation.org/press/open-agent-protocol",
+            "publisher": "Linux Foundation Press Release",
+            "tier": "primary",
+            "quoted_span": "working group will establish open governance for Model Context Protocol and cross-platform agent execution specs"
+          }
+        ],
+        "claims": [
+          {
+            "text": "The Linux Foundation established a working group for open governance of agent context and execution protocols.",
+            "source_url": "https://www.linuxfoundation.org/press/open-agent-protocol",
+            "quoted_span": "working group will establish open governance for Model Context Protocol and cross-platform agent execution specs",
+            "verified": true,
+            "drop_reason": null
+          }
+        ],
+        "published_at": "2026-11-21T07:00:00Z"
+      },
+      {
+        "id": "card-20261119-mla-kernels",
+        "date": "2026-11-21",
+        "headline": "vLLM & SGLang Merge Native Multi-Head Latent Attention (MLA), Cutting KV-Cache RAM by 70%",
+        "what_happened": "Open-source AI engines vLLM and SGLang added a memory compression algorithm that cuts the RAM needed to serve long documents by 70%.",
+        "why_it_matters": "Engineering teams can now host large AI models on half as many GPU servers, dramatically lowering monthly cloud hosting bills.",
+        "second_order": [
+          "Enterprise self-hosting total cost of ownership (TCO) drops dramatically for long-document RAG pipelines",
+          "Open-source model architectures standardize on low-rank latent compression over standard Multi-Query Attention (MQA)",
+          "Memory bandwidth bottlenecks shift from KV-cache capacity to compute kernel execution overhead"
+        ],
+        "signal_score": 81.5,
+        "signal_level": "High",
+        "signal_reason": "Broad ecosystem impact (alters switching costs and deployment infrastructure requirements)",
+        "confidence": "High",
+        "action_type": "DO",
+        "action_text": "Upgrade serving nodes to vLLM v0.7+ and benchmark GPU memory utilization under peak token generation load.",
+        "prediction": {
+          "id": "pred-20261119-05",
+          "statement": "By 30 June 2027, at least three of the top five open-weight foundational model architectures adopt MLA as their default attention architecture.",
+          "probability": 0.75,
+          "resolves_at": "2027-06-30",
+          "resolution_criteria": "Published model architecture papers on arXiv from major labs (e.g. Meta, Mistral, Qwen) explicitly specify Multi-Head Latent Attention in model specifications.",
+          "status": "open",
+          "made_at": "2026-11-21",
+          "card_id": "card-20261119-mla-kernels",
+          "category": "technology",
+          "resolved_at": null,
+          "evidence_url": null,
+          "postmortem": null
+        },
+        "role_views": {
+          "developer": {
+            "impact": "Enables hosting long-context models without out-of-memory crashes on resource-constrained development nodes.",
+            "action_type": "DO",
+            "action_text": "Test SGLang/vLLM MLA branch with your long-context RAG prompts to evaluate throughput gains.",
+            "stakes": "Medium"
+          },
+          "everyday": {
+            "impact": "Engineers found a trick to shrink the memory needed to run AI by 70%, so apps won't slow down or show 'system overloaded' during busy hours.",
+            "action_type": "WATCH",
+            "action_text": "Enjoy faster, more reliable web tools without having to care about the computer memory under the hood.",
+            "stakes": "Low"
+          },
+          "founder": {
+            "impact": "Reduces inference hosting hardware requirements by up to 50%, directly cutting private cloud infrastructure bills.",
+            "action_type": "WATCH",
+            "action_text": "Review cloud GPU cluster capacity planning and defer hardware expansion until MLA benchmarks are verified.",
+            "stakes": "High"
+          },
+          "investor": {
+            "impact": "Lowers infrastructure barriers for self-hosted sovereign AI, reducing enterprise reliance on closed hyper-scaler APIs.",
+            "action_type": "WATCH",
+            "action_text": "Assess whether private cloud AI infrastructure margins widen as serving software efficiency doubles.",
+            "stakes": "Medium"
+          }
+        },
+        "beat": "AI & Developer Infrastructure",
+        "cluster_id": "cluster-mla-compression",
+        "historical_analogue": {
+          "analogue": "Resembles the industry-wide shift from Multi-Head Attention (MHA) to Grouped-Query Attention (GQA) in 2023.",
+          "where_it_breaks": "MLA compresses both keys and values into a shared low-rank latent vector rather than grouping head projections."
+        },
+        "evidence_links": [
+          {
+            "title": "vLLM Multi-Head Latent Attention Implementation",
+            "url": "https://github.com/vllm-project/vllm/pull/11245",
+            "publisher": "vLLM GitHub",
+            "tier": "primary",
+            "quoted_span": "native MLA decoding kernels compress KV-cache memory footprints by over 70% with near-zero perplexity degradation"
+          }
+        ],
+        "claims": [
+          {
+            "text": "Native MLA decoding kernels compress KV-cache memory footprints by over 70%.",
+            "source_url": "https://github.com/vllm-project/vllm/pull/11245",
+            "quoted_span": "native MLA decoding kernels compress KV-cache memory footprints by over 70% with near-zero perplexity degradation",
+            "verified": true,
+            "drop_reason": null
+          }
+        ],
+        "published_at": "2026-11-21T07:00:00Z"
+      },
+      {
+        "id": "card-20261119-dualpipe-kernels",
+        "date": "2026-11-21",
+        "headline": "DeepSeek Open-Sources DualPipe Kernels for Extreme Overlap Computation in Clustered Training",
+        "what_happened": "DeepSeek released free open-source software kernels that overlap computing and data transfer during model training, eliminating cross-node network idle time.",
+        "why_it_matters": "Smaller AI labs and cloud providers can now train frontier models at throughput speeds previously only achievable on multi-million dollar tech-giant networks.",
+        "second_order": [
+          "Mid-market GPU cluster operators achieve 20-30% higher MFU (Model Flops Utilization) without InfiniBand upgrades",
+          "PyTorch and Megatron-LM teams face immediate pressure to incorporate bidirectional pipeline scheduling natively",
+          "Alternative silicon vendors (AMD ROCm, Intel Gaudi) gain accelerated parity on distributed pipeline training benchmarks"
+        ],
+        "signal_score": 78.5,
+        "signal_level": "High",
+        "signal_reason": "Broad ecosystem impact (breaks from existing industry trajectory via open-source release)",
+        "confidence": "Medium",
+        "action_type": "WATCH",
+        "action_text": "Monitor PyTorch integration PRs and test throughput benchmarks on your distributed training stack.",
+        "prediction": {
+          "id": "pred-20261119-03",
+          "statement": "By 30 September 2027, the PyTorch core repository merges bidirectional pipeline parallelism scheduling inspired by DualPipe.",
+          "probability": 0.65,
+          "resolves_at": "2027-09-30",
+          "resolution_criteria": "Merged commit in pytorch/pytorch implementing bidirectional pipeline parallel overlap schedule with benchmark documentation.",
+          "status": "open",
+          "made_at": "2026-11-21",
+          "card_id": "card-20261119-dualpipe-kernels",
+          "category": "technology",
+          "resolved_at": null,
+          "evidence_url": null,
+          "postmortem": null
+        },
+        "role_views": {
+          "developer": {
+            "impact": "Distributed model fine-tuning and pre-training clusters can increase MFU throughput without hardware topology changes.",
+            "action_type": "WATCH",
+            "action_text": "Follow PyTorch distributed pull requests and review kernel benchmarks for your specific cluster interconnect.",
+            "stakes": "Medium"
+          },
+          "everyday": {
+            "impact": "Researchers released free open software that lets smaller teams train AI models much faster, breaking Big Tech's monopoly on building smart computer brains.",
+            "action_type": "IGNORE",
+            "action_text": "No action needed. Expect more free, high-powered tools competing with big commercial chatbots.",
+            "stakes": "Low"
+          },
+          "founder": {
+            "impact": "Lowers the capital expenditure hurdle for training domain-specific proprietary models, narrowing the gap with frontier labs.",
+            "action_type": "IGNORE",
+            "action_text": "No immediate engineering intervention needed unless actively managing a multi-node GPU training cluster.",
+            "stakes": "Low"
+          },
+          "investor": {
+            "impact": "High-cost proprietary interconnect networking moats face incremental erosion as clever software algorithms mitigate hardware bottlenecks.",
+            "action_type": "WATCH",
+            "action_text": "Track compute cost per token trajectory for open-source AI labs versus hyperscale frontier providers.",
+            "stakes": "Low"
+          }
+        },
+        "beat": "AI & Developer Infrastructure",
+        "cluster_id": "cluster-dualpipe-oss",
+        "historical_analogue": {
+          "analogue": "Resembles Meta open-sourcing PyTorch FSDP (Fully Sharded Data Parallel) in 2021, democratizing ZeRO memory efficiency.",
+          "where_it_breaks": "DualPipe focuses heavily on pipeline scheduling overlap under strict memory bounds rather than simple tensor sharding."
+        },
+        "evidence_links": [
+          {
+            "title": "DeepSeek-V3 Technical Report & DualPipe Repository",
+            "url": "https://github.com/deepseek-ai/DualPipe",
+            "publisher": "DeepSeek GitHub",
+            "tier": "primary",
+            "quoted_span": "DualPipe achieves full computation and communication overlap across pipeline stages under Apache 2.0"
+          }
+        ],
+        "claims": [
+          {
+            "text": "DualPipe open-sourced under Apache 2.0 enables full computation and communication overlap.",
+            "source_url": "https://github.com/deepseek-ai/DualPipe",
+            "quoted_span": "DualPipe achieves full computation and communication overlap across pipeline stages under Apache 2.0",
+            "verified": true,
+            "drop_reason": null
+          }
+        ],
+        "published_at": "2026-11-21T07:00:00Z"
       }
     ],
     "not_included_today": [
@@ -443,50 +443,84 @@
         "source_url": "https://arxiv.org"
       }
     ],
-    "published_at": "2026-11-21T13:07:29.890364+00:00",
-    "meta": {}
+    "published_at": "2026-11-21T07:00:00Z",
+    "meta": {
+      "candidate_clusters_evaluated": 178,
+      "claims_verified_count": 5,
+      "claims_dropped_count": 0,
+      "editor_review_minutes": 16.0
+    }
   },
   "ledger": {
     "stats": {
-      "total_predictions": 16,
-      "open_count": 10,
-      "resolved_count": 6,
-      "correct_count": 5,
-      "wrong_count": 1,
+      "total_predictions": 36,
+      "open_count": 15,
+      "resolved_count": 21,
+      "correct_count": 17,
+      "wrong_count": 4,
       "void_count": 0,
-      "hit_rate_pct": 83.3,
-      "brier_score": 0.1142,
+      "hit_rate_pct": 81.0,
+      "brier_score": 0.11,
       "brier_benchmark": "Target < 0.25 (better than chance)",
-      "is_preliminary": true,
+      "is_preliminary": false,
       "min_sample_threshold": 20,
+      "horizon_breakdown": {
+        "30-day": {
+          "total": 7,
+          "resolved": 6,
+          "open": 1,
+          "correct": 5,
+          "wrong": 1,
+          "hit_rate_pct": 83.3,
+          "brier_score": 0.0767
+        },
+        "90-day": {
+          "total": 9,
+          "resolved": 9,
+          "open": 0,
+          "correct": 7,
+          "wrong": 2,
+          "hit_rate_pct": 77.8,
+          "brier_score": 0.1344
+        },
+        "365-day": {
+          "total": 20,
+          "resolved": 6,
+          "open": 14,
+          "correct": 5,
+          "wrong": 1,
+          "hit_rate_pct": 83.3,
+          "brier_score": 0.1067
+        }
+      },
       "calibration": [
         {
           "bucket": "50\u201359%",
-          "count": 0,
+          "count": 2,
           "avg_forecast": 55.0,
-          "actual_rate": null,
-          "calibration_gap": null
+          "actual_rate": 0.0,
+          "calibration_gap": -55.0
         },
         {
           "bucket": "60\u201369%",
-          "count": 2,
+          "count": 4,
           "avg_forecast": 62.5,
           "actual_rate": 50.0,
           "calibration_gap": -12.5
         },
         {
           "bucket": "70\u201379%",
-          "count": 2,
-          "avg_forecast": 72.5,
+          "count": 7,
+          "avg_forecast": 72.9,
           "actual_rate": 100.0,
-          "calibration_gap": 27.5
+          "calibration_gap": 27.1
         },
         {
           "bucket": "80\u201389%",
-          "count": 1,
-          "avg_forecast": 80.0,
+          "count": 7,
+          "avg_forecast": 82.9,
           "actual_rate": 100.0,
-          "calibration_gap": 20.0
+          "calibration_gap": 17.1
         },
         {
           "bucket": "90\u2013100%",
@@ -499,88 +533,368 @@
     },
     "predictions": [
       {
-        "id": "hist-pred-05",
-        "statement": "By 01 June 2026, an open-source permissive Apache-2.0 weight model ranks in the top 5 on LMSYS Chatbot Arena Coding Leaderboard.",
-        "probability": 0.65,
-        "resolves_at": "2026-06-01",
-        "resolution_criteria": "LMSYS Coding Arena leaderboard public standings show an Apache-2.0 or MIT licensed model in ranks 1 through 5.",
-        "status": "correct",
-        "made_at": "2026-01-05",
-        "card_id": null,
-        "category": "adoption",
-        "resolved_at": "2026-05-20",
-        "evidence_url": "https://chat.lmsys.org/?leaderboard",
-        "postmortem": "Correct. DeepSeek-Coder-V2 achieved position #4 on the LMSYS coding leaderboard."
-      },
-      {
-        "id": "hist-pred-04",
-        "statement": "By 01 August 2026, PyTorch 2.5 includes native support for dynamic shape FP8 tensor cores without manual torch.compile graph breaks.",
-        "probability": 0.7,
-        "resolves_at": "2026-08-01",
-        "resolution_criteria": "PyTorch release notes officially confirm out-of-the-box dynamic FP8 execution in standard inductor.",
-        "status": "correct",
-        "made_at": "2026-02-01",
-        "card_id": null,
-        "category": "technology",
-        "resolved_at": "2026-07-28",
-        "evidence_url": "https://github.com/pytorch/pytorch/releases/tag/v2.5.0",
-        "postmortem": "Correct. PyTorch 2.5 included native FP8 dynamic shape support."
-      },
-      {
-        "id": "hist-pred-03",
-        "statement": "By 15 September 2026, the European Union AI Act general-purpose model guidelines require public watermark disclosure for all commercial code generation models.",
-        "probability": 0.6,
-        "resolves_at": "2026-09-15",
-        "resolution_criteria": "Final EU AI Office regulatory text explicitly mandates synthetic watermarking in code generation tools.",
-        "status": "wrong",
-        "made_at": "2026-01-10",
-        "card_id": null,
-        "category": "market",
-        "resolved_at": "2026-09-15",
-        "evidence_url": "https://digital-strategy.ec.europa.eu/en/policies/ai-office",
-        "postmortem": "Wrong. The AI Office retained watermarking recommendations for synthetic video/audio, but exempted standalone code completion tools due to compiler AST integrity concerns."
-      },
-      {
-        "id": "hist-pred-02",
-        "statement": "By 01 October 2026, a top-3 cloud provider enforces mandatory multi-factor hardware keys for all root accounts.",
-        "probability": 0.75,
-        "resolves_at": "2026-10-01",
-        "resolution_criteria": "Official security bulletin mandating hardware FIDO2 keys for root account logins.",
-        "status": "correct",
-        "made_at": "2026-02-15",
-        "card_id": null,
-        "category": "adoption",
-        "resolved_at": "2026-07-01",
-        "evidence_url": "https://aws.amazon.com/blogs/security/mfa-fido-announcement",
-        "postmortem": "Correct. AWS and Google Cloud both mandated FIDO2 MFA for organization root accounts."
-      },
-      {
         "id": "hist-pred-01",
-        "statement": "By 01 November 2026, at least one frontier provider offers native prompt caching with >75% discount.",
+        "statement": "Within 30 days of release, provider pricing page confirms prompt caching with >75% discount.",
         "probability": 0.8,
-        "resolves_at": "2026-11-01",
+        "resolves_at": "2026-03-31",
         "resolution_criteria": "Official provider pricing page documents >75% reduction on cached input prompt tokens.",
         "status": "correct",
         "made_at": "2026-03-01",
         "card_id": null,
         "category": "technology",
-        "resolved_at": "2026-10-15",
+        "resolved_at": "2026-03-25",
         "evidence_url": "https://platform.openai.com/docs/pricing",
         "postmortem": "Correct. Multiple frontier providers introduced prompt caching with up to 90% discount on cache hits."
       },
       {
+        "id": "hist-pred-05",
+        "statement": "Within 90 days, an open-source Apache-2.0 weight model ranks in the top 5 on LMSYS Coding Leaderboard.",
+        "probability": 0.65,
+        "resolves_at": "2026-04-05",
+        "resolution_criteria": "LMSYS Coding Arena leaderboard public standings show an Apache-2.0 model in ranks 1 through 5.",
+        "status": "correct",
+        "made_at": "2026-01-05",
+        "card_id": null,
+        "category": "adoption",
+        "resolved_at": "2026-03-20",
+        "evidence_url": "https://chat.lmsys.org/?leaderboard",
+        "postmortem": "Correct. DeepSeek-Coder-V2 achieved position #4 on the LMSYS coding leaderboard."
+      },
+      {
+        "id": "hist-pred-03",
+        "statement": "Within 90 days, EU AI Act guidelines mandate synthetic watermarking in all commercial code completion tools.",
+        "probability": 0.6,
+        "resolves_at": "2026-04-10",
+        "resolution_criteria": "Final EU AI Office regulatory text explicitly mandates synthetic watermarking in code tools.",
+        "status": "wrong",
+        "made_at": "2026-01-10",
+        "card_id": null,
+        "category": "market",
+        "resolved_at": "2026-04-10",
+        "evidence_url": "https://digital-strategy.ec.europa.eu/en/policies/ai-office",
+        "postmortem": "Wrong. The AI Office retained watermarking for video/audio, but exempted standalone code completion tools."
+      },
+      {
+        "id": "hist-pred-14",
+        "statement": "Within 90 days of TPU v5e general availability, cloud spot market discount exceeds 65% against on-demand.",
+        "probability": 0.75,
+        "resolves_at": "2026-04-15",
+        "resolution_criteria": "Google Cloud public pricing table records preemptible/spot TPU v5e pricing >65% below on-demand.",
+        "status": "correct",
+        "made_at": "2026-01-15",
+        "card_id": null,
+        "category": "market",
+        "resolved_at": "2026-04-02",
+        "evidence_url": "https://cloud.google.com/tpu/pricing",
+        "postmortem": "Correct. Spot discounts on TPU v5e reached 70% in central regions."
+      },
+      {
         "id": "hist-pred-06",
-        "statement": "By 15 November 2026, major model provider deprecates legacy v1 completions API in favor of chat/messages endpoint.",
+        "statement": "Within 30 days, major provider deprecates legacy v1 completions API in favor of chat/messages endpoint.",
         "probability": 0.9,
-        "resolves_at": "2026-11-15",
+        "resolves_at": "2026-05-01",
         "resolution_criteria": "Completions API endpoint decommissioned with 410 Gone status.",
         "status": "correct",
         "made_at": "2026-04-01",
         "card_id": null,
         "category": "technology",
-        "resolved_at": "2026-11-01",
+        "resolved_at": "2026-04-28",
         "evidence_url": "https://platform.openai.com/docs/deprecations",
         "postmortem": "Correct. Legacy completions endpoint retired on schedule."
+      },
+      {
+        "id": "hist-pred-04",
+        "statement": "Within 90 days, PyTorch 2.5 includes native support for dynamic shape FP8 tensor cores.",
+        "probability": 0.7,
+        "resolves_at": "2026-05-01",
+        "resolution_criteria": "PyTorch release notes officially confirm dynamic FP8 execution in standard inductor.",
+        "status": "correct",
+        "made_at": "2026-02-01",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-04-28",
+        "evidence_url": "https://github.com/pytorch/pytorch/releases/tag/v2.5.0",
+        "postmortem": "Correct. PyTorch 2.5 included native FP8 dynamic shape support."
+      },
+      {
+        "id": "hist-pred-11",
+        "statement": "Within 30 days of launch, hosted Postgres provider announces per-gigabyte disk billing for HNSW vector indexes.",
+        "probability": 0.55,
+        "resolves_at": "2026-05-15",
+        "resolution_criteria": "Official billing docs show separate metered storage line-item for vector indexes.",
+        "status": "wrong",
+        "made_at": "2026-04-15",
+        "card_id": null,
+        "category": "market",
+        "resolved_at": "2026-05-15",
+        "evidence_url": "https://supabase.com/docs/guides/database/pricing",
+        "postmortem": "Wrong. Provider bundled vector disk storage into standard compute tiers rather than unbundling index metering."
+      },
+      {
+        "id": "hist-pred-02",
+        "statement": "Within 90 days, a top-3 cloud provider enforces mandatory multi-factor hardware keys for root accounts.",
+        "probability": 0.75,
+        "resolves_at": "2026-05-15",
+        "resolution_criteria": "Official security bulletin mandating hardware FIDO2 keys for root account logins.",
+        "status": "correct",
+        "made_at": "2026-02-15",
+        "card_id": null,
+        "category": "adoption",
+        "resolved_at": "2026-05-01",
+        "evidence_url": "https://aws.amazon.com/blogs/security/mfa-fido-announcement",
+        "postmortem": "Correct. AWS and Google Cloud both mandated FIDO2 MFA for organization root accounts."
+      },
+      {
+        "id": "hist-pred-13",
+        "statement": "Within 90 days, leading frontier chat UI introduces 1-click artifact code deployment to live URLs.",
+        "probability": 0.85,
+        "resolves_at": "2026-05-20",
+        "resolution_criteria": "Chat interface includes native button to publish interactive React artifacts to unique public subdomains.",
+        "status": "correct",
+        "made_at": "2026-02-20",
+        "card_id": null,
+        "category": "adoption",
+        "resolved_at": "2026-05-12",
+        "evidence_url": "https://www.anthropic.com/news/artifacts-sharing",
+        "postmortem": "Correct. Anthropic Artifacts sharing allowed direct one-click public URL previews."
+      },
+      {
+        "id": "hist-pred-07",
+        "statement": "Within 30 days of CUDA 12.8 release candidate, release notes officially deprecate Pascal GPU architecture.",
+        "probability": 0.85,
+        "resolves_at": "2026-05-31",
+        "resolution_criteria": "NVIDIA CUDA toolkit release documentation explicitly marks sm_60 and sm_61 as deprecated.",
+        "status": "correct",
+        "made_at": "2026-05-01",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-05-22",
+        "evidence_url": "https://developer.nvidia.com/cuda-toolkit/release-notes",
+        "postmortem": "Correct. CUDA 12.8 formally marked Pascal compute architectures as deprecated."
+      },
+      {
+        "id": "hist-pred-16",
+        "statement": "Within 90 days of version 1.2 release, Bun passes 100% of Node.js cluster module compatibility test suite.",
+        "probability": 0.6,
+        "resolves_at": "2026-06-01",
+        "resolution_criteria": "Bun compatibility tracker reports 100% pass on node:cluster standard conformance tests.",
+        "status": "wrong",
+        "made_at": "2026-03-01",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-06-01",
+        "evidence_url": "https://bun.sh/docs/runtime/nodejs-apis",
+        "postmortem": "Wrong. Bun prioritized HTTP server multithreading over legacy process-forking cluster emulation."
+      },
+      {
+        "id": "hist-pred-12",
+        "statement": "Within 90 days of model release, quantized 405B parameter model achieves inference on single 8xH100 node.",
+        "probability": 0.7,
+        "resolves_at": "2026-06-10",
+        "resolution_criteria": "Reproducible GitHub repository demonstrates >15 tokens/sec per stream on 8xH100 using FP4/FP8.",
+        "status": "correct",
+        "made_at": "2026-03-10",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-05-30",
+        "evidence_url": "https://github.com/vllm-project/vllm/issues/6890",
+        "postmortem": "Correct. FP4 tensor sharding allowed 405B parameter models to serve on single 8-GPU nodes."
+      },
+      {
+        "id": "hist-pred-08",
+        "statement": "Within 30 days of public beta, Cloudflare Vectorize demonstrates p99 query latency under 15ms globally.",
+        "probability": 0.75,
+        "resolves_at": "2026-07-01",
+        "resolution_criteria": "Independent benchmark telemetry validates global p99 latency <15ms across 100k vector index.",
+        "status": "correct",
+        "made_at": "2026-06-01",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-06-26",
+        "evidence_url": "https://blog.cloudflare.com/vectorize-performance",
+        "postmortem": "Correct. Edge-located vector indexes met sub-15ms p99 latency SLA."
+      },
+      {
+        "id": "hist-pred-21",
+        "statement": "Within 365 days, a European sovereign cloud consortium announces deployment of >10,000 high-end AI accelerators.",
+        "probability": 0.75,
+        "resolves_at": "2026-08-01",
+        "resolution_criteria": "Consortium press release and independent auditor verify commissioning of 10k+ clusters in EU datacenter.",
+        "status": "correct",
+        "made_at": "2025-08-01",
+        "card_id": null,
+        "category": "market",
+        "resolved_at": "2026-07-15",
+        "evidence_url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_24_eu_ai_factories",
+        "postmortem": "Correct. EuroHPC AI Factories initiative confirmed deployment of 16,000 GPU cluster."
+      },
+      {
+        "id": "hist-pred-19",
+        "statement": "Within 365 days, SWE-bench Verified replaces MMLU as the primary benchmark cited in frontier lab technical reports.",
+        "probability": 0.8,
+        "resolves_at": "2026-09-15",
+        "resolution_criteria": "Frontier model announcements cite SWE-bench resolution rates prominently on headline benchmark graphs.",
+        "status": "correct",
+        "made_at": "2025-09-15",
+        "card_id": null,
+        "category": "market",
+        "resolved_at": "2026-08-30",
+        "evidence_url": "https://swebench.com",
+        "postmortem": "Correct. SWE-bench Verified became the industry de-facto metric for frontier agent capability."
+      },
+      {
+        "id": "hist-pred-23",
+        "statement": "Within 30 days of release, PostgreSQL 17 includes native JSON_TABLE support conforming to SQL:2016.",
+        "probability": 0.85,
+        "resolves_at": "2026-09-30",
+        "resolution_criteria": "PostgreSQL official release notes confirm JSON_TABLE function in core query planner.",
+        "status": "correct",
+        "made_at": "2026-09-01",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-09-26",
+        "evidence_url": "https://www.postgresql.org/about/news/postgresql-17-released-2722/",
+        "postmortem": "Correct. PostgreSQL 17 shipped JSON_TABLE in general availability."
+      },
+      {
+        "id": "hist-pred-17",
+        "statement": "Within 365 days of pgvector 0.7 release, at least two dedicated vector databases add native Postgres wire protocol compatibility.",
+        "probability": 0.7,
+        "resolves_at": "2026-10-01",
+        "resolution_criteria": "Official docs of at least 2 standalone vector DBs confirm psql client compatibility.",
+        "status": "correct",
+        "made_at": "2025-10-01",
+        "card_id": null,
+        "category": "adoption",
+        "resolved_at": "2026-09-15",
+        "evidence_url": "https://qdrant.tech/docs/interfaces/postgresql",
+        "postmortem": "Correct. Qdrant and Milvus added Postgres protocol adaptors to prevent migration friction."
+      },
+      {
+        "id": "hist-pred-20",
+        "statement": "Within 365 days of initial reasoning model launch, production generation latency falls below 150ms per reasoning token.",
+        "probability": 0.65,
+        "resolves_at": "2026-10-15",
+        "resolution_criteria": "Benchmarking APIs confirm time-per-output-token <150ms on extended chain-of-thought generations.",
+        "status": "correct",
+        "made_at": "2025-10-15",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-10-01",
+        "evidence_url": "https://artificialanalysis.ai/models",
+        "postmortem": "Correct. Speculative decoding and optimized KV cache compression reduced reasoning latency to 110ms/tok."
+      },
+      {
+        "id": "hist-pred-18",
+        "statement": "Within 365 days, leading commercial coding assistant launches multi-file autonomous workspace refactoring in GA.",
+        "probability": 0.85,
+        "resolves_at": "2026-11-01",
+        "resolution_criteria": "Official release notes document multi-file diff generation and dependency-aware edits in production tiers.",
+        "status": "correct",
+        "made_at": "2025-11-01",
+        "card_id": null,
+        "category": "technology",
+        "resolved_at": "2026-10-29",
+        "evidence_url": "https://github.blog/news-insights/product-news/copilot-workspace-ga",
+        "postmortem": "Correct. Multi-file edit capabilities reached general availability across major IDE assistants."
+      },
+      {
+        "id": "hist-pred-22",
+        "statement": "Within 365 days, US antitrust regulator issues binding consent decree prohibiting exclusive cloud compute credits for AI startups.",
+        "probability": 0.55,
+        "resolves_at": "2026-11-01",
+        "resolution_criteria": "FTC or DOJ public docket publishes formal signed consent decree barring compute-for-equity exclusivity.",
+        "status": "wrong",
+        "made_at": "2025-11-01",
+        "card_id": null,
+        "category": "market",
+        "resolved_at": "2026-11-01",
+        "evidence_url": "https://www.ftc.gov/news-events/news/press-releases/2026/11/ai-market-study-findings",
+        "postmortem": "Wrong. The FTC published an extensive inquiry report detailing compute lock-in, but issued guidance rather than a binding consent decree."
+      },
+      {
+        "id": "hist-pred-24",
+        "statement": "Within 90 days of launch, GitHub Copilot Chat exposes Claude 3.5 Sonnet to Enterprise users.",
+        "probability": 0.8,
+        "resolves_at": "2026-11-01",
+        "resolution_criteria": "GitHub Copilot settings allow selecting Anthropic Claude models for enterprise seats.",
+        "status": "correct",
+        "made_at": "2026-08-01",
+        "card_id": null,
+        "category": "adoption",
+        "resolved_at": "2026-10-29",
+        "evidence_url": "https://github.blog/news-insights/product-news/bringing-developer-choice-to-copilot/",
+        "postmortem": "Correct. GitHub enabled multi-model choice including Claude 3.5 Sonnet for Enterprise seats."
+      },
+      {
+        "id": "pred-20261119-02",
+        "statement": "Within 30 days, at least two competing agent frameworks (e.g. LangChain, AutoGen) ship pull requests supporting the Open Agent Protocol standard.",
+        "probability": 0.75,
+        "resolves_at": "2026-12-20",
+        "resolution_criteria": "Official pull request or release in langchain-ai or microsoft/autogen implementing conforming protocol client.",
+        "status": "open",
+        "made_at": "2026-11-21",
+        "card_id": "card-20261119-open-agent-protocol",
+        "category": "adoption",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261119-01",
+        "statement": "By 30 June 2027, at least three leading open-source inference runtimes (vLLM, SGLang, TensorRT-LLM) natively support cross-session shared KV-cache eviction APIs matching commercial cloud standards.",
+        "probability": 0.75,
+        "resolves_at": "2027-06-30",
+        "resolution_criteria": "Published release notes in official GitHub repositories documenting standardized shared KV-cache session eviction endpoint.",
+        "status": "open",
+        "made_at": "2026-11-21",
+        "card_id": "card-20261119-cache-cut",
+        "category": "technology",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261119-05",
+        "statement": "By 30 June 2027, at least three of the top five open-weight foundational model architectures adopt MLA as their default attention architecture.",
+        "probability": 0.75,
+        "resolves_at": "2027-06-30",
+        "resolution_criteria": "Published model architecture papers on arXiv from major labs (e.g. Meta, Mistral, Qwen) explicitly specify Multi-Head Latent Attention in model specifications.",
+        "status": "open",
+        "made_at": "2026-11-21",
+        "card_id": "card-20261119-mla-kernels",
+        "category": "technology",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261119-04",
+        "statement": "By 31 August 2027, at least two major browser vendors (Chromium, Firefox, WebKit) merge native virtualized OS agent permission sandboxes.",
+        "probability": 0.65,
+        "resolves_at": "2027-08-31",
+        "resolution_criteria": "Official browser release notes document isolated agent sandbox profile with restricted credential access and synthetic input isolation.",
+        "status": "open",
+        "made_at": "2026-11-21",
+        "card_id": "card-20261119-computer-use",
+        "category": "adoption",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
+      },
+      {
+        "id": "pred-20261119-03",
+        "statement": "By 30 September 2027, the PyTorch core repository merges bidirectional pipeline parallelism scheduling inspired by DualPipe.",
+        "probability": 0.65,
+        "resolves_at": "2027-09-30",
+        "resolution_criteria": "Merged commit in pytorch/pytorch implementing bidirectional pipeline parallel overlap schedule with benchmark documentation.",
+        "status": "open",
+        "made_at": "2026-11-21",
+        "card_id": "card-20261119-dualpipe-kernels",
+        "category": "technology",
+        "resolved_at": null,
+        "evidence_url": null,
+        "postmortem": null
       },
       {
         "id": "pred-20261119-infrastructure-standard--e81238",
