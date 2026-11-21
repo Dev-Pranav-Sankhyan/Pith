@@ -11,11 +11,20 @@ import urllib.parse
 from core.db import Database
 from core.ledger import LedgerEngine
 from core.scoring import ScoringEngine
-from core.cli_format import render_cli_brief
+from core import auth, newsfeed
+from core.recommender import Recommender
+from core.demo_news import seed_demo
+import threading
+import time
 
 
 PORT = int(os.environ.get("PORT", 8000))
 PUBLIC_DIR = os.path.join(os.path.dirname(__file__), "public")
+FOR_YOU_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), newsfeed.FOR_YOU_DB)
+REFRESH_MINUTES = int(os.environ.get("PITH_REFRESH_MINUTES", 30))
+SECURE_COOKIES = os.environ.get("PITH_SECURE_COOKIES") == "1"
+MAX_BODY = 64 * 1024
+recommender = Recommender(FOR_YOU_DB)
 
 
 class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -30,19 +39,11 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         user_agent = self.headers.get("User-Agent", "").lower()
         is_terminal = any(tool in user_agent for tool in ("curl", "wget", "httpie"))
 
-        # Terminal CLI Endpoints (curl lowpass.sh/dev or curl localhost:8000/dev)
-        if path in ("/dev", "/developer"):
-            return self._handle_cli_request("developer")
-        elif path in ("/founder", "/founders"):
-            return self._handle_cli_request("founder")
-        elif path in ("/investor", "/investors"):
-            return self._handle_cli_request("investor")
-        elif path in ("/plain", "/everyday", "/normal"):
-            return self._handle_cli_request("everyday")
-        elif path == "/cli" or (path == "/" and is_terminal):
-            return self._handle_cli_request("developer")
-        elif path.startswith("/vote/"):
-            return self._handle_cli_vote(path)
+        if path.startswith("/api/") and path.split("/")[2] in ("me", "feed", "profile"):
+            return self._handle_foryou_get(path, parsed)
+        elif path in ("/foryou", "/for-you", "/login"):
+            self.path = "/foryou.html"
+            return super().do_GET()
         elif path == "/api/issue":
             self._handle_api_issue()
         elif path == "/api/ledger":
@@ -53,44 +54,16 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         elif path == "/patterns":
             self.path = "/patterns.html"
             return super().do_GET()
-        elif path in ("/horizon", "/bounty"):
+        elif path in ("/horizon", "/bounty", "/matrix", "/economics", "/terminal"):
             self.send_response(302)
             self.send_header("Location", "/")
             self.end_headers()
             return
-        elif path == "/matrix":
-            self.path = "/matrix.html"
-            return super().do_GET()
-        elif path == "/economics":
-            self.path = "/economics.html"
-            return super().do_GET()
-        elif path == "/terminal":
-            self.path = "/terminal.html"
-            return super().do_GET()
         elif path == "/archive":
             self.path = "/archive.html"
             return super().do_GET()
         else:
             return super().do_GET()
-
-    def _handle_cli_request(self, role: str):
-        db = Database("brief.sqlite3")
-        issue = db.get_latest_issue()
-        cli_text = render_cli_brief(issue, role=role)
-        self._send_text(cli_text)
-
-    def _handle_cli_vote(self, path: str):
-        parts = [p for p in path.split("/") if p]
-        # /vote/<card_id>/<pick>
-        if len(parts) >= 3:
-            card_id = parts[1]
-            pick = parts[2].upper()
-            import random
-            hash_code = f"#{random.randint(1000, 9999):X}"
-            msg = f"\n\033[1;92m✓ [SEALED {hash_code}]\033[0m Your prediction \033[1m'{pick}'\033[0m for {card_id} is locked on record.\n  Calibration ELO adjusted: +12 base (+24 if contrarian).\n  Inspect public track record at: http://localhost:8000/ledger.html\n\n"
-        else:
-            msg = "\nUsage: curl localhost:8000/vote/<card_id>/[higher|agree|lower]\n\n"
-        self._send_text(msg)
 
     def _send_text(self, text: str, status: int = 200):
         data = text.encode("utf-8")
@@ -105,8 +78,111 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/api/score":
             self._handle_api_score()
+        elif parsed.path.startswith(("/api/auth/", "/api/events", "/api/onboard", "/api/profile/", "/api/refresh")):
+            self._handle_foryou_post(parsed.path)
         else:
             self.send_error(404, "Endpoint not found")
+
+    # ------------------------------------------------------------------ For You (personalised feed)
+    def _session_token(self):
+        return auth.parse_cookie(self.headers.get("Cookie"))
+
+    def _current_user(self):
+        return auth.user_for_token(self._session_token(), FOR_YOU_DB)
+
+    def _json(self, data, status: int = 200, cookie: str = None):
+        body = json.dumps(data).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        if cookie:
+            self.send_header("Set-Cookie", cookie)
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _read_json_body(self):
+        # Requiring a JSON content type blocks cross-site <form> posts (CSRF) on top of SameSite cookies.
+        ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+        if ctype != "application/json":
+            raise ValueError("Content-Type must be application/json")
+        length = int(self.headers.get("Content-Length") or 0)
+        if length > MAX_BODY:
+            raise ValueError("Request body too large")
+        raw = self.rfile.read(length) if length else b""
+        return json.loads(raw) if raw else {}
+
+    def _handle_foryou_get(self, path: str, parsed):
+        q = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
+        user = self._current_user()
+        if path == "/api/me":
+            return self._json({"user": user, "articles": newsfeed.article_count(FOR_YOU_DB)})
+        tab = q.get("tab", "foryou")
+        if not user and not (path == "/api/feed" and tab == "trending"):
+            return self._json({"error": "Login required"}, 401)
+        try:
+            hour = int(q["hour"]) if "hour" in q else None
+            limit = max(1, min(int(q.get("limit", 30)), 60))
+        except ValueError:
+            return self._json({"error": "Bad query parameter"}, 400)
+        exclude = [x for x in q.get("exclude", "").split(",") if x][:500]
+
+        if path == "/api/profile":
+            return self._json(recommender.profile(user["id"]))
+        if path == "/api/feed":
+            if tab == "trending":
+                items = recommender.trending(user["id"] if user else None, limit, exclude)
+            elif tab in ("saved", "history"):
+                items = recommender.library(user["id"], tab)
+            elif tab == "search":
+                items = recommender.search(user["id"], q.get("q", ""), limit)
+            else:
+                items = recommender.rank(user["id"], limit, exclude, hour, topic=q.get("topic") or None)
+            return self._json({"tab": tab, "items": items})
+        return self._json({"error": "Not found"}, 404)
+
+    def _handle_foryou_post(self, path: str):
+        try:
+            data = self._read_json_body()
+        except (ValueError, json.JSONDecodeError) as e:
+            return self._json({"error": str(e)}, 400)
+
+        if path in ("/api/auth/signup", "/api/auth/login"):
+            try:
+                if path.endswith("signup"):
+                    uid = auth.create_user(data.get("username", ""), data.get("password", ""),
+                                           data.get("display_name", ""), FOR_YOU_DB)
+                else:
+                    uid = auth.authenticate(data.get("username", ""), data.get("password", ""), FOR_YOU_DB)
+            except auth.AuthError as e:
+                return self._json({"error": str(e)}, 400)
+            token = auth.create_session(uid, FOR_YOU_DB)
+            return self._json({"user": auth.user_for_token(token, FOR_YOU_DB)},
+                              cookie=auth.session_cookie(token, SECURE_COOKIES))
+        if path == "/api/auth/logout":
+            auth.destroy_session(self._session_token(), FOR_YOU_DB)
+            return self._json({"ok": True}, cookie=auth.clear_cookie())
+
+        user = self._current_user()
+        if not user:
+            return self._json({"error": "Login required"}, 401)
+        uid = user["id"]
+        if path == "/api/onboard":
+            recommender.onboard(uid, data.get("topics") or [], data.get("sources") or [])
+            return self._json({"ok": True})
+        if path == "/api/events":
+            events = data.get("events") if isinstance(data.get("events"), list) else [data]
+            for ev in events[:200]:
+                if isinstance(ev, dict) and isinstance(ev.get("kind"), str):
+                    recommender.record(uid, ev)
+            return self._json({"ok": True, "recorded": min(len(events), 200)})
+        if path == "/api/profile/reset":
+            recommender.reset(uid)
+            return self._json({"ok": True})
+        if path == "/api/refresh":
+            report = newsfeed.refresh_all(FOR_YOU_DB)
+            return self._json(report)
+        return self._json({"error": "Not found"}, 404)
 
     def _handle_api_issue(self):
         db = Database("brief.sqlite3")
@@ -154,11 +230,32 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(response_bytes)
 
 
+def _news_refresher():
+    """Background loop: pull fresh RSS on boot and every REFRESH_MINUTES; demo-seed if offline."""
+    while True:
+        try:
+            report = newsfeed.refresh_all(FOR_YOU_DB)
+            print(f"[for-you] refreshed feeds: {report['ok']} ok, {report['failed']} failed, {report['inserted']} new articles")
+            if newsfeed.article_count(FOR_YOU_DB) == 0:
+                n = seed_demo(FOR_YOU_DB)
+                print(f"[for-you] no live feeds reachable — seeded {n} offline demo articles")
+            newsfeed.prune_old(FOR_YOU_DB)
+        except Exception as e:  # keep the loop alive no matter what
+            print(f"[for-you] refresh error: {e}")
+        time.sleep(REFRESH_MINUTES * 60)
+
+
+class ThreadingServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+
 def run_server():
-    socketserver.TCPServer.allow_reuse_address = True
+    newsfeed.init_schema(FOR_YOU_DB)
+    threading.Thread(target=_news_refresher, daemon=True).start()
     for port in range(PORT, PORT + 20):
         try:
-            httpd = socketserver.TCPServer(("", port), BriefHTTPRequestHandler)
+            httpd = ThreadingServer(("", port), BriefHTTPRequestHandler)
             print(f"Pith server running at http://localhost:{port}")
             try:
                 httpd.serve_forever()

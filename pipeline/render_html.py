@@ -95,7 +95,7 @@ def render_all(db_path: str = "brief.sqlite3", output_dir: str = "public"):
     all_issues = db.get_all_issues()
 
     # Clean up deprecated pages per user specification
-    for deprecated_file in ("horizon.html", "bounty.html"):
+    for deprecated_file in ("horizon.html", "bounty.html", "matrix.html", "economics.html", "terminal.html"):
         p = os.path.join(output_dir, deprecated_file)
         if os.path.exists(p):
             try:
@@ -103,15 +103,12 @@ def render_all(db_path: str = "brief.sqlite3", output_dir: str = "public"):
             except OSError:
                 pass
 
-    # Render active 7 self-explanatory pages
+    # Render active core static intelligence pages
     render_index(latest_issue, f"{output_dir}/index.html")
-    render_matrix(latest_issue, f"{output_dir}/matrix.html")
-    render_economics(latest_issue, f"{output_dir}/economics.html")
-    render_terminal(latest_issue, f"{output_dir}/terminal.html")
     render_ledger(predictions, stats, f"{output_dir}/ledger.html")
     render_archive(all_issues, f"{output_dir}/archive.html")
     render_patterns(PATTERNS, latest_issue, f"{output_dir}/patterns.html")
-    print("Rendered all 7 static intelligence pages successfully for Pith.")
+    print("Rendered active static intelligence pages successfully for Pith.")
 
 
 def render_index(issue, path: str):
@@ -439,14 +436,6 @@ def render_index(issue, path: str):
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="audio-brief-cli-pill" title="Terminal CLI: Fetch brief instantly in terminal">
-                    <div class="cli-cmd-wrapper">
-                        <span class="cli-icon">$</span>
-                        <code id="cli-cmd-display">curl -sL https://dev-pranav-sankhyan.github.io/Pith/dev</code>
-                    </div>
-                    <button class="cli-copy-btn" id="cli-copy-btn" title="Copy terminal curl command" type="button">Copy</button>
                 </div>
 
                 <audio id="audio-player" preload="metadata" src="audio/brief-developer.mp3"></audio>

@@ -7,3 +7,6 @@ __pycache__/
 *.wav
 temp-raw-*.wav
 .pytest_cache/
+
+# Personalised feed: user accounts, sessions & reading history
+foryou.sqlite3*

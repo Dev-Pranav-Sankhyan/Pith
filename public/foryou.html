@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You &middot; Pith</title>
+    <meta name="description" content="Pith For You: a front page that learns what you read. Hyper-personalised news with no AI, just transparent maths.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="foryou.css">
+</head>
+<body class="fy-body">
+    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <header class="crown">
+        <a href="index.html" class="brand-wrapper">
+            <div class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="brand-name">PITH</div>
+        </a>
+        <div class="nav-cluster">
+            <nav class="nav-pills-bar">
+                <a href="foryou.html" class="nav-link active" aria-current="page">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a>
+            </nav>
+            <div class="fy-user-chip" id="fy-user-chip" hidden>
+                <span class="fy-avatar" id="fy-avatar">?</span>
+                <span id="fy-username"></span>
+                <button type="button" class="fy-link-btn" id="fy-logout">Sign out</button>
+            </div>
+            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
+                <div class="theme-icon-circle"></div>
+            </button>
+        </div>
+    </header>
+
+    <main class="desk-container fy-main">
+
+        <!-- ============ Logged-out: pitch + auth ============ -->
+        <section class="fy-gate" id="fy-gate" hidden>
+            <div class="fy-gate-pitch">
+                <div class="eyebrow"><span class="gilt-dot"></span> PITH FOR YOU</div>
+                <h1 class="page-title">A front page that <em>learns you</em>.</h1>
+                <p class="fy-lede">Sign in and read the way you normally do. Every click, every minute you spend reading, every story you skip teaches your feed. No AI and no black box. It runs on transparent maths, and it shows you why each story is there.</p>
+                <ol class="fy-steps">
+                    <li><b>Tell it a little.</b> Pick a few topics to start, so day one isn't generic.</li>
+                    <li><b>Just read.</b> It tracks clicks, how long you read, what you skip, save and share.</li>
+                    <li><b>Watch it adapt.</b> Your Taste DNA updates live, and you can see and steer every weight.</li>
+                </ol>
+            </div>
+
+            <div class="fy-auth-card">
+                <div class="fy-auth-tabs" role="tablist">
+                    <button type="button" role="tab" class="fy-auth-tab active" data-mode="login" aria-selected="true">Sign in</button>
+                    <button type="button" role="tab" class="fy-auth-tab" data-mode="signup" aria-selected="false">Create account</button>
+                </div>
+                <form id="fy-auth-form" autocomplete="on" novalidate>
+                    <label class="fy-field fy-signup-only" hidden>
+                        <span>Display name</span>
+                        <input name="display_name" type="text" maxlength="60" autocomplete="nickname" placeholder="What should we call you?">
+                    </label>
+                    <label class="fy-field">
+                        <span>Username</span>
+                        <input name="username" type="text" required minlength="3" maxlength="32" autocomplete="username" pattern="[A-Za-z0-9_.\-]{3,32}">
+                    </label>
+                    <label class="fy-field">
+                        <span>Password</span>
+                        <input name="password" type="password" required minlength="8" autocomplete="current-password">
+                    </label>
+                    <p class="fy-form-error" id="fy-auth-error" role="alert"></p>
+                    <button type="submit" class="fy-primary-btn" id="fy-auth-submit">Sign in</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ============ Onboarding ============ -->
+        <section class="fy-onboard" id="fy-onboard" hidden>
+            <div class="eyebrow"><span class="gilt-dot"></span> STEP 1 OF 1</div>
+            <h1 class="page-title">What do you <em>actually</em> read?</h1>
+            <p class="fy-lede">Pick at least three topics. This only seeds your feed. Your reading habits take over within a few sessions.</p>
+            <div class="fy-topic-grid" id="fy-topic-grid"></div>
+            <button type="button" class="fy-primary-btn" id="fy-onboard-go" disabled>Build my front page →</button>
+        </section>
+
+        <!-- ============ Feed ============ -->
+        <section class="fy-app" id="fy-app" hidden>
+            <div class="fy-masthead">
+                <div>
+                    <div class="eyebrow"><span class="gilt-dot"></span> <span id="fy-date"></span></div>
+                    <h1 class="page-title" id="fy-greeting">Your front page</h1>
+                </div>
+                <div class="fy-learning" title="How confident the feed is about your taste. Grows as you read.">
+                    <div class="fy-learning-label">Learning your taste <b id="fy-confidence">0%</b></div>
+                    <div class="fy-meter"><i id="fy-meter-fill"></i></div>
+                </div>
+            </div>
+
+            <div class="fy-toolbar">
+                <div class="fy-tabs" role="tablist">
+                    <button type="button" class="fy-tab active" data-tab="foryou">For You</button>
+                    <button type="button" class="fy-tab" data-tab="trending">Trending</button>
+                    <button type="button" class="fy-tab" data-tab="saved">Saved</button>
+                    <button type="button" class="fy-tab" data-tab="history">History</button>
+                </div>
+                <form class="fy-search" id="fy-search" role="search">
+                    <input type="search" id="fy-search-input" placeholder="Search the wire…" aria-label="Search news">
+                </form>
+            </div>
+            <div class="fy-topic-filter" id="fy-topic-filter"></div>
+
+            <div class="fy-layout">
+                <div class="fy-feed-col">
+                    <div class="fy-demo-banner" id="fy-demo-banner" hidden>
+                        Offline demo mode. Live RSS feeds couldn't be reached, so you're seeing synthetic sample stories. They're replaced automatically once the server can fetch news.
+                    </div>
+                    <div class="fy-feed" id="fy-feed" aria-live="polite"></div>
+                    <div class="fy-feed-status" id="fy-feed-status"></div>
+                    <button type="button" class="fy-ghost-btn" id="fy-more" hidden>Load more</button>
+                </div>
+
+                <aside class="fy-dna" id="fy-dna" aria-label="Your taste profile">
+                    <div class="fy-dna-head">
+                        <h2>Taste DNA</h2>
+                        <span class="fy-dna-sub">What your feed has learned. Updates as you read.</span>
+                    </div>
+                    <div class="fy-dna-stats" id="fy-dna-stats"></div>
+                    <h3>Topics</h3>
+                    <div id="fy-dna-topics" class="fy-bars"></div>
+                    <h3>Recurring interests</h3>
+                    <div id="fy-dna-keywords" class="fy-cloud"></div>
+                    <h3>People &amp; organisations</h3>
+                    <div id="fy-dna-entities" class="fy-cloud"></div>
+                    <h3>Trusted sources</h3>
+                    <div id="fy-dna-sources" class="fy-cloud"></div>
+                    <h3>Your daily rhythm</h3>
+                    <div id="fy-dna-rhythm" class="fy-rhythm"></div>
+                    <div id="fy-dna-muted-wrap" hidden>
+                        <h3>Muted sources</h3>
+                        <div id="fy-dna-muted" class="fy-cloud"></div>
+                    </div>
+                    <button type="button" class="fy-link-btn fy-reset" id="fy-reset">Reset my profile</button>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <div class="fy-toast" id="fy-toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+    <script src="foryou.js"></script>
+</body>
+</html>
