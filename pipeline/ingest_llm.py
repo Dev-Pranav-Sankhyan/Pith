@@ -19,7 +19,7 @@ from core.models import (
     Card, RoleView, Prediction, Claim, HistoricalAnalogue,
     EvidenceLink, NotIncludedStory, DailyIssue
 )
-from core.scoring import ScoringEngine
+from core.scoring import ScoringEngine, extract_grounded_features
 from core.verification import VerificationEngine
 from core.prompts import (
     SYSTEM_DRAFT_PROMPT, generate_draft_prompt,
@@ -120,11 +120,21 @@ def run_pipeline(
     scoring_raw = llm.complete(SCORING_SYSTEM_PROMPT, scoring_prompt, json_mode=True)
     scoring_json = json.loads(clean_json_response(scoring_raw))
 
-    features = scoring_json.get("features", {})
-    penalties = scoring_json.get("penalties", {})
+    llm_features = scoring_json.get("features", {})
+    llm_penalties = scoring_json.get("penalties", {})
+
+    # Ground model scores with empirical data (primary domains, pricing/API terms, outlet counts)
+    grounded_features, grounded_penalties = extract_grounded_features(
+        raw_text,
+        url=metadata.get("url", ""),
+        publisher=metadata.get("publisher", ""),
+        outlet_count=metadata.get("outlet_count", 1),
+        llm_features=llm_features
+    )
+    combined_penalties = {**grounded_penalties, **llm_penalties}
 
     engine = ScoringEngine()
-    score, level, reason, breakdown = engine.compute_score(features, penalties)
+    score, level, reason, breakdown = engine.compute_score(grounded_features, combined_penalties)
 
     print(f"  Score:    {score:.1f} / 100 ({level} Signal)")
     print(f"  Reason:   {reason}")

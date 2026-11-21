@@ -206,6 +206,7 @@
         <div class="fy-card-body">
           <div class="fy-card-meta">
             <span class="fy-pub">${esc(a.publisher)}</span><span>·</span><span>${timeAgo(a.published_at)}</span><span>·</span><span>${a.read_minutes} min</span>
+            ${a.source_count > 1 ? `<span class="fy-source-pill" title="Corroborated across ${esc(a.sources.join(', '))}">✦ ${a.source_count} sources: ${esc(a.sources.slice(0, 2).join(", "))}${a.sources.length > 2 ? ` +${a.sources.length - 2}` : ""}</span>` : ""}
             ${a.is_demo ? '<span class="fy-demo-tag">DEMO</span>' : ""}
           </div>
           <h2 class="fy-card-title"><a href="${esc(a.url)}" target="_blank" rel="noopener noreferrer" data-act="open">${esc(a.title)}</a></h2>

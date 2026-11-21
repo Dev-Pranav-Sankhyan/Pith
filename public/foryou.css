@@ -142,6 +142,11 @@
 .fy-card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font: 500 11.5px var(--font-mono); color: var(--muted); letter-spacing: .02em; }
 .fy-pub { color: var(--ink-2); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
 .fy-demo-tag { border: 1px solid var(--warn-border); color: var(--warn); border-radius: 4px; padding: 1px 5px; font-size: 10px; }
+.fy-source-pill {
+  display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px;
+  border-radius: 99px; font: 600 10.5px var(--font-mono); color: var(--gilt);
+  background: var(--gilt-soft); border: 1px solid var(--hairline-strong); letter-spacing: .02em;
+}
 .fy-card-title { font: 600 22px/1.25 var(--font-serif); margin: 8px 0 8px; letter-spacing: -.01em; }
 .fy-card-title a { color: var(--ink); text-decoration: none; }
 .fy-card-title a:hover { text-decoration: underline; text-decoration-color: var(--gilt); text-underline-offset: 4px; }

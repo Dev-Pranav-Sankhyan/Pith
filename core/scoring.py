@@ -4,6 +4,8 @@ Follows Section 6 (Content Pipeline - Scoring) and Section 1 (Signal Level).
 """
 
 from typing import Dict, Tuple, List, Optional
+import re
+from urllib.parse import urlparse
 from core.models import SignalLevel
 
 
@@ -22,6 +24,87 @@ PENALTIES = {
     "no_verifiable_facts": 25.0,
     "pure_product_review": 15.0,
 }
+
+# Domains considered authoritative primary sources
+PRIMARY_DOMAINS = {
+    "github.com", "arxiv.org", "linuxfoundation.org", "w3.org", "ietf.org",
+    "postgresql.org", "python.org", "pytorch.org", "kernel.org", "sec.gov",
+    "ftc.gov", "europa.eu", "aws.amazon.com", "cloud.google.com", "openai.com",
+    "anthropic.com", "deepmind.google", "developer.apple.com", "developer.nvidia.com"
+}
+
+# Regex patterns for empirical signal grounding
+_PRICE_RE = re.compile(r"(\$\d+|\bpricing\b|\bdiscount\b|\bper[\s-]token\b|\bcost[\s-]reduction\b|\brate[\s-]limit\b|\bfree[\s-]tier\b)", re.IGNORECASE)
+_API_RE = re.compile(r"(\bv\d+\.\d+|\bdeprecat\b|\bbreaking[\s-]change\b|\brfc\b|\bjson-rpc\b|\bprotocol\b|\bspecification\b|\bstandard\b|\bsdk\b|\bendpoint\b)", re.IGNORECASE)
+_ECOSYSTEM_RE = re.compile(r"\b(pytorch|kubernetes|postgres|postgresql|sqlite|chromium|cuda|docker|linux|rust|golang|vllm|sglang|huggingface)\b", re.IGNORECASE)
+_FLUFF_RE = re.compile(r"\b(thrilled to announce|game[\s-]changer|next[\s-]gen revolution|paradigm shift|seamlessly empower|unparalleled synergy)\b", re.IGNORECASE)
+
+
+def extract_grounded_features(
+    text: str,
+    url: str = "",
+    publisher: str = "",
+    outlet_count: int = 1,
+    llm_features: Optional[Dict[str, float]] = None
+) -> Tuple[Dict[str, float], Dict[str, bool]]:
+    """
+    Extracts empirical, measurable indicators to ground the 6-factor signal score:
+    - Primary source domain authority (arxiv, github, official RFC, cloud docs)
+    - Multi-outlet independent corroboration count
+    - Verifiable API, price, standard, or architectural changes
+    - Automated detection of marketing/PR fluff penalties
+    """
+    domain = urlparse(url).netloc.lower().replace("www.", "")
+    is_primary_domain = any(p in domain for p in PRIMARY_DOMAINS)
+
+    # 1. Source Quality Corroboration (Anchored empirically)
+    base_source_quality = 90.0 if is_primary_domain else 60.0
+    outlet_boost = min(30.0, max(0, outlet_count - 1) * 12.0)
+    empirical_source_quality = min(100.0, base_source_quality + outlet_boost)
+
+    # 2. Switching or Lock-in Cost (Detected from pricing / API / licensing text)
+    has_price_change = bool(_PRICE_RE.search(text))
+    has_api_change = bool(_API_RE.search(text))
+    empirical_lockin = 50.0
+    if has_price_change and has_api_change:
+        empirical_lockin = 88.0
+    elif has_price_change or has_api_change:
+        empirical_lockin = 76.0
+
+    # 3. Breadth of Impact (Detected from major platforms / ecosystems affected)
+    ecosystem_matches = len(set(_ECOSYSTEM_RE.findall(text.lower())))
+    empirical_breadth = min(95.0, 50.0 + ecosystem_matches * 15.0)
+
+    # 4. Irreversibility & Novelty
+    empirical_irreversibility = 75.0 if ("standard" in text.lower() or "protocol" in text.lower()) else 55.0
+    empirical_novelty = 70.0 if is_primary_domain else 55.0
+    empirical_time_sensitivity = 75.0 if has_price_change or has_api_change else 50.0
+
+    empirical_features = {
+        "source_quality_corroboration": empirical_source_quality,
+        "switching_or_lockin_cost": empirical_lockin,
+        "breadth_of_affected_users": empirical_breadth,
+        "irreversibility": empirical_irreversibility,
+        "novelty_vs_trend": empirical_novelty,
+        "time_sensitivity": empirical_time_sensitivity,
+    }
+
+    # Blend empirical signals with LLM features (50/50) if provided, grounding the model in data
+    final_features = {}
+    for key, emp_val in empirical_features.items():
+        if llm_features and key in llm_features:
+            final_features[key] = round(0.5 * emp_val + 0.5 * float(llm_features[key]), 1)
+        else:
+            final_features[key] = emp_val
+
+    # Penalties
+    penalties = {
+        "press_release_language": bool(_FLUFF_RE.search(text)),
+        "no_verifiable_facts": (not has_price_change and not has_api_change and ecosystem_matches == 0),
+        "pure_product_review": bool("review:" in text.lower() or "hands-on with" in text.lower())
+    }
+
+    return final_features, penalties
 
 
 class ScoringEngine:
@@ -103,3 +186,17 @@ class ScoringEngine:
     def is_selected(self, score: float) -> bool:
         """Section 6: Clusters above threshold qualify."""
         return score >= self.threshold
+
+    def tune_weights(self, correlations: Dict[str, float]) -> None:
+        """
+        Feedback tuning loop: Adjusts scoring weights based on reader saves
+        and prediction calibration accuracy. Normalizes weights so sum == 1.0.
+        """
+        for factor, delta in correlations.items():
+            if factor in self.weights:
+                self.weights[factor] = max(0.05, self.weights[factor] + delta * 0.05)
+        # Re-normalize
+        total = sum(self.weights.values())
+        if total > 0:
+            for factor in self.weights:
+                self.weights[factor] = round(self.weights[factor] / total, 3)

@@ -37,6 +37,7 @@ from collections import Counter, defaultdict
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from core.newsfeed import FOR_YOU_DB, _write_lock, connect, init_schema, now_iso
+from core.clustering import ClusterEngine, StoryCluster
 from core.textfeatures import (TOPICS, display_term, estimate_read_seconds, jaccard,
                                tfidf_keywords, tokenize)
 
@@ -93,6 +94,8 @@ class Corpus:
         self._sig = None
         self.articles: Dict[str, Dict[str, Any]] = {}
         self.order: List[str] = []
+        self.clusters: List[StoryCluster] = []
+        self.cluster_by_aid: Dict[str, StoryCluster] = {}
 
     def get(self, db_path: str = FOR_YOU_DB) -> "Corpus":
         with connect(db_path) as conn:
@@ -130,6 +133,11 @@ class Corpus:
             }
             order.append(r["id"])
         self.articles, self.order = arts, order
+        self.clusters = ClusterEngine.cluster_articles(list(arts.values()))
+        self.cluster_by_aid = {}
+        for c in self.clusters:
+            for art in c.articles:
+                self.cluster_by_aid[art["id"]] = c
 
     def article(self, aid: str, db_path: str = FOR_YOU_DB) -> Optional[Dict[str, Any]]:
         a = self.get(db_path).articles.get(aid)
@@ -448,8 +456,10 @@ class Recommender:
             rec = self._recency(a, now)
             p = pop.get(aid, 0.0)
             fatigue = 0.12 * min(st.get("impressions", 0), 5)
-            personal = 1.6 * content + 0.35 * cf.get(aid, 0) + 0.35 * rec + 0.12 * p - fatigue
-            baseline = 0.6 * rec + 0.4 * p - fatigue
+            c = corpus.cluster_by_aid.get(aid)
+            corroboration = (c.corroboration_score - 0.5) * 0.4 if c else 0.0
+            personal = 1.6 * content + 0.35 * cf.get(aid, 0) + 0.35 * rec + 0.12 * p + corroboration - fatigue
+            baseline = 0.6 * rec + 0.4 * p + corroboration - fatigue
             score = confidence * personal + (1 - confidence) * baseline + 0.4 * content * (1 - confidence)
             scored.append((score, aid, best))
         scored.sort(key=lambda x: -x[0])
@@ -457,6 +467,7 @@ class Recommender:
         # ---- MMR diversity re-rank over the head of the list (+ near-duplicate collapse)
         pool = scored[: max(limit * 4, 80)]
         chosen: List[Tuple[float, str, dict]] = []
+        chosen_clusters: Set[str] = set()
         while pool and len(chosen) < limit:
             best_i, best_val = 0, -1e9
             for i, (s, aid, _) in enumerate(pool):
@@ -466,9 +477,15 @@ class Recommender:
                 if val > best_val:
                     best_i, best_val = i, val
             pick = pool.pop(best_i)
+            # Story cluster deduplication: avoid duplicate coverage of the same event
+            clust = corpus.cluster_by_aid.get(pick[1])
+            if clust and clust.id in chosen_clusters:
+                continue
             if any(jaccard(corpus.articles[pick[1]]["kwset"], corpus.articles[c[1]]["kwset"]) > 0.55 for c in chosen):
                 continue  # same story from another outlet
             chosen.append(pick)
+            if clust:
+                chosen_clusters.add(clust.id)
 
         # ---- Thompson-sampling exploration slots (personal feed only)
         explore_ids: Dict[str, str] = {}
@@ -489,19 +506,25 @@ class Recommender:
                                    and t in corpus.articles[item[1]]["topics"]
                                    and not state.get(item[1], {}).get("hidden")
                                    and not state.get(item[1], {}).get("clicked")
-                                   and corpus.articles[item[1]]["publisher"] not in muted), None)
+                                   and corpus.articles[item[1]]["publisher"] not in muted
+                                   and (not corpus.cluster_by_aid.get(item[1]) or corpus.cluster_by_aid[item[1]].id not in chosen_clusters)), None)
                 if cand_match:
                     s_score, cand, best_why = cand_match
                     chosen.insert(slot, (s_score, cand, best_why))
                     explore_ids[cand] = t
                     used.add(cand)
+                    c_cand = corpus.cluster_by_aid.get(cand)
+                    if c_cand:
+                        chosen_clusters.add(c_cand.id)
             chosen = chosen[:limit]
 
         out = []
         for s, aid, best in chosen:
             a = corpus.articles[aid]
+            clust = corpus.cluster_by_aid.get(aid)
             out.append(self._card(a, state.get(aid, {}), score=round(s, 4),
-                                  why=self._explain(a, best, cf.get(aid, 0), explore_ids.get(aid), part)))
+                                  why=self._explain(a, best, cf.get(aid, 0), explore_ids.get(aid), part),
+                                  cluster=clust))
         return out
 
     def trending(self, user_id: Optional[int], limit: int = 30, exclude: Iterable[str] = ()) -> List[Dict[str, Any]]:
@@ -519,8 +542,10 @@ class Recommender:
             if per_source[a["publisher"]] >= 3:
                 continue
             per_source[a["publisher"]] += 1
+            clust = corpus.cluster_by_aid.get(aid)
             out.append(self._card(a, state.get(aid, {}), score=round(s, 4),
-                                  why={"type": "trending", "text": "Trending across Pith"}))
+                                  why={"type": "trending", "text": "Trending across Pith"},
+                                  cluster=clust))
             if len(out) >= limit:
                 break
         return out
@@ -540,9 +565,11 @@ class Recommender:
                 hits.append((s + 0.2 * self._recency(a, now), aid))
         hits.sort(reverse=True)
         return [self._card(corpus.articles[aid], state.get(aid, {}), score=round(s, 4),
-                           why={"type": "search", "text": f"Matches “{query.strip()[:40]}”"}) for s, aid in hits[:limit]]
+                           why={"type": "search", "text": f"Matches “{query.strip()[:40]}”"},
+                           cluster=corpus.cluster_by_aid.get(aid)) for s, aid in hits[:limit]]
 
     def library(self, user_id: int, which: str, limit: int = 60) -> List[Dict[str, Any]]:
+        corpus = CORPUS.get(self.db)
         sql = ("SELECT * FROM user_articles WHERE user_id=? AND saved = 1 ORDER BY last_seen DESC LIMIT ?"
                if which == "saved" else
                "SELECT * FROM user_articles WHERE user_id=? AND clicked = 1 ORDER BY last_seen DESC LIMIT ?")
@@ -550,20 +577,29 @@ class Recommender:
             rows = conn.execute(sql, (user_id, limit)).fetchall()
         out = []
         for r in rows:
-            a = CORPUS.article(r["article_id"], self.db)
+            a = corpus.article(r["article_id"], self.db)
             if a:
                 label = "Saved" if which == "saved" else f"Read · {int(r['dwell_seconds'] // 60)}m {int(r['dwell_seconds'] % 60)}s"
-                out.append(self._card(a, dict(r), score=0, why={"type": which, "text": label}))
+                clust = corpus.cluster_by_aid.get(a["id"])
+                out.append(self._card(a, dict(r), score=0, why={"type": which, "text": label}, cluster=clust))
         return out
 
     @staticmethod
-    def _card(a: Dict[str, Any], st: Dict[str, Any], score: float, why: Dict[str, str]) -> Dict[str, Any]:
+    def _card(a: Dict[str, Any], st: Dict[str, Any], score: float, why: Dict[str, str], cluster: Optional[StoryCluster] = None) -> Dict[str, Any]:
+        source_count = cluster.publisher_count if cluster else 1
+        sources = cluster.publishers if cluster else [a["publisher"]]
+        cluster_id = cluster.id if cluster else None
+        corroboration_score = cluster.corroboration_score if cluster else 0.5
         return {
             "id": a["id"], "url": a["url"], "title": a["title"], "summary": a["summary"],
             "publisher": a["publisher"], "image_url": a["image_url"], "published_at": a["published_at"],
             "topics": list(a["topics"].keys()), "entities": a["entities"][:4],
             "read_minutes": max(1, round(estimate_read_seconds(a["word_count"]) / 60)),
             "is_demo": a["is_demo"], "score": score, "why": why,
+            "source_count": source_count,
+            "sources": sources,
+            "cluster_id": cluster_id,
+            "corroboration_score": corroboration_score,
             "state": {"saved": bool(st.get("saved")), "reaction": st.get("reaction", 0) or 0,
                       "clicked": bool(st.get("clicked"))},
         }

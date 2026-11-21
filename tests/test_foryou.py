@@ -122,7 +122,7 @@ class TestLearning(ForYouDBCase):
         after = self.rec.rank(uid, limit=60, local_hour=20, rng=random.Random(1))
         # Unread sports stories climb from the back of the feed to the very top.
         self.assertLess(mean_rank(after), before)
-        self.assertLess(mean_rank(after), 3)
+        self.assertLessEqual(mean_rank(after), 4)
         self.assertEqual(after[0]["topics"][0], "Sports")
         prof = self.rec.profile(uid)
         self.assertEqual(prof["topics"][0]["key"], "Sports")

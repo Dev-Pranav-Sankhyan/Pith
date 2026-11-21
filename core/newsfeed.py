@@ -243,13 +243,15 @@ def parse_feed(xml_bytes: bytes, feed: Dict[str, str]) -> List[Dict[str, Any]]:
     for i in items:
         if not i["title"] or not i["url"].startswith("http"):
             continue
-        summary = strip_html(i["summary_html"])
+        full_text = strip_html(i["summary_html"])
+        summary = full_text
         if len(summary) > 420:
             summary = summary[:417].rsplit(" ", 1)[0] + "…"
         out.append({
             "title": i["title"][:300],
             "url": i["url"],
             "summary": summary,
+            "full_text": full_text,
             "publisher": feed["publisher"],
             "feed_id": feed["id"],
             "feed_topic": feed["topic"],
@@ -273,14 +275,15 @@ def store_articles(raw: List[Dict[str, Any]], db_path: str = FOR_YOU_DB, is_demo
     with _write_lock, connect(db_path) as conn:
         for a in raw:
             aid = hashlib.sha1(a["url"].encode()).hexdigest()[:16]
-            tf, topics, entities = featurize(a["title"], a.get("summary", ""), a.get("feed_topic"))
+            full_text = a.get("full_text") or (a["title"] + " " + a.get("summary", ""))
+            tf, topics, entities = featurize(a["title"], full_text, a.get("feed_topic"))
             cur = conn.execute("""
                 INSERT OR IGNORE INTO articles (id, url, title, summary, publisher, feed_id, feed_topic, image_url,
                     published_at, fetched_at, word_count, tf_json, topics_json, entities_json, is_demo)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (aid, a["url"], a["title"], a.get("summary", ""), a.get("publisher"), a.get("feed_id"),
                   a.get("feed_topic"), a.get("image_url"), a["published_at"], now_iso(),
-                  len((a["title"] + " " + a.get("summary", "")).split()), json.dumps(dict(tf)),
+                  len(full_text.split()), json.dumps(dict(tf)),
                   json.dumps(topics), json.dumps(entities), 1 if is_demo else 0))
             inserted += cur.rowcount
     return inserted
