@@ -63,6 +63,10 @@ class Prediction:
     resolved_at: Optional[str] = None
     evidence_url: Optional[str] = None
     postmortem: Optional[str] = None
+    # "live" = published on the day it was made and counted in the public track record.
+    # "illustrative" = hand-written example/backtest data; shown labelled, never scored.
+    provenance: str = "live"
+    resolved_by: Optional[str] = None
 
     def validate(self) -> List[str]:
         errors = []
@@ -99,7 +103,7 @@ class Card:
     confidence: ConfidenceLevel
     action_type: ActionType
     action_text: str
-    prediction: Prediction
+    prediction: Optional[Prediction]  # None only for legacy rows that never recorded one
     role_views: Dict[str, RoleView]
     beat: str = "AI & Developer Infrastructure"
     cluster_id: Optional[str] = None
@@ -107,6 +111,9 @@ class Card:
     evidence_links: List[EvidenceLink] = field(default_factory=list)
     claims: List[Claim] = field(default_factory=list)
     published_at: Optional[str] = None
+    # The six 0-100 factor ratings the score was computed from (kept so weights can
+    # later be checked against how forecasts actually resolved).
+    factor_scores: Dict[str, float] = field(default_factory=dict)
 
     def validate(self) -> List[str]:
         errors = []

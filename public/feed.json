@@ -39,7 +39,9 @@
           "category": "technology",
           "resolved_at": null,
           "evidence_url": null,
-          "postmortem": null
+          "postmortem": null,
+          "provenance": "live",
+          "resolved_by": null
         },
         "role_views": {
           "developer": {
@@ -91,7 +93,8 @@
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-21T07:00:00Z"
+        "published_at": "2026-11-21T07:00:00Z",
+        "factor_scores": {}
       },
       {
         "id": "card-20261119-computer-use",
@@ -122,7 +125,9 @@
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
-          "postmortem": null
+          "postmortem": null,
+          "provenance": "live",
+          "resolved_by": null
         },
         "role_views": {
           "developer": {
@@ -174,7 +179,8 @@
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-21T07:00:00Z"
+        "published_at": "2026-11-21T07:00:00Z",
+        "factor_scores": {}
       },
       {
         "id": "card-20261119-open-agent-protocol",
@@ -205,7 +211,9 @@
           "category": "adoption",
           "resolved_at": null,
           "evidence_url": null,
-          "postmortem": null
+          "postmortem": null,
+          "provenance": "live",
+          "resolved_by": null
         },
         "role_views": {
           "developer": {
@@ -257,7 +265,8 @@
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-21T07:00:00Z"
+        "published_at": "2026-11-21T07:00:00Z",
+        "factor_scores": {}
       },
       {
         "id": "card-20261119-mla-kernels",
@@ -288,7 +297,9 @@
           "category": "technology",
           "resolved_at": null,
           "evidence_url": null,
-          "postmortem": null
+          "postmortem": null,
+          "provenance": "live",
+          "resolved_by": null
         },
         "role_views": {
           "developer": {
@@ -340,7 +351,8 @@
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-21T07:00:00Z"
+        "published_at": "2026-11-21T07:00:00Z",
+        "factor_scores": {}
       },
       {
         "id": "card-20261119-dualpipe-kernels",
@@ -371,7 +383,9 @@
           "category": "technology",
           "resolved_at": null,
           "evidence_url": null,
-          "postmortem": null
+          "postmortem": null,
+          "provenance": "live",
+          "resolved_by": null
         },
         "role_views": {
           "developer": {
@@ -423,7 +437,8 @@
             "drop_reason": null
           }
         ],
-        "published_at": "2026-11-21T07:00:00Z"
+        "published_at": "2026-11-21T07:00:00Z",
+        "factor_scores": {}
       }
     ],
     "not_included_today": [
@@ -453,83 +468,89 @@
   },
   "ledger": {
     "stats": {
-      "total_predictions": 36,
+      "total_predictions": 15,
       "open_count": 15,
-      "resolved_count": 21,
-      "correct_count": 17,
-      "wrong_count": 4,
+      "resolved_count": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
       "void_count": 0,
-      "hit_rate_pct": 81.0,
-      "brier_score": 0.11,
+      "hit_rate_pct": null,
+      "brier_score": null,
       "brier_benchmark": "Target < 0.25 (better than chance)",
-      "is_preliminary": false,
+      "brier_skill_score": null,
+      "is_preliminary": true,
       "min_sample_threshold": 20,
       "horizon_breakdown": {
         "30-day": {
-          "total": 7,
-          "resolved": 6,
+          "total": 1,
+          "resolved": 0,
           "open": 1,
-          "correct": 5,
-          "wrong": 1,
-          "hit_rate_pct": 83.3,
-          "brier_score": 0.0767
+          "correct": 0,
+          "wrong": 0,
+          "hit_rate_pct": null,
+          "brier_score": null
         },
         "90-day": {
-          "total": 9,
-          "resolved": 9,
+          "total": 0,
+          "resolved": 0,
           "open": 0,
-          "correct": 7,
-          "wrong": 2,
-          "hit_rate_pct": 77.8,
-          "brier_score": 0.1344
+          "correct": 0,
+          "wrong": 0,
+          "hit_rate_pct": null,
+          "brier_score": null
         },
         "365-day": {
-          "total": 20,
-          "resolved": 6,
+          "total": 14,
+          "resolved": 0,
           "open": 14,
-          "correct": 5,
-          "wrong": 1,
-          "hit_rate_pct": 83.3,
-          "brier_score": 0.1067
+          "correct": 0,
+          "wrong": 0,
+          "hit_rate_pct": null,
+          "brier_score": null
         }
       },
       "calibration": [
         {
           "bucket": "50\u201359%",
-          "count": 2,
+          "count": 0,
           "avg_forecast": 55.0,
-          "actual_rate": 0.0,
-          "calibration_gap": -55.0
+          "actual_rate": null,
+          "calibration_gap": null
         },
         {
           "bucket": "60\u201369%",
-          "count": 4,
-          "avg_forecast": 62.5,
-          "actual_rate": 50.0,
-          "calibration_gap": -12.5
+          "count": 0,
+          "avg_forecast": 65.0,
+          "actual_rate": null,
+          "calibration_gap": null
         },
         {
           "bucket": "70\u201379%",
-          "count": 7,
-          "avg_forecast": 72.9,
-          "actual_rate": 100.0,
-          "calibration_gap": 27.1
+          "count": 0,
+          "avg_forecast": 75.0,
+          "actual_rate": null,
+          "calibration_gap": null
         },
         {
           "bucket": "80\u201389%",
-          "count": 7,
-          "avg_forecast": 82.9,
-          "actual_rate": 100.0,
-          "calibration_gap": 17.1
+          "count": 0,
+          "avg_forecast": 85.0,
+          "actual_rate": null,
+          "calibration_gap": null
         },
         {
           "bucket": "90\u2013100%",
-          "count": 1,
-          "avg_forecast": 90.0,
-          "actual_rate": 100.0,
-          "calibration_gap": 10.0
+          "count": 0,
+          "avg_forecast": 95.0,
+          "actual_rate": null,
+          "calibration_gap": null
         }
-      ]
+      ],
+      "illustrative": {
+        "count": 21,
+        "resolved": 21,
+        "note": "Hand-written examples to preview the Ledger. Not forecasts Pith published; excluded from all scores."
+      }
     },
     "predictions": [
       {
@@ -544,7 +565,9 @@
         "category": "technology",
         "resolved_at": "2026-03-25",
         "evidence_url": "https://platform.openai.com/docs/pricing",
-        "postmortem": "Correct. Multiple frontier providers introduced prompt caching with up to 90% discount on cache hits."
+        "postmortem": "Correct. Multiple frontier providers introduced prompt caching with up to 90% discount on cache hits.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-05",
@@ -558,7 +581,9 @@
         "category": "adoption",
         "resolved_at": "2026-03-20",
         "evidence_url": "https://chat.lmsys.org/?leaderboard",
-        "postmortem": "Correct. DeepSeek-Coder-V2 achieved position #4 on the LMSYS coding leaderboard."
+        "postmortem": "Correct. DeepSeek-Coder-V2 achieved position #4 on the LMSYS coding leaderboard.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-03",
@@ -572,7 +597,9 @@
         "category": "market",
         "resolved_at": "2026-04-10",
         "evidence_url": "https://digital-strategy.ec.europa.eu/en/policies/ai-office",
-        "postmortem": "Wrong. The AI Office retained watermarking for video/audio, but exempted standalone code completion tools."
+        "postmortem": "Wrong. The AI Office retained watermarking for video/audio, but exempted standalone code completion tools.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-14",
@@ -586,7 +613,9 @@
         "category": "market",
         "resolved_at": "2026-04-02",
         "evidence_url": "https://cloud.google.com/tpu/pricing",
-        "postmortem": "Correct. Spot discounts on TPU v5e reached 70% in central regions."
+        "postmortem": "Correct. Spot discounts on TPU v5e reached 70% in central regions.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-06",
@@ -600,7 +629,9 @@
         "category": "technology",
         "resolved_at": "2026-04-28",
         "evidence_url": "https://platform.openai.com/docs/deprecations",
-        "postmortem": "Correct. Legacy completions endpoint retired on schedule."
+        "postmortem": "Correct. Legacy completions endpoint retired on schedule.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-04",
@@ -614,7 +645,9 @@
         "category": "technology",
         "resolved_at": "2026-04-28",
         "evidence_url": "https://github.com/pytorch/pytorch/releases/tag/v2.5.0",
-        "postmortem": "Correct. PyTorch 2.5 included native FP8 dynamic shape support."
+        "postmortem": "Correct. PyTorch 2.5 included native FP8 dynamic shape support.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-11",
@@ -628,7 +661,9 @@
         "category": "market",
         "resolved_at": "2026-05-15",
         "evidence_url": "https://supabase.com/docs/guides/database/pricing",
-        "postmortem": "Wrong. Provider bundled vector disk storage into standard compute tiers rather than unbundling index metering."
+        "postmortem": "Wrong. Provider bundled vector disk storage into standard compute tiers rather than unbundling index metering.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-02",
@@ -642,7 +677,9 @@
         "category": "adoption",
         "resolved_at": "2026-05-01",
         "evidence_url": "https://aws.amazon.com/blogs/security/mfa-fido-announcement",
-        "postmortem": "Correct. AWS and Google Cloud both mandated FIDO2 MFA for organization root accounts."
+        "postmortem": "Correct. AWS and Google Cloud both mandated FIDO2 MFA for organization root accounts.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-13",
@@ -656,7 +693,9 @@
         "category": "adoption",
         "resolved_at": "2026-05-12",
         "evidence_url": "https://www.anthropic.com/news/artifacts-sharing",
-        "postmortem": "Correct. Anthropic Artifacts sharing allowed direct one-click public URL previews."
+        "postmortem": "Correct. Anthropic Artifacts sharing allowed direct one-click public URL previews.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-07",
@@ -670,7 +709,9 @@
         "category": "technology",
         "resolved_at": "2026-05-22",
         "evidence_url": "https://developer.nvidia.com/cuda-toolkit/release-notes",
-        "postmortem": "Correct. CUDA 12.8 formally marked Pascal compute architectures as deprecated."
+        "postmortem": "Correct. CUDA 12.8 formally marked Pascal compute architectures as deprecated.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-16",
@@ -684,7 +725,9 @@
         "category": "technology",
         "resolved_at": "2026-06-01",
         "evidence_url": "https://bun.sh/docs/runtime/nodejs-apis",
-        "postmortem": "Wrong. Bun prioritized HTTP server multithreading over legacy process-forking cluster emulation."
+        "postmortem": "Wrong. Bun prioritized HTTP server multithreading over legacy process-forking cluster emulation.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-12",
@@ -698,7 +741,9 @@
         "category": "technology",
         "resolved_at": "2026-05-30",
         "evidence_url": "https://github.com/vllm-project/vllm/issues/6890",
-        "postmortem": "Correct. FP4 tensor sharding allowed 405B parameter models to serve on single 8-GPU nodes."
+        "postmortem": "Correct. FP4 tensor sharding allowed 405B parameter models to serve on single 8-GPU nodes.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-08",
@@ -712,7 +757,9 @@
         "category": "technology",
         "resolved_at": "2026-06-26",
         "evidence_url": "https://blog.cloudflare.com/vectorize-performance",
-        "postmortem": "Correct. Edge-located vector indexes met sub-15ms p99 latency SLA."
+        "postmortem": "Correct. Edge-located vector indexes met sub-15ms p99 latency SLA.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-21",
@@ -726,7 +773,9 @@
         "category": "market",
         "resolved_at": "2026-07-15",
         "evidence_url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_24_eu_ai_factories",
-        "postmortem": "Correct. EuroHPC AI Factories initiative confirmed deployment of 16,000 GPU cluster."
+        "postmortem": "Correct. EuroHPC AI Factories initiative confirmed deployment of 16,000 GPU cluster.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-19",
@@ -740,7 +789,9 @@
         "category": "market",
         "resolved_at": "2026-08-30",
         "evidence_url": "https://swebench.com",
-        "postmortem": "Correct. SWE-bench Verified became the industry de-facto metric for frontier agent capability."
+        "postmortem": "Correct. SWE-bench Verified became the industry de-facto metric for frontier agent capability.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-23",
@@ -754,7 +805,9 @@
         "category": "technology",
         "resolved_at": "2026-09-26",
         "evidence_url": "https://www.postgresql.org/about/news/postgresql-17-released-2722/",
-        "postmortem": "Correct. PostgreSQL 17 shipped JSON_TABLE in general availability."
+        "postmortem": "Correct. PostgreSQL 17 shipped JSON_TABLE in general availability.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-17",
@@ -768,7 +821,9 @@
         "category": "adoption",
         "resolved_at": "2026-09-15",
         "evidence_url": "https://qdrant.tech/docs/interfaces/postgresql",
-        "postmortem": "Correct. Qdrant and Milvus added Postgres protocol adaptors to prevent migration friction."
+        "postmortem": "Correct. Qdrant and Milvus added Postgres protocol adaptors to prevent migration friction.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-20",
@@ -782,7 +837,9 @@
         "category": "technology",
         "resolved_at": "2026-10-01",
         "evidence_url": "https://artificialanalysis.ai/models",
-        "postmortem": "Correct. Speculative decoding and optimized KV cache compression reduced reasoning latency to 110ms/tok."
+        "postmortem": "Correct. Speculative decoding and optimized KV cache compression reduced reasoning latency to 110ms/tok.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-18",
@@ -796,7 +853,9 @@
         "category": "technology",
         "resolved_at": "2026-10-29",
         "evidence_url": "https://github.blog/news-insights/product-news/copilot-workspace-ga",
-        "postmortem": "Correct. Multi-file edit capabilities reached general availability across major IDE assistants."
+        "postmortem": "Correct. Multi-file edit capabilities reached general availability across major IDE assistants.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-22",
@@ -810,7 +869,9 @@
         "category": "market",
         "resolved_at": "2026-11-01",
         "evidence_url": "https://www.ftc.gov/news-events/news/press-releases/2026/11/ai-market-study-findings",
-        "postmortem": "Wrong. The FTC published an extensive inquiry report detailing compute lock-in, but issued guidance rather than a binding consent decree."
+        "postmortem": "Wrong. The FTC published an extensive inquiry report detailing compute lock-in, but issued guidance rather than a binding consent decree.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "hist-pred-24",
@@ -824,7 +885,9 @@
         "category": "adoption",
         "resolved_at": "2026-10-29",
         "evidence_url": "https://github.blog/news-insights/product-news/bringing-developer-choice-to-copilot/",
-        "postmortem": "Correct. GitHub enabled multi-model choice including Claude 3.5 Sonnet for Enterprise seats."
+        "postmortem": "Correct. GitHub enabled multi-model choice including Claude 3.5 Sonnet for Enterprise seats.",
+        "provenance": "illustrative",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-02",
@@ -838,7 +901,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-01",
@@ -852,7 +917,9 @@
         "category": "technology",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-05",
@@ -866,7 +933,9 @@
         "category": "technology",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-04",
@@ -880,7 +949,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-03",
@@ -894,7 +965,9 @@
         "category": "technology",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-infrastructure-standard--e81238",
@@ -908,7 +981,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-infrastructure-standard--faf14d",
@@ -922,7 +997,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-infrastructure-standard--803ba9",
@@ -936,7 +1013,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-infrastructure-standard--adfb75",
@@ -950,7 +1029,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261119-infrastructure-standard--479039",
@@ -964,7 +1045,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261120-infrastructure-standard--aa1e1f",
@@ -978,7 +1061,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261120-infrastructure-standard--12d294",
@@ -992,7 +1077,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261120-infrastructure-standard--f746b2",
@@ -1006,7 +1093,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261120-infrastructure-standard--d2a903",
@@ -1020,7 +1109,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       },
       {
         "id": "pred-20261120-infrastructure-standard--865b31",
@@ -1034,7 +1125,9 @@
         "category": "adoption",
         "resolved_at": null,
         "evidence_url": null,
-        "postmortem": null
+        "postmortem": null,
+        "provenance": "live",
+        "resolved_by": null
       }
     ]
   }

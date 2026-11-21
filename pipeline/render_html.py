@@ -122,18 +122,6 @@ def render_index(issue, path: str):
         roman = roman_numerals[idx] if idx < len(roman_numerals) else f"#{idx+1}"
         dev_view = card.role_views.get("developer")
         pred = card.prediction
-        if not pred:
-            pred = Prediction(
-                id=f"pred-{card.id}",
-                card_id=card.id,
-                statement="By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.",
-                probability=0.70,
-                made_at=issue.date,
-                resolves_at="2027-12-31",
-                resolution_criteria="Official release documentation and standard adoption announcements.",
-                category="technology",
-                status="open"
-            )
         
         role_views_json = escape(json.dumps({
             k: {
@@ -183,6 +171,56 @@ def render_index(issue, path: str):
         deep_ctx = get_deep_context(card.id)
         schematic_html = get_card_schematic(card.id)
 
+        if pred:
+            forecast_widget_html = f"""
+            <!-- Beat the Brief 1-Tap Calibration Widget with Contrarian Multiplier -->
+            <div class="beat-brief-widget" data-card-id="{escape(card.id)}" data-prob="{int(pred.probability * 100)}">
+                <!-- Mechanical On-Record Stamp Container (Positioned inside Beat the Brief) -->
+                <div class="stamp-container" id="stamp-container-{escape(card.id)}"></div>
+                <div class="beat-brief-header">
+                    <div>
+                        <span class="beat-brief-title">✦ Beat the Brief:</span>
+                        <span class="beat-brief-subtitle">Do you think true probability is higher or lower?</span>
+                    </div>
+                    <span class="contrarian-tag" id="contrarian-tag-{escape(card.id)}" style="display:none;">⚡ 2x Contrarian Multiplier Active</span>
+                </div>
+                <div class="beat-brief-actions">
+                    <button class="vote-btn" data-vote="higher" type="button">▲ Higher</button>
+                    <button class="vote-btn" data-vote="agree" type="button">● Agree ({int(pred.probability * 100)}%)</button>
+                    <button class="vote-btn" data-vote="lower" type="button">▼ Lower</button>
+                </div>
+                <div class="crowd-result" style="display:none;">
+                    <div class="crowd-bar-track" hidden>
+                        <div class="crowd-bar-fill higher" style="width:0%;"></div>
+                        <div class="crowd-bar-fill agree" style="width:0%;"></div>
+                        <div class="crowd-bar-fill lower" style="width:0%;"></div>
+                    </div>
+                    <div class="crowd-meta-line">
+                        <span class="crowd-summary">Your call is on record.</span>
+                        <span class="user-vote-tag">Your pick: <strong class="user-vote-text"></strong></span>
+                    </div>
+                </div>
+            </div>
+
+"""
+            forecast_line_html = f"""
+                <div class="headline-forecast" title="Pith's falsifiable forecast for this story">
+                    <span class="forecast-badge">{int(pred.probability * 100)}%</span>
+                    <span class="prediction-text">{escape(pred.statement)}</span>
+                    <span class="resolves-badge">Resolves {escape(pred.resolves_at)}</span>
+                </div>"""
+            criteria_html = f"""
+                <div class="drawer-section">
+                    <div class="drawer-title">Falsifiable Resolution Criteria</div>
+                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                        {escape(pred.resolution_criteria)}
+                    </div>
+                </div>"""
+        else:
+            forecast_widget_html = ""
+            forecast_line_html = '<div class="headline-forecast headline-forecast--none">No forecast was recorded for this story.</div>'
+            criteria_html = ""
+
         cards_html.append(f"""
         <article class="lab-card news-story-card is-collapsed" id="{escape(card.id)}" data-role-views='{role_views_json}'>
             <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
@@ -201,6 +239,7 @@ def render_index(issue, path: str):
                         <span class="expand-badge-text">Details</span>
                     </span>
                 </div>
+                {forecast_line_html}
             </div>
 
             <div class="card-details-drawer">
@@ -236,42 +275,7 @@ def render_index(issue, path: str):
                 </div>
             </div>
 
-            <!-- Precision Prediction Strip -->
-            <div class="prediction-strip">
-                <span class="forecast-badge">{int(pred.probability * 100)}% Forecast</span>
-                <span class="prediction-text">{escape(pred.statement)}</span>
-                <span class="resolves-badge">Resolves {escape(pred.resolves_at)}</span>
-            </div>
-
-            <!-- Beat the Brief 1-Tap Calibration Widget with Contrarian Multiplier -->
-            <div class="beat-brief-widget" data-card-id="{escape(card.id)}" data-prob="{int(pred.probability * 100)}">
-                <!-- Mechanical On-Record Stamp Container (Positioned inside Beat the Brief) -->
-                <div class="stamp-container" id="stamp-container-{escape(card.id)}"></div>
-                <div class="beat-brief-header">
-                    <div>
-                        <span class="beat-brief-title">✦ Beat the Brief:</span>
-                        <span class="beat-brief-subtitle">Do you think true probability is higher or lower?</span>
-                    </div>
-                    <span class="contrarian-tag" id="contrarian-tag-{escape(card.id)}" style="display:none;">⚡ 2x Contrarian Multiplier Active</span>
-                </div>
-                <div class="beat-brief-actions">
-                    <button class="vote-btn" data-vote="higher" type="button">▲ Higher</button>
-                    <button class="vote-btn" data-vote="agree" type="button">● Agree ({int(pred.probability * 100)}%)</button>
-                    <button class="vote-btn" data-vote="lower" type="button">▼ Lower</button>
-                </div>
-                <div class="crowd-result" style="display:none;">
-                    <div class="crowd-bar-track">
-                        <div class="crowd-bar-fill higher" style="width: 22%;" title="22% Higher"></div>
-                        <div class="crowd-bar-fill agree" style="width: 63%;" title="63% Agree"></div>
-                        <div class="crowd-bar-fill lower" style="width: 15%;" title="15% Lower"></div>
-                    </div>
-                    <div class="crowd-meta-line">
-                        <span>Crowd: <strong>63% Agree</strong> &middot; 22% Higher &middot; 15% Lower</span>
-                        <span class="user-vote-tag">Your pick: <strong class="user-vote-text">Agree</strong></span>
-                    </div>
-                </div>
-            </div>
-
+{forecast_widget_html}
             <!-- Action Toolbar: Deep Scan, Share to Slack, & Worth My Time Satisfaction Signal -->
             <div class="card-action-bar">
                 <button class="deep-scan-btn" type="button">
@@ -325,12 +329,7 @@ def render_index(issue, path: str):
 
                 {analogue_html}
 
-                <div class="drawer-section">
-                    <div class="drawer-title">Falsifiable Resolution Criteria</div>
-                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
-                        {escape(pred.resolution_criteria)}
-                    </div>
-                </div>
+                {criteria_html}
 
                 {roles_comparison_html}
 
@@ -526,6 +525,11 @@ def render_index(issue, path: str):
         f.write(html_content)
 
 
+def _pct(h: dict) -> str:
+    v = h.get("hit_rate_pct")
+    return f"{v}% Hit" if v is not None else "No data"
+
+
 def render_ledger(predictions, stats, path: str):
     rows_html = []
     for p in predictions:
@@ -534,11 +538,13 @@ def render_ledger(predictions, stats, path: str):
         postmortem_html = f'<div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> {escape(p.postmortem)}</div>' if p.postmortem else ""
         evidence_html = f'<a href="{escape(p.evidence_url)}" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a>' if p.evidence_url else "&mdash;"
 
+        is_live = LedgerEngine.is_live(p)
+        prov_html = "" if is_live else '<span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>'
         rows_html.append(f"""
-        <tr data-status="{escape(p.status)}" data-category="{escape(p.category)}" data-horizon="{escape(horizon)}">
+        <tr data-status="{escape(p.status)}" data-category="{escape(p.category)}" data-horizon="{escape(horizon)}" data-provenance="{escape(p.provenance)}"{'' if is_live else ' style="opacity:0.6;"'}>
             <td style="font-family:var(--font-mono); font-size:12px;">{escape(p.made_at)}</td>
             <td>
-                <div style="font-weight:600; color:var(--ink);">{escape(p.statement)}</div>
+                <div style="font-weight:600; color:var(--ink);">{prov_html}{escape(p.statement)}</div>
                 <div style="font-size:12px; color:var(--muted); margin-top:2px;">
                     <em>Resolution standard:</em> {escape(p.resolution_criteria)}
                 </div>
@@ -571,6 +577,38 @@ def render_ledger(predictions, stats, path: str):
     brier_val = f"{stats['brier_score']:.4f}" if stats['brier_score'] is not None else "N/A"
     hit_rate_val = f"{stats['hit_rate_pct']:.1f}%" if stats['hit_rate_pct'] is not None else "N/A"
 
+    brier_target = f' data-target="{stats["brier_score"]:.4f}"' if stats["brier_score"] is not None else ""
+    hit_target = f' data-target="{stats["hit_rate_pct"]:.1f}"' if stats["hit_rate_pct"] is not None else ""
+    bss = stats.get("brier_skill_score")
+    brier_sub = "Benchmark &lt; 0.25 (lower is better)" + (f" &middot; skill vs base rate {bss:+.2f}" if bss is not None else "")
+    ill = stats.get("illustrative", {})
+    if stats["resolved_count"] == 0:
+        record_banner = f"""
+        <div class="lab-card" style="padding:14px 18px; border:1px solid var(--gilt); border-radius:8px; margin-bottom:22px; font-size:14px; line-height:1.5;">
+            <strong>No live forecast has resolved yet.</strong> Scores appear here only once a prediction Pith actually published reaches its resolution date and a named reviewer records the outcome with evidence.
+            {f"The {ill.get('count', 0)} faded rows marked <em>Illustrative</em> below are hand-written examples to preview the layout. They are not counted in any number on this page." if ill.get('count') else ""}
+        </div>"""
+    elif ill.get("count"):
+        record_banner = f"""
+        <div style="font-size:12.5px; color:var(--muted); margin-bottom:18px;">Scores count live forecasts only. {ill['count']} faded <em>Illustrative</em> rows are examples and are excluded.</div>"""
+    else:
+        record_banner = ""
+
+    live_wrong = [p for p in predictions if LedgerEngine.is_live(p) and p.status == "wrong"]
+    live_wrong.sort(key=lambda p: p.resolved_at or "", reverse=True)
+    if live_wrong:
+        wrong_cards_html = "".join(f"""
+            <div class="wrong-card">
+                <div class="wrong-card-top" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="status-pill wrong">&#10005; Wrong Call</span>
+                    <span style="font-family:var(--font-mono); font-size:12px; color:var(--muted);">Forecast: {int(w.probability * 100)}% &middot; Resolved {escape(w.resolved_at or "")}{(" by " + escape(w.resolved_by)) if w.resolved_by else ""}</span>
+                </div>
+                <div class="wrong-statement">&ldquo;{escape(w.statement)}&rdquo;</div>
+                {f'<div class="wrong-postmortem-block"><div class="wrong-postmortem-title">Post-mortem:</div><div class="wrong-postmortem-text">{escape(w.postmortem)}</div>' + (f'<div style="margin-top:10px;"><a href="{escape(w.evidence_url)}" target="_blank" rel="noopener" class="wrong-evidence-link">Evidence &rarr;</a></div>' if w.evidence_url else "") + '</div>' if w.postmortem else ""}
+            </div>""" for w in live_wrong[:3])
+    else:
+        wrong_cards_html = '<div style="font-size:14px; color:var(--muted); padding:12px 0;">No live forecast has been resolved wrong yet. When one is, it appears here with its original probability and a post-mortem.</div>'
+
     horizon_stats = stats.get("horizon_breakdown", {})
     h30 = horizon_stats.get("30-day", {})
     h90 = horizon_stats.get("90-day", {})
@@ -582,26 +620,26 @@ def render_ledger(predictions, stats, path: str):
             <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">⚡ 30-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">{h30.get('hit_rate_pct', 'N/A')}% Hit</span>
+                    <span class="status-pill correct" style="font-size:10px;">{_pct(h30)}</span>
                 </div>
                 <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Immediate Tooling &amp; SDK Shifts</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h30.get('resolved', 0)} resolved &middot; {h30.get('open', 0)} active &middot; Brier: {h30.get('brier_score', 'N/A')}</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h30.get('resolved', 0)} resolved &middot; {h30.get('open', 0)} active &middot; Brier: {h30.get('brier_score') if h30.get('brier_score') is not None else '&mdash;'}</div>
             </div>
             <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">◈ 90-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">{h90.get('hit_rate_pct', 'N/A')}% Hit</span>
+                    <span class="status-pill correct" style="font-size:10px;">{_pct(h90)}</span>
                 </div>
                 <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Quarterly Architecture Milestones</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h90.get('resolved', 0)} resolved &middot; {h90.get('open', 0)} active &middot; Brier: {h90.get('brier_score', 'N/A')}</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h90.get('resolved', 0)} resolved &middot; {h90.get('open', 0)} active &middot; Brier: {h90.get('brier_score') if h90.get('brier_score') is not None else '&mdash;'}</div>
             </div>
             <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">✦ 365-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">{h365.get('hit_rate_pct', 'N/A')}% Hit</span>
+                    <span class="status-pill correct" style="font-size:10px;">{_pct(h365)}</span>
                 </div>
                 <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Annual Platform &amp; Economic Regimes</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h365.get('resolved', 0)} resolved &middot; {h365.get('open', 0)} active &middot; Brier: {h365.get('brier_score', 'N/A')}</div>
+                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h365.get('resolved', 0)} resolved &middot; {h365.get('open', 0)} active &middot; Brier: {h365.get('brier_score') if h365.get('brier_score') is not None else '&mdash;'}</div>
             </div>
         </div>
     """
@@ -637,7 +675,7 @@ def render_ledger(predictions, stats, path: str):
             <div>
                 <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD &middot; ACCURACY LEDGER</div>
                 <h1 class="page-title">Forecast <em>Tracker</em></h1>
-                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Public, immutable ledger of all dated falsifiable predictions. Audited with mathematical Brier scoring to ensure rigorous forecasting calibration.</p>
+                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Public, immutable ledger of all dated falsifiable predictions. Probabilities are locked after the publication day and every verdict is an append-only record with a named reviewer and evidence.</p>
             </div>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> ON-RECORD</span>
@@ -648,22 +686,24 @@ def render_ledger(predictions, stats, path: str):
             </div>
         </section>
 
+        {record_banner}
+
         <!-- Big Num Grid with Counter Animations -->
         <div class="bignum-grid">
             <div class="bignum-card">
-                <div class="bignum" data-target="{stats['brier_score']:.4f}" data-format="brier">{brier_val}</div>
+                <div class="bignum"{brier_target} data-format="brier">{brier_val}</div>
                 <div class="bignum-label">Brier Score</div>
-                <div class="bignum-sub">Benchmark &lt; 0.25 (lower is better)</div>
+                <div class="bignum-sub">{brier_sub}</div>
             </div>
             <div class="bignum-card">
-                <div class="bignum" data-target="{stats['hit_rate_pct']:.1f}" data-format="percent">{hit_rate_val}</div>
+                <div class="bignum"{hit_target} data-format="percent">{hit_rate_val}</div>
                 <div class="bignum-label">Hit Rate</div>
                 <div class="bignum-sub">{stats['correct_count']} of {stats['resolved_count']} resolved</div>
             </div>
             <div class="bignum-card">
                 <div class="bignum" data-target="{stats['resolved_count']}" data-format="int">{stats['resolved_count']}</div>
                 <div class="bignum-label">Sample Size</div>
-                <div class="bignum-sub">{"Preliminary (need >= 20)" if stats['is_preliminary'] else "Definitive"}</div>
+                <div class="bignum-sub">{"Preliminary (need &ge; " + str(stats['min_sample_threshold']) + ")" if stats['is_preliminary'] else "Definitive"}</div>
             </div>
             <div class="bignum-card">
                 <div class="bignum" data-target="{stats['open_count']}" data-format="int">{stats['open_count']}</div>
@@ -708,31 +748,7 @@ def render_ledger(predictions, stats, path: str):
                 </p>
             </div>
 
-            <!-- The Missed Prediction Card -->
-            <div class="wrong-card">
-                <div class="wrong-card-top" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="status-pill wrong">✕ Wrong Call</span>
-                    <span style="font-family:var(--font-mono); font-size:12px; color:var(--muted);">Forecast: 60% probability &middot; Resolved 15 Sep 2026</span>
-                </div>
-                <div class="wrong-statement">
-                    &ldquo;By 15 September 2026, the European Union AI Act general-purpose model guidelines require public watermark disclosure for all commercial code generation models.&rdquo;
-                </div>
-                <div class="wrong-outcome-block">
-                    <div class="wrong-outcome-title">What Actually Happened:</div>
-                    <div class="wrong-outcome-text">
-                        The EU AI Office retained watermarking recommendations for synthetic video and audio, but explicitly exempted standalone code completion tools following AST integrity lobbying from open-source IDE stewards.
-                    </div>
-                </div>
-                <div class="wrong-postmortem-block">
-                    <div class="wrong-postmortem-title">Why Our Model Missed:</div>
-                    <div class="wrong-postmortem-text">
-                        We over-indexed on draft EU AI Office working memos and failed to account for compiler AST integrity lobbying from open-source IDE stewards. <strong>Lesson Learned:</strong> Regulatory drafts in developer tooling rarely survive intact when they break compiler deterministic verification.
-                    </div>
-                    <div style="margin-top:10px;">
-                        <a href="https://digital-strategy.ec.europa.eu/en/policies/ai-office" target="_blank" rel="noopener" class="wrong-evidence-link">Inspect Official Ruling Evidence &rarr;</a>
-                    </div>
-                </div>
-            </div>
+            {wrong_cards_html}
         </section>
 
         <!-- Filter Controls -->
@@ -744,6 +760,7 @@ def render_ledger(predictions, stats, path: str):
                     <option value="open">Open (Active)</option>
                     <option value="correct">Resolved: Correct</option>
                     <option value="wrong">Resolved: Wrong</option>
+                    <option value="void">Void</option>
                 </select>
             </div>
             <div class="filter-select-wrap">

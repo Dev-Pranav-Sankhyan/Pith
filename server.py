@@ -15,6 +15,8 @@ from core import auth, newsfeed
 from core.recommender import Recommender
 from core.your5 import Your5Engine
 from core.demo_news import seed_demo
+from core import votes
+from core.ratelimit import RateLimiter
 import threading
 import time
 
@@ -26,6 +28,19 @@ REFRESH_MINUTES = int(os.environ.get("PITH_REFRESH_MINUTES", 30))
 SECURE_COOKIES = os.environ.get("PITH_SECURE_COOKIES") == "1"
 MAX_BODY = 64 * 1024
 recommender = Recommender(FOR_YOU_DB)
+AUTH_LIMITER = RateLimiter(max_hits=10, window_seconds=300)     # login/signup attempts per IP
+WRITE_LIMITER = RateLimiter(max_hits=120, window_seconds=60)    # other POSTs per IP
+REFRESH_LIMITER = RateLimiter(max_hits=2, window_seconds=600)   # manual feed refreshes per IP
+
+# Pages anyone can read. Only the personalised feed needs an account.
+PUBLIC_PAGES = {
+    "/": "/index.html", "/index": "/index.html", "/index.html": "/index.html",
+    "/ledger": "/ledger.html", "/ledger.html": "/ledger.html",
+    "/archive": "/archive.html", "/archive.html": "/archive.html",
+    "/patterns": "/patterns.html", "/patterns.html": "/patterns.html",
+    "/about": "/about.html", "/about.html": "/about.html",
+}
+MEMBER_PAGES = {"/foryou", "/for-you", "/login", "/foryou.html"}
 
 
 class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -34,15 +49,28 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-cache, must-revalidate")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
         super().end_headers()
+
+    def list_directory(self, path):
+        # Never expose directory listings (e.g. /audio/).
+        self.send_error(404, "Not found")
+        return None
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path.lower().rstrip("/")
         if not path:
             path = "/"
-        user_agent = self.headers.get("User-Agent", "").lower()
-        is_terminal = any(tool in user_agent for tool in ("curl", "wget", "httpie"))
+        if path == "/healthz":
+            return self._json({"ok": True})
+        if path == "/api/votes":
+            q = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
+            card_id = q.get("card_id", "")
+            if not card_id:
+                return self._json({"error": "card_id required"}, 400)
+            return self._json({"card_id": card_id, "counts": votes.counts(card_id, FOR_YOU_DB)})
 
         if path.startswith("/api/") and path.split("/")[2] in ("me", "feed", "profile", "your5", "digest"):
             return self._handle_foryou_get(path, parsed)
@@ -57,11 +85,6 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if any(path.endswith(ext) for ext in (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".mp3", ".json", ".xml", ".woff2", ".txt")):
             return super().do_GET()
 
-        # Public About & Login Gate Page (Always accessible)
-        if path in ("/about", "/about.html"):
-            self.path = "/about.html"
-            return super().do_GET()
-
         # Decommissioned pages redirect to /
         if path in ("/horizon", "/bounty", "/matrix", "/economics", "/terminal"):
             self.send_response(302)
@@ -69,32 +92,20 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             return
 
-        # Authentication Gate: Visiting internal site pages requires login
-        user = self._current_user()
-        if not user:
-            self.send_response(302)
-            self.send_header("Location", "/about.html")
-            self.end_headers()
-            return
-
-        # Authenticated Member Routes
-        if path in ("/", "/index.html", "/index"):
-            self.path = "/index.html"
+        if path in PUBLIC_PAGES:
+            self.path = PUBLIC_PAGES[path]
             return super().do_GET()
-        elif path in ("/foryou", "/for-you", "/login", "/foryou.html"):
+
+        if path in MEMBER_PAGES:
+            if not self._current_user():
+                self.send_response(302)
+                self.send_header("Location", "/about.html#access")
+                self.end_headers()
+                return
             self.path = "/foryou.html"
             return super().do_GET()
-        elif path in ("/ledger", "/ledger.html"):
-            self.path = "/ledger.html"
-            return super().do_GET()
-        elif path in ("/patterns", "/patterns.html"):
-            self.path = "/patterns.html"
-            return super().do_GET()
-        elif path in ("/archive", "/archive.html"):
-            self.path = "/archive.html"
-            return super().do_GET()
-        else:
-            return super().do_GET()
+
+        return super().do_GET()
 
     def _send_text(self, text: str, status: int = 200):
         data = text.encode("utf-8")
@@ -107,14 +118,19 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
+        if not WRITE_LIMITER.allow(self._client_ip()):
+            return self._json({"error": "Too many requests"}, 429)
         if parsed.path == "/api/score":
             self._handle_api_score()
-        elif parsed.path.startswith(("/api/auth/", "/api/events", "/api/onboard", "/api/profile/", "/api/refresh")):
+        elif parsed.path.startswith(("/api/auth/", "/api/events", "/api/onboard", "/api/profile/", "/api/refresh", "/api/vote")):
             self._handle_foryou_post(parsed.path)
         else:
             self.send_error(404, "Endpoint not found")
 
     # ------------------------------------------------------------------ For You (personalised feed)
+    def _client_ip(self) -> str:
+        return self.client_address[0] if self.client_address else "unknown"
+
     def _session_token(self):
         return auth.parse_cookie(self.headers.get("Cookie"))
 
@@ -187,6 +203,8 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             return self._json({"error": str(e)}, 400)
 
         if path in ("/api/auth/signup", "/api/auth/login"):
+            if not AUTH_LIMITER.allow(self._client_ip()):
+                return self._json({"error": "Too many attempts. Try again in a few minutes."}, 429)
             try:
                 if path.endswith("signup"):
                     uid = auth.create_user(data.get("username", ""), data.get("password", ""),
@@ -218,7 +236,16 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if path == "/api/profile/reset":
             recommender.reset(uid)
             return self._json({"ok": True})
+        if path == "/api/vote":
+            try:
+                votes.cast_vote(uid, str(data.get("card_id", "")), str(data.get("vote", "")), FOR_YOU_DB)
+            except ValueError as e:
+                return self._json({"error": str(e)}, 400)
+            card_id = str(data.get("card_id"))
+            return self._json({"ok": True, "card_id": card_id, "counts": votes.counts(card_id, FOR_YOU_DB)})
         if path == "/api/refresh":
+            if not REFRESH_LIMITER.allow(self._client_ip()):
+                return self._json({"error": "Refresh already ran recently"}, 429)
             report = newsfeed.refresh_all(FOR_YOU_DB)
             return self._json(report)
         return self._json({"error": "Not found"}, 404)
@@ -242,9 +269,7 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def _handle_api_score(self):
         try:
-            content_length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(content_length)
-            data = json.loads(body) if body else {}
+            data = self._read_json_body()
             features = data.get("features") or {}
             penalties = data.get("penalties") or {}
             engine = ScoringEngine()
@@ -256,8 +281,8 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 "is_selected": engine.is_selected(score),
                 "breakdown": breakdown
             })
-        except Exception as e:
-            self.send_error(400, f"Error processing score request: {str(e)}")
+        except (ValueError, TypeError, json.JSONDecodeError) as e:
+            self._json({"error": f"Bad score request: {e}"}, 400)
 
     def _send_json(self, data: dict):
         response_bytes = json.dumps(data, indent=2).encode("utf-8")

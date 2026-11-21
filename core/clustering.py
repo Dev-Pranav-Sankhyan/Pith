@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import datetime as dt
 import hashlib
+import math
+import re
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set
@@ -114,53 +116,85 @@ class StoryCluster:
         self.corroboration_score = min(1.0, 0.4 + 0.15 * self.publisher_count)
 
 
+_NUM_RE = re.compile(r"\b(?:v?\d+(?:\.\d+)+|\d+%|\$\d[\d,.]*[bmk]?)\b", re.IGNORECASE)
+
+
+def _cosine(a: Dict[str, float], b: Dict[str, float]) -> float:
+    if not a or not b:
+        return 0.0
+    dot = sum(w * b.get(k, 0.0) for k, w in a.items())
+    na = math.sqrt(sum(w * w for w in a.values()))
+    nb = math.sqrt(sum(w * w for w in b.values()))
+    return dot / (na * nb) if na and nb else 0.0
+
+
+def _content_tokens(a: Dict[str, Any]) -> Set[str]:
+    if "_ctok" not in a:
+        a["_ctok"] = set(tokenize(f"{a.get('title', '')} {a.get('summary', '')}"))
+    return a["_ctok"]
+
+
+def _specifics(a: Dict[str, Any]) -> Set[str]:
+    """Version numbers, percentages and amounts: strong evidence of the same event."""
+    if "_spec" not in a:
+        text = f"{a.get('title', '')} {a.get('summary', '')}"
+        a["_spec"] = {m.group(0).lower().lstrip("v") for m in _NUM_RE.finditer(text)}
+    return a["_spec"]
+
+
 class ClusterEngine:
+    # Pair score needed to join a cluster. Calibrated on tests/fixtures/cluster_gold.json
+    # (python3 -m core.cluster_eval); re-check precision there before changing it.
+    MATCH_THRESHOLD = 0.18  # gold set: strongest wrong pair 0.064, typical true pair > 0.25
+
     @staticmethod
-    def is_match(a: Dict[str, Any], cluster: StoryCluster, window_hours: int = 48) -> bool:
+    def pair_similarity(a: Dict[str, Any], b: Dict[str, Any], common_entities: Set[str] = frozenset()) -> float:
         """
-        Determines whether article `a` belongs to existing `cluster`.
-        Requires:
-        1. Published within window_hours of cluster start
-        2. AND either:
-           - 2+ shared named entities AND keyword overlap > 0.25
-           - Title token Jaccard similarity > 0.38
-           - Keyword Jaccard overlap > 0.45
+        0..1 evidence that two articles report the same event. Blends:
+          - TF-IDF keyword cosine (rare shared words count most)
+          - content-token Jaccard over title + summary
+          - shared *distinctive* entities (entities seen across many unrelated stories,
+            e.g. a big company name, are ignored so they cannot merge different stories)
+          - shared specifics such as "1.35", "50%"
         """
-        # Time window check
+        kw = _cosine(a.get("keywords", {}), b.get("keywords", {}))
+        tok = jaccard(_content_tokens(a), _content_tokens(b))
+        ents_a = {e.lower() for e in a.get("entities", [])} - common_entities
+        ents_b = {e.lower() for e in b.get("entities", [])} - common_entities
+        ent = min(1.0, len(ents_a & ents_b) / 2.0)
+        spec = 1.0 if (_specifics(a) & _specifics(b)) else 0.0
+        return 0.45 * kw + 0.30 * tok + 0.15 * ent + 0.10 * spec
+
+    @staticmethod
+    def _within_window(a: Dict[str, Any], cluster: StoryCluster, window_hours: int) -> bool:
         try:
             d_art = dt.datetime.fromisoformat(a.get("published_at", "")[:19].replace("Z", "+00:00"))
             d_cluster = dt.datetime.fromisoformat(cluster.published_at[:19].replace("Z", "+00:00"))
-            diff_hours = abs((d_art - d_cluster).total_seconds()) / 3600.0
-            if diff_hours > window_hours:
-                return False
+            return abs((d_art - d_cluster).total_seconds()) / 3600.0 <= window_hours
         except (ValueError, TypeError):
-            pass
-
-        # 1. Entity overlap
-        art_ents = set(a.get("entities", []))
-        clust_ents = set(cluster.entities)
-        shared_ents = art_ents & clust_ents
-
-        # 2. Title token similarity
-        title_tokens_a = set(tokenize(a.get("title", "")))
-        title_tokens_c = set(tokenize(cluster.lead_title))
-        title_sim = jaccard(title_tokens_a, title_tokens_c)
-
-        # 3. Keyword similarity
-        art_kw = a.get("kwset", set())
-        clust_kw = cluster.kwset
-        kw_sim = jaccard(art_kw, clust_kw)
-
-        if len(shared_ents) >= 2 and (kw_sim > 0.22 or title_sim > 0.28):
             return True
 
-        if title_sim >= 0.38:
-            return True
+    @classmethod
+    def cluster_score(cls, a: Dict[str, Any], cluster: StoryCluster, common_entities: Set[str] = frozenset(),
+                      window_hours: int = 48) -> float:
+        """Best pair similarity between `a` and any member (not just the lead headline)."""
+        if not cls._within_window(a, cluster, window_hours):
+            return 0.0
+        return max((cls.pair_similarity(a, m, common_entities) for m in cluster.articles), default=0.0)
 
-        if kw_sim >= 0.45 and (len(shared_ents) >= 1 or title_sim > 0.20):
-            return True
+    @classmethod
+    def is_match(cls, a: Dict[str, Any], cluster: StoryCluster, window_hours: int = 48,
+                 common_entities: Set[str] = frozenset()) -> bool:
+        return cls.cluster_score(a, cluster, common_entities, window_hours) >= cls.MATCH_THRESHOLD
 
-        return False
+    @staticmethod
+    def common_entities(articles: List[Dict[str, Any]], share: float = 0.12, min_count: int = 3) -> Set[str]:
+        """Entities appearing in many articles of the batch carry no story identity."""
+        counts: Counter = Counter()
+        for a in articles:
+            counts.update({e.lower() for e in a.get("entities", [])})
+        cutoff = max(min_count, share * len(articles))
+        return {e for e, n in counts.items() if n >= cutoff}
 
     @classmethod
     def cluster_articles(cls, articles: List[Dict[str, Any]], window_hours: int = 48) -> List[StoryCluster]:
@@ -171,12 +205,16 @@ class ClusterEngine:
         # Sort articles by publication date (earliest first for chronological accumulation)
         sorted_articles = sorted(articles, key=lambda x: x.get("published_at", ""))
 
+        common = cls.common_entities(articles)
+
         for a in sorted_articles:
+            # Join the BEST matching cluster, not merely the first one over threshold.
             matched_cluster: Optional[StoryCluster] = None
+            best = cls.MATCH_THRESHOLD
             for c in clusters:
-                if cls.is_match(a, c, window_hours=window_hours):
-                    matched_cluster = c
-                    break
+                score = cls.cluster_score(a, c, common, window_hours)
+                if score >= best:
+                    best, matched_cluster = score, c
 
             if matched_cluster:
                 matched_cluster.add_article(a)

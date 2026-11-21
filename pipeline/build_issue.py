@@ -12,6 +12,16 @@ from core.db import Database
 from core.ledger import LedgerEngine
 
 
+def _rfc822(stamp: str) -> str:
+    try:
+        d = datetime.datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        d = datetime.datetime.now(datetime.timezone.utc)
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=datetime.timezone.utc)
+    return d.astimezone(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
+
+
 def build_static_artifacts(db_path: str = "brief.sqlite3", output_dir: str = "public"):
     os.makedirs(output_dir, exist_ok=True)
     db = Database(db_path)
@@ -54,7 +64,7 @@ def build_static_artifacts(db_path: str = "brief.sqlite3", output_dir: str = "pu
         ET.SubElement(item, "title").text = f"[{card.signal_level} Signal] {card.headline}"
         ET.SubElement(item, "link").text = f"https://pith.news/#{card.id}"
         ET.SubElement(item, "guid").text = card.id
-        ET.SubElement(item, "pubDate").text = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
+        ET.SubElement(item, "pubDate").text = _rfc822(latest_issue.published_at or latest_issue.date)
         desc_text = f"{card.what_happened}\n\nWhy it matters: {card.why_it_matters}\n\nAction ({card.action_type}): {card.action_text}"
         ET.SubElement(item, "description").text = desc_text
 
@@ -71,7 +81,10 @@ def build_static_artifacts(db_path: str = "brief.sqlite3", output_dir: str = "pu
             except OSError:
                 pass
 
-    print(f"Generated {output_dir}/feed.json and {output_dir}/rss.xml successfully.")
+    from pipeline.email_edition import build_email_edition
+    email_path = build_email_edition(db_path, output_dir)
+
+    print(f"Generated {output_dir}/feed.json, {output_dir}/rss.xml and {email_path} successfully.")
 
 
 if __name__ == "__main__":

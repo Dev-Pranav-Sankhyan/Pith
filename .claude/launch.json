@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pith-dev",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["server.py"],
+      "env": { "PORT": "8010", "PITH_REFRESH_MINUTES": "600" },
+      "port": 8010
+    }
+  ]
+}

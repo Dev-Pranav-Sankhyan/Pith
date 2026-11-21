@@ -454,8 +454,8 @@ def generate_seed_issue() -> DailyIssue:
 
 def seed_historical_predictions(db: Database):
     """
-    Seeds a realistic historical track record of resolved predictions so that the
-    Prediction Ledger, Brier Score, and Calibration chart have verifiable data to showcase.
+    Seeds ILLUSTRATIVE example predictions so the Ledger layout can be previewed
+    before any live forecast has resolved. They are excluded from all live stats.
     """
     historical = [
         # --- 30-Day Horizon Historical Predictions ---
@@ -738,19 +738,13 @@ def seed_historical_predictions(db: Database):
         ),
     ]
 
-    with db.get_connection() as conn:
-        cursor = conn.cursor()
-        for p in historical:
-            cursor.execute("""
-                INSERT OR REPLACE INTO predictions (
-                    id, card_id, statement, probability, made_at, resolves_at,
-                    resolution_criteria, category, status, resolved_at, evidence_url, postmortem
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                p.id, p.card_id, p.statement, p.probability, p.made_at, p.resolves_at,
-                p.resolution_criteria, p.category, p.status, p.resolved_at, p.evidence_url, p.postmortem
-            ))
-        conn.commit()
+    for p in historical:
+        # These are hand-written examples, not forecasts Pith published on the day.
+        # They are stored as "illustrative" so the Ledger shows them labelled and
+        # never counts them toward the public Brier score or hit rate.
+        p.provenance = "illustrative"
+        p.resolved_by = "illustrative-seed"
+        db.save_prediction(p)
 
 
 def init_and_seed():

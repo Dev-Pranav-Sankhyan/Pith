@@ -266,7 +266,8 @@ def run_pipeline(
         historical_analogue=analogue,
         evidence_links=evidence,
         claims=claims,
-        published_at=f"{today_str}T07:00:00Z"
+        published_at=f"{today_str}T07:00:00Z",
+        factor_scores={k: round(float(v), 1) for k, v in grounded_features.items()}
     )
 
     # -------------------------------------------------------------

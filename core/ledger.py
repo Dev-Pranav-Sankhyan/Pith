@@ -16,8 +16,11 @@ class LedgerEngine:
     - Hit rate
     - Horizon breakdown (30-day, 90-day, 365-day)
     - Calibration curve across probability buckets
-    - Automated resolution queue for due predictions
+    - Due-prediction queue (resolution itself is human-approved, see pipeline/resolve_predictions.py)
     - Sample size safeguards
+
+    Only predictions with provenance == "live" count toward the public record.
+    Illustrative/seed predictions are summarised separately and never blended in.
     """
 
     MIN_CALIBRATION_SAMPLE = 20  # Section 1: threshold before calibration is marked definitive
@@ -112,11 +115,29 @@ class LedgerEngine:
 
         return total_sq_error / len(resolved)
 
+    @staticmethod
+    def is_live(p: Prediction) -> bool:
+        return getattr(p, "provenance", "live") == "live"
+
     @classmethod
     def calculate_statistics(cls, predictions: List[Prediction]) -> Dict[str, Any]:
         """
-        Aggregates summary stats, Brier score, and calibration bins.
+        Public track-record stats over LIVE predictions only, plus a clearly separate
+        summary of illustrative predictions (never mixed into the headline numbers).
         """
+        live = [p for p in predictions if cls.is_live(p)]
+        illustrative = [p for p in predictions if not cls.is_live(p)]
+        stats = cls._stats_for(live)
+        ill_resolved = [p for p in illustrative if p.status in ("correct", "wrong")]
+        stats["illustrative"] = {
+            "count": len(illustrative),
+            "resolved": len(ill_resolved),
+            "note": "Hand-written examples to preview the Ledger. Not forecasts Pith published; excluded from all scores.",
+        }
+        return stats
+
+    @classmethod
+    def _stats_for(cls, predictions: List[Prediction]) -> Dict[str, Any]:
         total = len(predictions)
         open_preds = [p for p in predictions if p.status == "open"]
         correct_preds = [p for p in predictions if p.status == "correct"]
@@ -160,6 +181,14 @@ class LedgerEngine:
 
         is_preliminary = resolved_count < cls.MIN_CALIBRATION_SAMPLE
 
+        # Skill vs. a naive forecaster that always says the observed base rate.
+        # BSS > 0 means the probabilities carried information beyond "how often things happen".
+        brier_skill = None
+        if resolved_count and brier is not None:
+            base = len(correct_preds) / resolved_count
+            ref = base * (1 - base)
+            brier_skill = round(1 - brier / ref, 3) if ref > 0 else None
+
         return {
             "total_predictions": total,
             "open_count": len(open_preds),
@@ -170,6 +199,7 @@ class LedgerEngine:
             "hit_rate_pct": round(hit_rate * 100, 1) if resolved_count > 0 else None,
             "brier_score": round(brier, 4) if brier is not None else None,
             "brier_benchmark": "Target < 0.25 (better than chance)",
+            "brier_skill_score": brier_skill,
             "is_preliminary": is_preliminary,
             "min_sample_threshold": cls.MIN_CALIBRATION_SAMPLE,
             "horizon_breakdown": cls.calculate_horizon_breakdown(predictions),

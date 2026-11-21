@@ -4,6 +4,8 @@ Follows Section 6 (Content Pipeline - Scoring) and Section 1 (Signal Level).
 """
 
 from typing import Dict, Tuple, List, Optional
+import json
+import os
 import re
 from urllib.parse import urlparse
 from core.models import SignalLevel
@@ -107,9 +109,24 @@ def extract_grounded_features(
     return final_features, penalties
 
 
+TUNED_WEIGHTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scoring_weights.json")
+
+
+def load_weights(path: str = TUNED_WEIGHTS_PATH) -> Dict[str, float]:
+    """Outcome-tuned weights from pipeline/tune_scoring.py if present and valid, else defaults."""
+    try:
+        with open(path) as fh:
+            w = json.load(fh).get("weights", {})
+        if set(w) == set(DEFAULT_WEIGHTS) and abs(sum(w.values()) - 1.0) < 0.02 and min(w.values()) > 0:
+            return {k: float(v) for k, v in w.items()}
+    except (OSError, ValueError, AttributeError):
+        pass
+    return DEFAULT_WEIGHTS.copy()
+
+
 class ScoringEngine:
     def __init__(self, weights: Optional[Dict[str, float]] = None, threshold: float = 60.0):
-        self.weights = weights or DEFAULT_WEIGHTS.copy()
+        self.weights = weights or load_weights()
         self.threshold = threshold
 
     def compute_score(
@@ -189,8 +206,9 @@ class ScoringEngine:
 
     def tune_weights(self, correlations: Dict[str, float]) -> None:
         """
-        Feedback tuning loop: Adjusts scoring weights based on reader saves
-        and prediction calibration accuracy. Normalizes weights so sum == 1.0.
+        Nudges weights by per-factor correlations (see outcome_correlations) and
+        re-normalizes so they sum to 1.0. Feed it outcome data only, never clicks
+        or saves: ranking for engagement is what Pith exists to avoid.
         """
         for factor, delta in correlations.items():
             if factor in self.weights:
@@ -200,3 +218,31 @@ class ScoringEngine:
         if total > 0:
             for factor in self.weights:
                 self.weights[factor] = round(self.weights[factor] / total, 3)
+
+
+MIN_TUNING_SAMPLE = 20
+
+
+def outcome_correlations(rows: List[Dict], min_sample: int = MIN_TUNING_SAMPLE) -> Dict[str, float]:
+    """
+    Pearson correlation (point-biserial) between each factor rating and whether the
+    story's forecast resolved correct. Returns {} below `min_sample` resolved
+    forecasts, so weights never move on noise.
+
+    rows: [{"outcome": 0.0|1.0, "factors": {factor: 0-100}}], e.g. Database.get_factor_outcomes().
+    """
+    if len(rows) < min_sample:
+        return {}
+    ys = [r["outcome"] for r in rows]
+    out: Dict[str, float] = {}
+    for factor in DEFAULT_WEIGHTS:
+        xs = [float(r["factors"].get(factor, 50.0)) for r in rows]
+        n = len(xs)
+        mx, my = sum(xs) / n, sum(ys) / n
+        sxx = sum((x - mx) ** 2 for x in xs)
+        syy = sum((y - my) ** 2 for y in ys)
+        if sxx == 0 or syy == 0:
+            continue
+        sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+        out[factor] = round(sxy / (sxx * syy) ** 0.5, 3)
+    return out
