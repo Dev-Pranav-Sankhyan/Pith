@@ -13,6 +13,7 @@ from core.ledger import LedgerEngine
 from core.scoring import ScoringEngine
 from core import auth, newsfeed
 from core.recommender import Recommender
+from core.your5 import Your5Engine
 from core.demo_news import seed_demo
 import threading
 import time
@@ -43,7 +44,7 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         user_agent = self.headers.get("User-Agent", "").lower()
         is_terminal = any(tool in user_agent for tool in ("curl", "wget", "httpie"))
 
-        if path.startswith("/api/") and path.split("/")[2] in ("me", "feed", "profile"):
+        if path.startswith("/api/") and path.split("/")[2] in ("me", "feed", "profile", "your5", "digest"):
             return self._handle_foryou_get(path, parsed)
         elif path == "/api/issue":
             self._handle_api_issue()
@@ -147,6 +148,14 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         user = self._current_user()
         if path == "/api/me":
             return self._json({"user": user, "articles": newsfeed.article_count(FOR_YOU_DB)})
+        if path == "/api/your5":
+            engine = Your5Engine()
+            return self._json(engine.get_your_5(user["id"] if user else None))
+        if path == "/api/digest":
+            if not user:
+                return self._json({"error": "Login required"}, 401)
+            engine = Your5Engine()
+            return self._json(engine.get_weekly_digest(user["id"]))
         tab = q.get("tab", "foryou")
         if not user and not (path == "/api/feed" and tab == "trending"):
             return self._json({"error": "Login required"}, 401)

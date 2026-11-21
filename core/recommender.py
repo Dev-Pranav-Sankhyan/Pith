@@ -57,6 +57,8 @@ SIGNALS = {
     "unsave": -1.0,
     "share": 3.0,
     "hide": -3.0,
+    "worth_time": 3.5,
+    "not_worth_time": -3.0,
 }
 EXPLORE_EVERY = 6          # one exploration slot per N items
 MMR_LAMBDA = 0.78
@@ -308,6 +310,12 @@ class Recommender:
                 self._learn_article(conn, user_id, a, SIGNALS[kind], part)
             elif kind == "share":
                 self._learn_article(conn, user_id, a, SIGNALS["share"], part)
+            elif kind in ("worth_time", "not_worth_time"):
+                sat_val = 1 if kind == "worth_time" else -1
+                self._ua(conn, user_id, aid, reaction=sat_val, last_seen=now_str)
+                self._learn_article(conn, user_id, a, SIGNALS[kind], part)
+                if primary:
+                    self._bandit(conn, user_id, primary, success=3.0 if sat_val == 1 else 0, failure=3.0 if sat_val == -1 else 0)
             elif kind == "hide":
                 self._ua(conn, user_id, aid, hidden=1, last_seen=now_str)
                 self._learn_article(conn, user_id, a, SIGNALS["hide"], part)
@@ -624,7 +632,12 @@ class Recommender:
             n_events = conn.execute("SELECT COUNT(*) FROM events WHERE user_id=?", (user_id,)).fetchone()[0]
             muted = [r[0] for r in conn.execute("SELECT publisher FROM muted_sources WHERE user_id=?", (user_id,))]
         avoided = sorted(((k, w) for k, w in aff.get("topic", {}).items() if w < -0.5), key=lambda kv: kv[1])
+        from core.your5 import infer_role
+        inferred_r, role_conf, role_reason = infer_role(aff)
         return {
+            "inferred_role": inferred_r,
+            "role_confidence": role_conf,
+            "role_reason": role_reason,
             "topics": top("topic", len(TOPICS)),
             "avoided_topics": [{"key": k, "weight": round(w, 3)} for k, w in avoided],
             "keywords": top("keyword", 14, display_term),

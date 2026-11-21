@@ -2149,6 +2149,38 @@ table.instrument-table tr:hover td {
   flex: 1 1 200px;
 }
 
+.worth-time-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--hairline-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.worth-time-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--gilt);
+  color: var(--gilt);
+  transform: translateY(-1px);
+}
+
+.worth-time-btn.active {
+  background: var(--gilt-soft);
+  border-color: var(--gilt);
+  color: var(--gilt);
+}
+
 .slack-share-btn {
   display: inline-flex;
   align-items: center;

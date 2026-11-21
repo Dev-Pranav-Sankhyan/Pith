@@ -1130,6 +1130,35 @@ function fallbackCopyText(text, btn) {
   showSlackCopiedFeedback(btn);
 }
 
+function initWorthTime() {
+  document.querySelectorAll(".worth-time-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const cardId = btn.getAttribute("data-card-id");
+      const isActive = btn.classList.toggle("active");
+      try {
+        await fetch("/api/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            events: [{
+              kind: isActive ? "worth_time" : "not_worth_time",
+              article_id: cardId
+            }]
+          })
+        });
+        if (sound) sound.playSnap();
+        const textSpan = btn.querySelector(".worth-time-text");
+        if (textSpan) {
+          textSpan.textContent = isActive ? "✓ Worth your time" : "Worth my time";
+        }
+      } catch (err) {
+        console.warn("Failed to record worth_time:", err);
+      }
+    });
+  });
+}
+
 // ==========================================================================
 // 12. 90-Second Studio Spoken Audio Briefing Controller
 // ==========================================================================
@@ -1428,8 +1457,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize Archive Page
   initArchivePage();
 
+  // Initialize Worth My Time satisfaction controls
+  initWorthTime();
+
   // Add hover ticks to interactive controls
-  document.querySelectorAll(".nav-link, .seg-btn, .theme-toggle, .pattern-pill, .deep-scan-btn, .vote-btn, .slack-share-btn, .shredder-btn, .replay-filter-btn, .lowpass-replay-pill").forEach(el => {
+  document.querySelectorAll(".nav-link, .seg-btn, .theme-toggle, .pattern-pill, .deep-scan-btn, .vote-btn, .slack-share-btn, .worth-time-btn, .shredder-btn, .replay-filter-btn, .lowpass-replay-pill").forEach(el => {
     el.addEventListener("mouseenter", () => sound.playTick());
   });
 });
@@ -1704,6 +1736,28 @@ async function initAuthGate() {
         } catch (_) {}
         window.location.href = "about.html";
       };
+    }
+
+    if (!isAboutPage) {
+      try {
+        const pRes = await fetch("/api/profile");
+        if (pRes.ok) {
+          const profileData = await pRes.json();
+          if (profileData.inferred_role) {
+            setRole(profileData.inferred_role, false);
+            const activeBtn = document.querySelector(`.seg-btn[data-role="${profileData.inferred_role}"]`);
+            if (activeBtn && !activeBtn.querySelector(".inferred-pill")) {
+              const pill = document.createElement("span");
+              pill.className = "inferred-pill";
+              pill.textContent = "✦ Inferred";
+              pill.style.cssText = "font-size:9px; margin-left:5px; background:var(--gilt-soft); color:var(--gilt); padding:1px 5px; border-radius:99px; border:1px solid var(--gilt);";
+              activeBtn.appendChild(pill);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Inferred role fetch failed:", e);
+      }
     }
   } else {
     if (crownChip) crownChip.style.display = "none";

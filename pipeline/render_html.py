@@ -272,7 +272,7 @@ def render_index(issue, path: str):
                 </div>
             </div>
 
-            <!-- Action Toolbar: Deep Scan & Share to Slack -->
+            <!-- Action Toolbar: Deep Scan, Share to Slack, & Worth My Time Satisfaction Signal -->
             <div class="card-action-bar">
                 <button class="deep-scan-btn" type="button">
                     <span class="deep-scan-label">Detailed Intelligence Scan</span>
@@ -280,6 +280,10 @@ def render_index(issue, path: str):
                         <span class="deep-scan-text">Expand 5-min deep scan</span>
                         <span class="deep-scan-chevron">▼</span>
                     </span>
+                </button>
+                <button class="worth-time-btn" type="button" title="Rate this shift as worth your time" data-card-id="{escape(card.id)}">
+                    <span class="worth-time-star">✦</span>
+                    <span class="worth-time-text">Worth my time</span>
                 </button>
                 <button class="slack-share-btn" type="button" title="Copy 4-line summary tailored for Slack" data-card-id="{escape(card.id)}">
                     <span class="slack-hash">#</span>
