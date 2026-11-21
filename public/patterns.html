@@ -23,7 +23,7 @@
     <div class="grain-overlay" aria-hidden="true"></div>
 
     
-    <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
+    <!-- Sticky Crown Header with ELO Rating, User Chip, and Audio Synthesizer -->
     <header class="crown">
         <a href="index.html" class="brand-wrapper">
             <div class="brand-mark" aria-hidden="true">
@@ -33,8 +33,13 @@
         </a>
         <div class="nav-cluster">
             <nav class="nav-pills-bar">
-                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link active" aria-current="page">Tech Patterns</a>
+                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link active" aria-current="page">Tech Patterns</a><a href="about.html" class="nav-link">About</a>
             </nav>
+            <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Authenticated Member Session">
+                <span class="crown-avatar" id="crown-avatar">?</span>
+                <span class="crown-username" id="crown-username"></span>
+                <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out of station">Sign out</button>
+            </div>
             <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
                 <span class="elo-icon">◈</span>
                 <span class="elo-score" id="user-elo-score">1200</span>
@@ -430,6 +435,7 @@
                 <a href="ledger.html">Forecast Ledger</a>
                 <a href="archive.html">News Archive</a>
                 <a href="patterns.html">Tech Patterns</a>
+                <a href="about.html">About Pith</a>
             </div>
         </footer>
     

@@ -41,25 +41,51 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         if path.startswith("/api/") and path.split("/")[2] in ("me", "feed", "profile"):
             return self._handle_foryou_get(path, parsed)
-        elif path in ("/foryou", "/for-you", "/login"):
-            self.path = "/foryou.html"
-            return super().do_GET()
         elif path == "/api/issue":
             self._handle_api_issue()
+            return
         elif path == "/api/ledger":
             self._handle_api_ledger()
-        elif path == "/ledger":
-            self.path = "/ledger.html"
+            return
+
+        # Always serve static assets (.css, .js, .png, .svg, etc.)
+        if any(path.endswith(ext) for ext in (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".mp3", ".json", ".xml", ".woff2", ".txt")):
             return super().do_GET()
-        elif path == "/patterns":
-            self.path = "/patterns.html"
+
+        # Public About & Login Gate Page (Always accessible)
+        if path in ("/about", "/about.html"):
+            self.path = "/about.html"
             return super().do_GET()
-        elif path in ("/horizon", "/bounty", "/matrix", "/economics", "/terminal"):
+
+        # Decommissioned pages redirect to /
+        if path in ("/horizon", "/bounty", "/matrix", "/economics", "/terminal"):
             self.send_response(302)
             self.send_header("Location", "/")
             self.end_headers()
             return
-        elif path == "/archive":
+
+        # Authentication Gate: Visiting internal site pages requires login
+        user = self._current_user()
+        if not user:
+            self.send_response(302)
+            self.send_header("Location", "/about.html")
+            self.end_headers()
+            return
+
+        # Authenticated Member Routes
+        if path in ("/", "/index.html", "/index"):
+            self.path = "/index.html"
+            return super().do_GET()
+        elif path in ("/foryou", "/for-you", "/login", "/foryou.html"):
+            self.path = "/foryou.html"
+            return super().do_GET()
+        elif path in ("/ledger", "/ledger.html"):
+            self.path = "/ledger.html"
+            return super().do_GET()
+        elif path in ("/patterns", "/patterns.html"):
+            self.path = "/patterns.html"
+            return super().do_GET()
+        elif path in ("/archive", "/archive.html"):
             self.path = "/archive.html"
             return super().do_GET()
         else:

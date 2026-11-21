@@ -5,12 +5,12 @@
     <link>https://pith.news</link>
     <description>Filtered tech intelligence: AI &amp; Developer Infrastructure.</description>
     <language>en-us</language>
-    <lastBuildDate>Sat, 21 Nov 2026 12:06:34 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 21 Nov 2026 12:48:43 GMT</lastBuildDate>
     <item>
       <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
       <link>https://pith.news/#card-20261120-infrastructure-standard--aa1e1f</link>
       <guid>card-20261120-infrastructure-standard--aa1e1f</guid>
-      <pubDate>Sat, 21 Nov 2026 12:06:34 GMT</pubDate>
+      <pubDate>Sat, 21 Nov 2026 12:48:43 GMT</pubDate>
       <description>A major open specification was released for AI developer workflows. Title: DeepSeek-V3 Architecture: Multi-Head Latent Attention and DualPipe Parallelism.
 
 Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
@@ -21,7 +21,7 @@ Action (DO): Audit tool schema formatting utilities this week to standardize end
       <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
       <link>https://pith.news/#card-20261120-infrastructure-standard--12d294</link>
       <guid>card-20261120-infrastructure-standard--12d294</guid>
-      <pubDate>Sat, 21 Nov 2026 12:06:34 GMT</pubDate>
+      <pubDate>Sat, 21 Nov 2026 12:48:43 GMT</pubDate>
       <description>A major open specification was released for AI developer workflows. Title: PyTorch 2.6 Released with AOTInductor and FP8 GEMM Auto-Tuning.
 
 Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
@@ -32,7 +32,7 @@ Action (DO): Audit tool schema formatting utilities this week to standardize end
       <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
       <link>https://pith.news/#card-20261120-infrastructure-standard--f746b2</link>
       <guid>card-20261120-infrastructure-standard--f746b2</guid>
-      <pubDate>Sat, 21 Nov 2026 12:06:34 GMT</pubDate>
+      <pubDate>Sat, 21 Nov 2026 12:48:43 GMT</pubDate>
       <description>A major open specification was released for AI developer workflows. vLLM 0.7.0 introduces cross-node distributed KV-cache sharing and persistent prefix lookup.
 
 Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
@@ -43,7 +43,7 @@ Action (DO): Audit tool schema formatting utilities this week to standardize end
       <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
       <link>https://pith.news/#card-20261120-infrastructure-standard--d2a903</link>
       <guid>card-20261120-infrastructure-standard--d2a903</guid>
-      <pubDate>Sat, 21 Nov 2026 12:06:34 GMT</pubDate>
+      <pubDate>Sat, 21 Nov 2026 12:48:43 GMT</pubDate>
       <description>A major open specification was released for AI developer workflows. DeepSeek-V3 incorporates Multi-Head Latent Attention (MLA) compressing key-value cache mem.
 
 Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
@@ -54,7 +54,7 @@ Action (DO): Audit tool schema formatting utilities this week to standardize end
       <title>[High Signal] Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In</title>
       <link>https://pith.news/#card-20261120-infrastructure-standard--865b31</link>
       <guid>card-20261120-infrastructure-standard--865b31</guid>
-      <pubDate>Sat, 21 Nov 2026 12:06:34 GMT</pubDate>
+      <pubDate>Sat, 21 Nov 2026 12:48:43 GMT</pubDate>
       <description>A major open specification was released for AI developer workflows. Anthropic introduced the Computer Use API specification, providing a deterministic screens.
 
 Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.

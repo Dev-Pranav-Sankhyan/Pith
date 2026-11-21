@@ -21,6 +21,7 @@ from pipeline.render_extended import (
     render_terminal,
     render_archive,
     render_bounty,
+    render_about,
     get_nav_html,
     get_footer_html,
     get_ambient_bg_html
@@ -108,6 +109,7 @@ def render_all(db_path: str = "brief.sqlite3", output_dir: str = "public"):
     render_ledger(predictions, stats, f"{output_dir}/ledger.html")
     render_archive(all_issues, f"{output_dir}/archive.html")
     render_patterns(PATTERNS, latest_issue, f"{output_dir}/patterns.html")
+    render_about(f"{output_dir}/about.html")
     print("Rendered active static intelligence pages successfully for Pith.")
 
 

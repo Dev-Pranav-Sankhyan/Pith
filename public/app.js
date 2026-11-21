@@ -1347,6 +1347,7 @@ class AudioBriefController {
 // 13. Initialize Everything on DOM Ready
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
+  initAuthGate();
   initTheme();
   sound.updateToggleUI();
   pithELO.updateHeaderUI();
@@ -1658,4 +1659,220 @@ function initArchivePage() {
       }
     });
   });
+}
+
+// ==========================================================================
+// 14. Station Authentication & Access Gate Controller
+// ==========================================================================
+async function initAuthGate() {
+  const isAboutPage = window.location.pathname.endsWith("about.html") || window.location.pathname.endsWith("/about");
+
+  let currentUser = null;
+  try {
+    const res = await fetch("/api/me");
+    if (res.ok) {
+      const data = await res.json();
+      currentUser = data.user;
+    }
+  } catch (e) {
+    console.warn("Auth check failed:", e);
+  }
+
+  // Update Crown Header User Chip on all pages
+  const crownChip = document.getElementById("crown-user-chip");
+  const crownAvatar = document.getElementById("crown-avatar");
+  const crownUsername = document.getElementById("crown-username");
+  const crownLogoutBtn = document.getElementById("crown-logout-btn");
+
+  if (currentUser) {
+    if (crownChip) crownChip.style.display = "inline-flex";
+    if (crownAvatar) crownAvatar.textContent = (currentUser.username || "U")[0].toUpperCase();
+    if (crownUsername) crownUsername.textContent = currentUser.display_name || currentUser.username;
+    if (crownLogoutBtn) {
+      crownLogoutBtn.onclick = async () => {
+        try {
+          await fetch("/api/auth/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: "{}"
+          });
+        } catch (_) {}
+        window.location.href = "about.html";
+      };
+    }
+  } else {
+    if (crownChip) crownChip.style.display = "none";
+    // If not authenticated and attempting to view an internal page, redirect to about.html
+    if (!isAboutPage) {
+      window.location.href = "about.html";
+      return;
+    }
+  }
+
+  // If on About Page, configure Login / Register Portal
+  if (isAboutPage) {
+    const loggedInBox = document.getElementById("auth-logged-in-box");
+    const formsWrap = document.getElementById("auth-forms-wrap");
+    const loggedInLabel = document.getElementById("logged-in-username-label");
+    const portalSignoutBtn = document.getElementById("portal-signout-btn");
+    const tabLogin = document.getElementById("tab-btn-login");
+    const tabSignup = document.getElementById("tab-btn-signup");
+    const loginForm = document.getElementById("about-login-form");
+    const signupForm = document.getElementById("about-signup-form");
+    const alertBox = document.getElementById("auth-alert-box");
+    const demoBtn = document.getElementById("demo-login-btn");
+
+    function showAlert(msg, type = "error") {
+      if (!alertBox) return;
+      alertBox.textContent = msg;
+      alertBox.className = `auth-alert-box ${type}`;
+      alertBox.style.display = "block";
+    }
+
+    function clearAlert() {
+      if (alertBox) alertBox.style.display = "none";
+    }
+
+    if (currentUser) {
+      if (loggedInBox) loggedInBox.style.display = "block";
+      if (formsWrap) formsWrap.style.display = "none";
+      if (loggedInLabel) loggedInLabel.textContent = currentUser.display_name || currentUser.username;
+      if (portalSignoutBtn) {
+        portalSignoutBtn.onclick = async () => {
+          try {
+            await fetch("/api/auth/logout", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: "{}"
+            });
+          } catch (_) {}
+          window.location.reload();
+        };
+      }
+    } else {
+      if (loggedInBox) loggedInBox.style.display = "none";
+      if (formsWrap) formsWrap.style.display = "block";
+
+      // Tab switching
+      if (tabLogin && tabSignup && loginForm && signupForm) {
+        tabLogin.onclick = () => {
+          tabLogin.classList.add("active");
+          tabSignup.classList.remove("active");
+          loginForm.style.display = "block";
+          signupForm.style.display = "none";
+          clearAlert();
+        };
+        tabSignup.onclick = () => {
+          tabSignup.classList.add("active");
+          tabLogin.classList.remove("active");
+          signupForm.style.display = "block";
+          loginForm.style.display = "none";
+          clearAlert();
+        };
+      }
+
+      // Login submission
+      if (loginForm) {
+        loginForm.onsubmit = async (e) => {
+          e.preventDefault();
+          clearAlert();
+          const username = document.getElementById("login-username").value.trim();
+          const password = document.getElementById("login-password").value;
+          const submitBtn = document.getElementById("login-submit-btn");
+          if (submitBtn) submitBtn.disabled = true;
+
+          try {
+            const res = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Authentication failed");
+            showAlert("Authentication verified. Entering station...", "success");
+            setTimeout(() => { window.location.href = "index.html"; }, 400);
+          } catch (err) {
+            showAlert(err.message || "Invalid station username or password.");
+            if (submitBtn) submitBtn.disabled = false;
+          }
+        };
+      }
+
+      // Signup submission
+      if (signupForm) {
+        signupForm.onsubmit = async (e) => {
+          e.preventDefault();
+          clearAlert();
+          const username = document.getElementById("signup-username").value.trim();
+          const display_name = document.getElementById("signup-displayname").value.trim();
+          const password = document.getElementById("signup-password").value;
+          const submitBtn = document.getElementById("signup-submit-btn");
+          if (submitBtn) submitBtn.disabled = true;
+
+          try {
+            const res = await fetch("/api/auth/signup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password, display_name })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Account creation failed");
+            showAlert("Account created successfully. Initializing station session...", "success");
+            setTimeout(() => { window.location.href = "index.html"; }, 400);
+          } catch (err) {
+            showAlert(err.message || "Failed to create account.");
+            if (submitBtn) submitBtn.disabled = false;
+          }
+        };
+      }
+
+      // Instant 1-Click Guest Pass
+      if (demoBtn) {
+        demoBtn.onclick = async () => {
+          clearAlert();
+          demoBtn.disabled = true;
+          demoBtn.textContent = "Connecting guest pass...";
+          try {
+            // Try guest login first
+            let res = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username: "guest", password: "guestpassword123" })
+            });
+            if (!res.ok) {
+              // Create guest account if it doesn't exist
+              res = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: "guest", password: "guestpassword123", display_name: "Guest Member" })
+              });
+            }
+            const data = await res.json();
+            if (!res.ok && !data.user) throw new Error(data.error || "Guest access failed");
+            showAlert("Guest pass issued. Redirecting to station...", "success");
+            setTimeout(() => { window.location.href = "index.html"; }, 350);
+          } catch (err) {
+            // Fallback: generate a random guest name
+            try {
+              const randGuest = "guest_" + Math.random().toString(36).substring(2, 7);
+              const res2 = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: randGuest, password: "guestpassword123", display_name: "Guest Member" })
+              });
+              const data2 = await res2.json();
+              if (res2.ok) {
+                showAlert("Guest pass issued. Redirecting to station...", "success");
+                setTimeout(() => { window.location.href = "index.html"; }, 350);
+                return;
+              }
+            } catch (_) {}
+            showAlert("Unable to issue instant guest pass. Please enter credentials above.");
+            demoBtn.disabled = false;
+            demoBtn.textContent = "⚡ Instant 1-Click Guest Pass";
+          }
+        };
+      }
+    }
+  }
 }
