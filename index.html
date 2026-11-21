@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Tech News &middot; Pith &middot; 20 November 2026</title>
+    <title>Daily Tech News &middot; Pith &middot; 21 November 2026</title>
     <meta name="description" content="Pith filters tech news down to 5 falsifiable events that alter architectures, unit economics, or platform moats.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
@@ -23,7 +23,7 @@
     <div class="grain-overlay" aria-hidden="true"></div>
 
     
-    <!-- Sticky Crown Header with ELO Rating and Sound Synthesizer -->
+    <!-- Sticky Crown Header with ELO Rating, User Chip, and Audio Synthesizer -->
     <header class="crown">
         <a href="index.html" class="brand-wrapper">
             <div class="brand-mark" aria-hidden="true">
@@ -33,8 +33,13 @@
         </a>
         <div class="nav-cluster">
             <nav class="nav-pills-bar">
-                <a href="index.html" class="nav-link active" aria-current="page">Daily News</a><a href="matrix.html" class="nav-link">Market Map</a><a href="economics.html" class="nav-link">Cost Calculator</a><a href="terminal.html" class="nav-link">CLI Terminal</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a>
+                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link active" aria-current="page">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a><a href="about.html" class="nav-link">About</a>
             </nav>
+            <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Authenticated Member Session">
+                <span class="crown-avatar" id="crown-avatar">?</span>
+                <span class="crown-username" id="crown-username"></span>
+                <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out of station">Sign out</button>
+            </div>
             <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
                 <span class="elo-icon">◈</span>
                 <span class="elo-score" id="user-elo-score">1200</span>
@@ -64,7 +69,7 @@
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> AUDITED</span>
                 <span>&middot;</span>
-                <span>20 November 2026</span>
+                <span>21 November 2026</span>
                 <span>&middot;</span>
                 <span>ISSUE #01</span>
             </div>
@@ -109,14 +114,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="audio-brief-cli-pill" title="Terminal CLI: Fetch brief instantly in terminal">
-                    <div class="cli-cmd-wrapper">
-                        <span class="cli-icon">$</span>
-                        <code id="cli-cmd-display">curl -sL https://dev-pranav-sankhyan.github.io/Pith/dev</code>
-                    </div>
-                    <button class="cli-copy-btn" id="cli-copy-btn" title="Copy terminal curl command" type="button">Copy</button>
                 </div>
 
                 <audio id="audio-player" preload="metadata" src="audio/brief-developer.mp3"></audio>
@@ -1432,13 +1429,12 @@
             <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
             <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
             <div class="footer-nav">
+                <a href="foryou.html">For You</a>
                 <a href="index.html">Daily News</a>
-                <a href="matrix.html">Market Map</a>
-                <a href="economics.html">Cost Calculator</a>
-                <a href="terminal.html">CLI Terminal</a>
                 <a href="ledger.html">Forecast Ledger</a>
                 <a href="archive.html">News Archive</a>
                 <a href="patterns.html">Tech Patterns</a>
+                <a href="about.html">About Pith</a>
             </div>
         </footer>
     
