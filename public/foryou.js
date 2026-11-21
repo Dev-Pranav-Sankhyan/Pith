@@ -166,7 +166,7 @@
     await api("/api/auth/logout", {});
     state.user = null;
     $("fy-user-chip").hidden = true;
-    show("fy-gate");
+    window.location.href = "about.html";
   }
 
   // ------------------------------------------------------------------ onboarding
