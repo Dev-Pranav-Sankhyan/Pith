@@ -368,16 +368,24 @@ const sound = new SoundEngine();
 // 2. Theme Switcher with Shutter Sound
 // ==========================================================================
 function initTheme() {
-  const savedTheme = localStorage.getItem("pith_brief_theme") || "dark";
-  document.documentElement.setAttribute("data-theme", savedTheme);
+  // A saved choice wins; otherwise follow the operating system.
+  let theme = safeGet("pith_brief_theme");
+  if (theme !== "light" && theme !== "dark") {
+    theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  }
+  document.documentElement.setAttribute("data-theme", theme);
 }
 
 function toggleTheme() {
   sound.playShutter();
-  const current = document.documentElement.getAttribute("data-theme") || "dark";
+  const current = document.documentElement.getAttribute("data-theme") || "light";
   const next = current === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("pith_brief_theme", next);
+  safeSet("pith_brief_theme", next);
+  // The waveform is drawn on a canvas, so repaint it in the new theme's colours.
+  if (window.audioBrief && window.audioBrief.audio) {
+    window.audioBrief.drawVisualizer(!window.audioBrief.audio.paused);
+  }
 }
 
 // ==========================================================================
@@ -1196,7 +1204,8 @@ function initWorthTime() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             events: [{
-              kind: isActive ? "worth_time" : "not_worth_time",
+              // Switching it off removes the rating; it is not a "not worth it" vote.
+              kind: isActive ? "worth_time" : "clear_worth",
               article_id: cardId
             }]
           })
@@ -1264,12 +1273,7 @@ class AudioBriefController {
         const x = i * (barWidth + gap) + 4;
         const y = h - barHeight;
 
-        const grad = ctx.createLinearGradient(0, y, 0, h);
-        grad.addColorStop(0, "#10B981");
-        grad.addColorStop(0.5, "#B58900");
-        grad.addColorStop(1, "#D97706");
-
-        ctx.fillStyle = grad;
+        ctx.fillStyle = this.themeColor("--accent", "#C8321D");
         ctx.beginPath();
         if (ctx.roundRect) {
           ctx.roundRect(x, y, barWidth, barHeight, 2);
@@ -1291,7 +1295,7 @@ class AudioBriefController {
       ctx.clearRect(0, 0, w, h);
       for (let i = 0; i < bars; i++) {
         const x = i * (barWidth + gap) + 4;
-        ctx.fillStyle = "rgba(181, 137, 0, 0.35)";
+        ctx.fillStyle = this.themeColor("--hairline-strong", "rgba(18, 19, 22, 0.34)");
         ctx.beginPath();
         if (ctx.roundRect) {
           ctx.roundRect(x, h - 3, barWidth, 3, 1.5);
@@ -1301,6 +1305,11 @@ class AudioBriefController {
         ctx.fill();
       }
     }
+  }
+
+  themeColor(name, fallback) {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
   }
 
   formatTime(secs) {
@@ -1524,16 +1533,10 @@ document.addEventListener("DOMContentLoaded", () => {
 // 14. Scroll Animation Engine (Hero Parallax, Staggered Card Reveal)
 // ==========================================================================
 function initScrollAnimations() {
-  const scrollCue = document.getElementById("scroll-cue");
-  const masthead = document.querySelector(".masthead");
   const crown = document.querySelector(".crown");
-  const orbRed = document.querySelector(".ambient-orb--red");
-  const orbGilt = document.querySelector(".ambient-orb--gilt");
-  const orbTeal = document.querySelector(".ambient-orb--teal");
   const cards = Array.from(document.querySelectorAll(".lab-card, .filter-sheet, .slide-reveal-card"));
   let ticking = false;
 
-  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
   function update() {
     ticking = false;
@@ -1543,27 +1546,6 @@ function initScrollAnimations() {
     // 1. Crown Header frosted glass elevation on scroll
     if (crown) {
       crown.classList.toggle("scrolled", y > 15);
-    }
-
-    // 3. Ambient Background Orbs Parallax Drift
-    if (orbRed) orbRed.style.transform = `translateY(${y * 0.08}px)`;
-    if (orbGilt) orbGilt.style.transform = `translateY(${-y * 0.06}px)`;
-    if (orbTeal) orbTeal.style.transform = `translateY(${y * 0.04}px)`;
-
-    // 4. Masthead scroll cue fade
-    if (scrollCue) {
-      if (y > 30) {
-        scrollCue.classList.add("hidden");
-      } else {
-        scrollCue.classList.remove("hidden");
-      }
-    }
-
-    // 5. Subtle Masthead Hero Parallax
-    if (masthead && y <= vh) {
-      const h = clamp(y / vh, 0, 1);
-      masthead.style.transform = `translateY(${h * 24}px)`;
-      masthead.style.opacity = `${1 - h * 0.45}`;
     }
 
     // 6. Active Center Reading Highlight
@@ -1756,11 +1738,11 @@ function initArchivePage() {
 // 14. Station Authentication & Access Gate Controller
 // ==========================================================================
 async function initAuthGate() {
-  const isAboutPage = window.location.pathname.endsWith("about.html") || window.location.pathname.endsWith("/about");
+  const isAboutPage = document.body.classList.contains("about-page");
 
   let currentUser = null;
   try {
-    const res = await fetch("/api/me");
+    const res = await fetch("/api/me", { credentials: "same-origin" });
     if (res.ok) {
       const data = await res.json();
       currentUser = data.user;
@@ -1788,7 +1770,7 @@ async function initAuthGate() {
             body: "{}"
           });
         } catch (_) {}
-        window.location.href = "about.html";
+        window.location.reload();
       };
     }
 
@@ -1797,14 +1779,20 @@ async function initAuthGate() {
         const pRes = await fetch("/api/profile");
         if (pRes.ok) {
           const profileData = await pRes.json();
+          // Readers who read in depth get every card opened for them.
+          if (profileData.depth && profileData.depth.depth === "deep") {
+            const allBtn = document.getElementById("toggle-all-headlines-btn");
+            const cardsAll = document.querySelectorAll(".lab-card.news-story-card");
+            if (allBtn && cardsAll.length && ![...cardsAll].every(c => c.classList.contains("is-expanded"))) allBtn.click();
+          }
           if (profileData.inferred_role) {
             setRole(profileData.inferred_role, false);
             const activeBtn = document.querySelector(`.seg-btn[data-role="${profileData.inferred_role}"]`);
             if (activeBtn && !activeBtn.querySelector(".inferred-pill")) {
               const pill = document.createElement("span");
               pill.className = "inferred-pill";
-              pill.textContent = "✦ Inferred";
-              pill.style.cssText = "font-size:9px; margin-left:5px; background:var(--gilt-soft); color:var(--gilt); padding:1px 5px; border-radius:99px; border:1px solid var(--gilt);";
+              pill.textContent = "Inferred";
+              pill.title = "Picked from your reading history";
               activeBtn.appendChild(pill);
             }
           }
@@ -1815,161 +1803,154 @@ async function initAuthGate() {
     }
   } else {
     if (crownChip) crownChip.style.display = "none";
-    // The brief, Ledger, Archive and Patterns are public. Only For You needs an
-    // account, and the server enforces that. (On static hosting there is no
-    // /api/me at all, so redirecting here would lock everyone out.)
+    // Signed out, the server only ever serves the About page; it redirects every
+    // member page there before any of this runs.
   }
 
-  // If on About Page, configure Login / Register Portal
-  if (isAboutPage) {
-    const loggedInBox = document.getElementById("auth-logged-in-box");
-    const formsWrap = document.getElementById("auth-forms-wrap");
-    const loggedInLabel = document.getElementById("logged-in-username-label");
-    const portalSignoutBtn = document.getElementById("portal-signout-btn");
-    const tabLogin = document.getElementById("tab-btn-login");
-    const tabSignup = document.getElementById("tab-btn-signup");
-    const loginForm = document.getElementById("about-login-form");
-    const signupForm = document.getElementById("about-signup-form");
-    const alertBox = document.getElementById("auth-alert-box");
-    const demoBtn = document.getElementById("demo-login-btn");
+  if (isAboutPage) setupAboutAccess(currentUser);
+}
 
-    function showAlert(msg, type = "error") {
-      if (!alertBox) return;
-      alertBox.textContent = msg;
-      alertBox.className = `auth-alert-box ${type}`;
-      alertBox.style.display = "block";
+const STATIC_COPY_NOTE = "Sign-in runs on the Pith server. This static copy is read-only.";
+
+// Where to go after signing in: the page that sent the reader here (?next=), if it's on this site.
+function signInNext() {
+  const raw = new URLSearchParams(window.location.search).get("next") || "";
+  if (!/^\/(?![\/\\])[\x21-\x7e]*$/.test(raw)) return "/";
+  try {
+    const url = new URL(raw, window.location.origin);
+    return url.origin === window.location.origin ? url.pathname + url.search + url.hash : "/";
+  } catch (_) {
+    return "/";
+  }
+}
+
+// About page: the front door. Signed out, it is the only page there is, so it carries sign-in and
+// account creation; afterwards the reader goes on to the page they asked for.
+function setupAboutAccess(currentUser) {
+  const loggedInBox = document.getElementById("auth-logged-in-box");
+  const formsWrap = document.getElementById("auth-forms-wrap");
+  if (!loggedInBox || !formsWrap) return;
+  document.documentElement.setAttribute("data-session", currentUser ? "in" : "out");
+
+  if (currentUser) {
+    loggedInBox.hidden = false;
+    formsWrap.hidden = true;
+    const label = document.getElementById("logged-in-username-label");
+    if (label) label.textContent = currentUser.display_name || currentUser.username;
+    const signout = document.getElementById("portal-signout-btn");
+    if (signout) {
+      signout.onclick = async () => {
+        signout.disabled = true;
+        try {
+          await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" });
+        } catch (_) {}
+        window.location.reload();
+      };
     }
+    return;
+  }
 
-    function clearAlert() {
-      if (alertBox) alertBox.style.display = "none";
+  loggedInBox.hidden = true;
+  formsWrap.hidden = false;
+  const next = signInNext();
+  const params = new URLSearchParams(window.location.search);
+  const banner = document.getElementById("auth-error-banner");
+  const oauthError = params.get("auth_error");
+  if (oauthError && banner) {
+    banner.textContent = oauthError;
+    banner.hidden = false;
+  }
+  if (oauthError) {
+    // Keep ?next= so a retry still lands where the reader was going.
+    params.delete("auth_error");
+    const q = params.toString();
+    history.replaceState(null, "", window.location.pathname + (q ? `?${q}` : "") + window.location.hash);
+  }
+
+  document.querySelectorAll("[data-social-auth] .social-btn").forEach(btn => {
+    btn.href = `/api/auth/oauth/${btn.dataset.provider}/start?next=${encodeURIComponent(next)}`;
+  });
+  setupSocialButtons();
+
+  const form = document.getElementById("about-auth-form");
+  const submit = document.getElementById("auth-submit-btn");
+  const formError = document.getElementById("auth-form-error");
+  if (!form || !submit) return;
+  let mode = "login";
+  const showError = (msg) => {
+    if (!formError) return;
+    formError.textContent = msg;
+    formError.hidden = !msg;
+  };
+  const setMode = (m) => {
+    mode = m;
+    document.querySelectorAll(".auth-tab-btn[data-auth-mode]").forEach(b => {
+      const on = b.dataset.authMode === m;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", String(on));
+    });
+    form.querySelectorAll("[data-signup-only]").forEach(el => { el.hidden = m !== "signup"; });
+    form.password.autocomplete = m === "signup" ? "new-password" : "current-password";
+    submit.textContent = m === "signup" ? "Create account" : "Sign in";
+    showError("");
+  };
+  document.querySelectorAll(".auth-tab-btn[data-auth-mode]").forEach(b => b.addEventListener("click", () => setMode(b.dataset.authMode)));
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = {
+      username: form.username.value.trim(),
+      password: form.password.value,
+      display_name: form.display_name.value.trim(),
+    };
+    if (!body.username || !body.password) return showError("Enter a username and a password.");
+    if (mode === "signup" && body.password.length < 8) return showError("Password must be at least 8 characters.");
+    submit.disabled = true;
+    showError("");
+    try {
+      const res = await fetch(`/api/auth/${mode}`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      let data = {};
+      try { data = await res.json(); } catch (_) { /* static hosting answers with HTML */ }
+      if (!res.ok) {
+        throw new Error(data.error || ([404, 405, 501].includes(res.status) ? STATIC_COPY_NOTE : `Sign-in failed (HTTP ${res.status}).`));
+      }
+      form.password.value = "";
+      window.location.assign(next);
+    } catch (err) {
+      showError(err instanceof TypeError ? STATIC_COPY_NOTE : err.message);
+      submit.disabled = false;
     }
+  });
+}
 
-    if (currentUser) {
-      if (loggedInBox) loggedInBox.style.display = "block";
-      if (formsWrap) formsWrap.style.display = "none";
-      if (loggedInLabel) loggedInLabel.textContent = currentUser.display_name || currentUser.username;
-      if (portalSignoutBtn) {
-        portalSignoutBtn.onclick = async () => {
-          try {
-            await fetch("/api/auth/logout", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: "{}"
-            });
-          } catch (_) {}
-          window.location.reload();
-        };
-      }
-    } else {
-      if (loggedInBox) loggedInBox.style.display = "none";
-      if (formsWrap) formsWrap.style.display = "block";
-
-      // Tab switching
-      if (tabLogin && tabSignup && loginForm && signupForm) {
-        tabLogin.onclick = () => {
-          tabLogin.classList.add("active");
-          tabSignup.classList.remove("active");
-          loginForm.style.display = "block";
-          signupForm.style.display = "none";
-          clearAlert();
-        };
-        tabSignup.onclick = () => {
-          tabSignup.classList.add("active");
-          tabLogin.classList.remove("active");
-          signupForm.style.display = "block";
-          loginForm.style.display = "none";
-          clearAlert();
-        };
-      }
-
-      // Login submission
-      if (loginForm) {
-        loginForm.onsubmit = async (e) => {
-          e.preventDefault();
-          clearAlert();
-          const username = document.getElementById("login-username").value.trim();
-          const password = document.getElementById("login-password").value;
-          const submitBtn = document.getElementById("login-submit-btn");
-          if (submitBtn) submitBtn.disabled = true;
-
-          try {
-            const res = await fetch("/api/auth/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Authentication failed");
-            showAlert("Authentication verified. Entering station...", "success");
-            setTimeout(() => { window.location.href = "index.html"; }, 400);
-          } catch (err) {
-            showAlert(err.message || "Invalid station username or password.");
-            if (submitBtn) submitBtn.disabled = false;
-          }
-        };
-      }
-
-      // Signup submission
-      if (signupForm) {
-        signupForm.onsubmit = async (e) => {
-          e.preventDefault();
-          clearAlert();
-          const username = document.getElementById("signup-username").value.trim();
-          const display_name = document.getElementById("signup-displayname").value.trim();
-          const password = document.getElementById("signup-password").value;
-          const submitBtn = document.getElementById("signup-submit-btn");
-          if (submitBtn) submitBtn.disabled = true;
-
-          try {
-            const res = await fetch("/api/auth/signup", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password, display_name })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Account creation failed");
-            showAlert("Account created successfully. Initializing station session...", "success");
-            setTimeout(() => { window.location.href = "index.html"; }, 400);
-          } catch (err) {
-            showAlert(err.message || "Failed to create account.");
-            if (submitBtn) submitBtn.disabled = false;
-          }
-        };
-      }
-
-      // Instant 1-Click Guest Pass
-      if (demoBtn) {
-        demoBtn.onclick = async () => {
-          clearAlert();
-          demoBtn.disabled = true;
-          demoBtn.textContent = "Connecting guest pass...";
-          try {
-            // Each guest pass is its own throwaway account, so guests never share
-            // a reading profile or votes. The password is random and never shown.
-            const rand = (n) => {
-              const bytes = new Uint8Array(n);
-              crypto.getRandomValues(bytes);
-              return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
-            };
-            const res = await fetch("/api/auth/signup", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username: "guest_" + rand(4), password: rand(16), display_name: "Guest" })
-            });
-            const data = await res.json();
-            if (res.ok && data.user) {
-              showAlert("Guest pass issued. Redirecting...", "success");
-              setTimeout(() => { window.location.href = "foryou.html"; }, 350);
-              return;
-            }
-            throw new Error(data.error || "Guest access failed");
-          } catch (err) {
-            showAlert("Unable to issue instant guest pass. Please enter credentials above.");
-            demoBtn.disabled = false;
-            demoBtn.textContent = "⚡ Instant 1-Click Guest Pass";
-          }
-        };
-      }
-    }
+// Greys out "Continue with …" buttons this server has no OAuth keys for. On static hosting
+// (GitHub Pages) there is no API at all, so sign-in is pointed at the hosted app instead.
+async function setupSocialButtons() {
+  const buttons = document.querySelectorAll("[data-social-auth] .social-btn");
+  const note = document.getElementById("social-auth-note");
+  if (!buttons.length) return;
+  let providers = null;
+  try {
+    const res = await fetch("/api/auth/providers");
+    if (res.ok) providers = (await res.json()).providers;
+  } catch (_) { /* static hosting */ }
+  const configured = new Set((providers || []).filter(p => p.configured).map(p => p.id));
+  buttons.forEach(btn => {
+    const ok = configured.has(btn.dataset.provider);
+    btn.classList.toggle("is-disabled", !ok);
+    btn.setAttribute("aria-disabled", String(!ok));
+    btn.title = ok ? "" : "Not set up on this server yet";
+    btn.addEventListener("click", (e) => { if (btn.classList.contains("is-disabled")) e.preventDefault(); });
+  });
+  if (note) {
+    note.hidden = configured.size > 0;
+    note.textContent = providers === null
+      ? STATIC_COPY_NOTE
+      : "Google, GitHub, X and LinkedIn sign-in switch on once this server has their OAuth keys. Use a username for now.";
   }
 }

@@ -1,57 +1,54 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light" data-session="out">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Pith &middot; Anti-Hype Technology Intelligence &amp; Access Gate</title>
+    <title>About Pith &middot; Anti-Hype Technology Intelligence</title>
     <meta name="description" content="Why Pith exists: The antidote to technology noise, speculative AI hype, and corporate PR. 5 grounded shifts daily with verifiable forecasts.">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+    <script>(function(){try{var t=localStorage.getItem("pith_brief_theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="about-page">
     
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Cybernetic Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
     
     
-    <!-- Sticky Crown Header with ELO Rating, User Chip, and Audio Synthesizer -->
     <header class="crown">
-        <a href="index.html" class="brand-wrapper">
+        <a href="index.html" class="brand-wrapper" aria-label="Pith home">
             <div class="brand-mark" aria-hidden="true">
                 <i></i><i></i><i></i><i></i>
             </div>
             <div class="brand-name">PITH</div>
         </a>
         <div class="nav-cluster">
-            <nav class="nav-pills-bar">
-                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a><a href="about.html" class="nav-link active" aria-current="page">About</a>
+            <nav class="nav-pills-bar" aria-label="Main">
+                <a href="foryou.html" class="nav-link" data-members>For You</a><a href="index.html" class="nav-link" data-members>Daily News</a><a href="ledger.html" class="nav-link" data-members>Forecast Ledger</a><a href="archive.html" class="nav-link" data-members>News Archive</a><a href="patterns.html" class="nav-link" data-members>Tech Patterns</a><a href="about.html" class="nav-link active" aria-current="page">About</a><a href="about.html#access" class="nav-link nav-signin" data-guest>Sign in</a>
             </nav>
-            <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Authenticated Member Session">
-                <span class="crown-avatar" id="crown-avatar">?</span>
-                <span class="crown-username" id="crown-username"></span>
-                <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out of station">Sign out</button>
+            <div class="crown-tools">
+                <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Signed in">
+                    <span class="crown-avatar" id="crown-avatar">?</span>
+                    <span class="crown-username" id="crown-username"></span>
+                    <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out">Sign out</button>
+                </div>
+                <div class="elo-badge" id="elo-badge" data-members title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                    <span class="elo-icon" aria-hidden="true">◈</span>
+                    <span class="elo-score" id="user-elo-score">1200</span>
+                    <span class="elo-tier" id="user-elo-tier">Observer</span>
+                </div>
+                <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
+                    <span class="sound-wave-icon" aria-hidden="true">
+                        <i></i><i></i><i></i>
+                    </span>
+                    <span class="sound-label">Audio: On</span>
+                </button>
+                <button class="theme-toggle" id="theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light or dark theme" type="button">
+                    <div class="theme-icon-circle"></div>
+                </button>
             </div>
-            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
-                <span class="elo-icon">◈</span>
-                <span class="elo-score" id="user-elo-score">1200</span>
-                <span class="elo-tier" id="user-elo-tier">Observer</span>
-            </div>
-            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
-                <span class="sound-wave-icon" aria-hidden="true">
-                    <i></i><i></i><i></i>
-                </span>
-                <span class="sound-label">Audio: On</span>
-            </button>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
         </div>
     </header>
     
@@ -59,126 +56,110 @@
     <div class="desk-container">
         <!-- Masthead -->
         <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> PITH INTELLIGENCE DESK &middot; OUR PHILOSOPHY &amp; ACCESS GATE</div>
-                <h1 class="page-title">The Antidote to <em>Tech Noise</em>.</h1>
-                <p style="font-size:16px; color:var(--muted); max-width:720px; margin-top:10px; line-height:1.6;">Pith is an independent technological intelligence desk engineered for software engineers, engineering leaders, and founders. We eliminate algorithmic clickbait, speculative PR, and corporate hype cycles by mathematically distilling global tech down to <strong>exactly five grounded architectural and economic shifts</strong> every morning.</p>
-            </div>
+            <div class="eyebrow"><span class="gilt-dot"></span> PITH INTELLIGENCE DESK &middot; OUR PHILOSOPHY</div>
+            <h1 class="page-title">The Antidote to <em>Tech Noise</em>.</h1>
+            <p class="masthead-dek">Pith is an independent technological intelligence desk engineered for software engineers, engineering leaders, and founders. We eliminate algorithmic clickbait, speculative PR, and corporate hype cycles by mathematically distilling global tech down to <strong>exactly five grounded architectural and economic shifts</strong> every morning.</p>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> NOISE LOWPASS ACTIVE</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>5 GROUNDED SHIFTS DAILY</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>VERIFIED PRIMARY SOURCES</span>
             </div>
         </section>
 
-        <!-- Access Gate & Portal Section -->
-        <section class="access-portal-section">
+        <!-- The front door: every other page opens after sign-in -->
+        <section class="access-portal-section" id="access">
             <div class="access-portal-grid">
-                <!-- Left: Terminal Authentication Card -->
                 <div class="access-portal-card lab-card" id="access-auth-card">
                     <div class="portal-card-header">
-                        <span class="portal-badge"><i class="radar-dot"></i> STATION ACCESS GATE</span>
-                        <h2 class="portal-title">Enter Pith Intelligence Station</h2>
-                        <p class="portal-sub">Access to Pith's daily grounded shifts, calibration ledger, and personalized intelligence requires an active member session.</p>
+                        <span class="portal-badge"><i class="radar-dot"></i> MEMBERS ONLY</span>
+                        <h2 class="portal-title">Sign in to read Pith.</h2>
+                        <p class="portal-sub">Daily News, the Forecast Ledger, the Archive, Tech Patterns and For You open once you're signed in. Creating an account takes a few seconds.</p>
                     </div>
 
-                    <!-- Already Authenticated Banner (Shown when user is logged in) -->
-                    <div class="auth-logged-in-box" id="auth-logged-in-box" style="display:none;">
+                    <!-- Shown when signed in -->
+                    <div class="auth-logged-in-box" id="auth-logged-in-box" hidden>
                         <div class="logged-in-icon">✓</div>
-                        <div class="logged-in-title">Authenticated Session Active</div>
-                        <div class="logged-in-sub">You are currently signed in as <strong id="logged-in-username-label" style="color:var(--gilt);">Member</strong>.</div>
+                        <div class="logged-in-title">You're signed in</div>
+                        <div class="logged-in-sub">Signed in as <strong id="logged-in-username-label">Member</strong>.</div>
                         <div class="logged-in-actions">
-                            <a href="index.html" class="portal-submit-btn enter-station-btn">Enter Daily News Station &rarr;</a>
-                            <button type="button" class="portal-demo-btn" id="portal-signout-btn">Sign Out of Station</button>
+                            <a href="index.html" class="portal-submit-btn">Read today's brief &rarr;</a>
+                            <a href="foryou.html" class="portal-demo-btn">Open For You</a>
+                            <button type="button" class="portal-demo-btn" id="portal-signout-btn">Sign out</button>
                         </div>
                     </div>
 
-                    <!-- Auth Forms Container (Shown when logged out) -->
+                    <!-- Shown when signed out -->
                     <div class="auth-forms-wrap" id="auth-forms-wrap">
-                        <div class="auth-tabs-bar">
-                            <button type="button" class="auth-tab-btn active" id="tab-btn-login" data-tab="login">Sign In</button>
-                            <button type="button" class="auth-tab-btn" id="tab-btn-signup" data-tab="signup">Create Account</button>
+                        <div class="auth-alert-box error" id="auth-error-banner" role="alert" hidden></div>
+                        <div class="social-auth" data-social-auth><a class="social-btn" data-provider="google" href="/api/auth/oauth/google/start?next=%2F"><span class="social-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg></span><span>Continue with Google</span></a><a class="social-btn" data-provider="github" href="/api/auth/oauth/github/start?next=%2F"><span class="social-icon" aria-hidden="true"><svg viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span><span>Continue with GitHub</span></a><a class="social-btn" data-provider="x" href="/api/auth/oauth/x/start?next=%2F"><span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg></span><span>Continue with X</span></a><a class="social-btn" data-provider="linkedin" href="/api/auth/oauth/linkedin/start?next=%2F"><span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="#0A66C2" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></span><span>Continue with LinkedIn</span></a></div>
+                        <p class="social-auth-note" id="social-auth-note" hidden></p>
+                        <div class="auth-divider"><span>OR USE A USERNAME</span></div>
+                        <div class="auth-tabs-bar" role="tablist" aria-label="Sign in or create an account">
+                            <button type="button" role="tab" class="auth-tab-btn active" data-auth-mode="login" aria-selected="true">Sign in</button>
+                            <button type="button" role="tab" class="auth-tab-btn" data-auth-mode="signup" aria-selected="false">Create account</button>
                         </div>
-
-                        <!-- Feedback Alert Box -->
-                        <div class="auth-alert-box" id="auth-alert-box" style="display:none;"></div>
-
-                        <!-- Sign In Form -->
-                        <form class="auth-form" id="about-login-form">
-                            <div class="form-field-group">
-                                <label for="login-username">Station Username</label>
-                                <input type="text" id="login-username" name="username" placeholder="e.g. dev_analyst" required autocomplete="username" autofocus spellcheck="false">
+                        <form id="about-auth-form" autocomplete="on" novalidate>
+                            <div class="form-field-group" data-signup-only hidden>
+                                <label for="auth-display-name">Display name</label>
+                                <input id="auth-display-name" name="display_name" type="text" maxlength="60" autocomplete="nickname" placeholder="What should we call you?">
                             </div>
                             <div class="form-field-group">
-                                <label for="login-password">Password</label>
-                                <input type="password" id="login-password" name="password" placeholder="••••••••••••" required autocomplete="current-password">
+                                <label for="auth-username">Username</label>
+                                <input id="auth-username" name="username" type="text" required minlength="3" maxlength="32" autocomplete="username" autocapitalize="none" spellcheck="false">
                             </div>
-                            <button type="submit" class="portal-submit-btn" id="login-submit-btn">
-                                <span class="btn-text">Authenticate &amp; Enter Station &rarr;</span>
-                            </button>
-                            <div class="auth-divider"><span>OR</span></div>
-                            <button type="button" class="portal-demo-btn" id="demo-login-btn" title="Sign in with instant guest access">
-                                ⚡ Instant 1-Click Guest Pass
-                            </button>
+                            <div class="form-field-group">
+                                <label for="auth-password">Password</label>
+                                <input id="auth-password" name="password" type="password" required minlength="8" maxlength="1024" autocomplete="current-password">
+                            </div>
+                            <div class="auth-alert-box error" id="auth-form-error" role="alert" hidden></div>
+                            <button type="submit" class="portal-submit-btn" id="auth-submit-btn">Sign in</button>
                         </form>
-
-                        <!-- Create Account Form (Hidden by default) -->
-                        <form class="auth-form" id="about-signup-form" style="display:none;">
-                            <div class="form-field-group">
-                                <label for="signup-username">Desired Username</label>
-                                <input type="text" id="signup-username" name="username" placeholder="3-32 characters (letters, numbers, _ -)" required autocomplete="username" spellcheck="false">
-                            </div>
-                            <div class="form-field-group">
-                                <label for="signup-displayname">Display Name (Optional)</label>
-                                <input type="text" id="signup-displayname" name="display_name" placeholder="e.g. Alex Chen" autocomplete="name">
-                            </div>
-                            <div class="form-field-group">
-                                <label for="signup-password">Password</label>
-                                <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required autocomplete="new-password">
-                            </div>
-                            <button type="submit" class="portal-submit-btn" id="signup-submit-btn">
-                                <span class="btn-text">Create Account &amp; Unlock Access &rarr;</span>
-                            </button>
-                        </form>
+                        <p class="privacy-note">With Google, GitHub, X or LinkedIn we read your public profile once, at sign-in, to seed your interests. We never ask for your email, never post, and don't keep the access token. You can remove anything imported from For You.</p>
                     </div>
                 </div>
 
-                <!-- Right: Why Gated & Membership Privileges -->
                 <div class="access-info-col">
                     <div class="access-privilege-card lab-card">
-                        <div class="privilege-eyebrow">✦ WHY WE GATE ACCESS</div>
+                        <div class="privilege-eyebrow">✦ WHAT YOU GET INSIDE</div>
                         <h3 class="privilege-title">A News Product That Respects Your Mind</h3>
                         <p class="privilege-p">Modern tech publications monetize outrage, infinite scrolling, and sponsor placements. Pith operates on the inverse thesis: news that protects your focus and proves it was right.</p>
-                        
+
                         <div class="privileges-list">
+                            <div class="privilege-item">
+                                <div class="priv-icon">◆</div>
+                                <div>
+                                    <strong>The daily brief</strong>
+                                    <p>Five verified shifts every morning, each with a dated forecast, plus the stories you can safely ignore.</p>
+                                </div>
+                            </div>
                             <div class="privilege-item">
                                 <div class="priv-icon">◈</div>
                                 <div>
-                                    <strong>Personalized Calibration ELO</strong>
-                                    <p>Participate in "Beat the Brief" forecasting. Your calibration track record is cryptographically logged with mathematical Brier scoring.</p>
+                                    <strong>A front page that learns you</strong>
+                                    <p>Your 5 and a ranked feed shaped by what you read, skip, save and follow, with every reason shown and every signal editable.</p>
                                 </div>
                             </div>
                             <div class="privilege-item">
                                 <div class="priv-icon">✦</div>
                                 <div>
-                                    <strong>Zero Algorithmic Clickbait</strong>
-                                    <p>We log reading dwell-time exclusively to tailor high-signal shifts—never to sell your attention or serve programmatic ads.</p>
+                                    <strong>Starts from who you are</strong>
+                                    <p>Connect GitHub, X, LinkedIn or Google and day one begins from your interests: your repos and stars, your bio and follows, your region.</p>
                                 </div>
                             </div>
                             <div class="privilege-item">
-                                <div class="priv-icon">⚡</div>
+                                <div class="priv-icon">▶</div>
                                 <div>
-                                    <strong>Multi-Lens Technical Directives</strong>
-                                    <p>Concrete, grounded actions tailored specifically across Developer, Founder, and Investor viewpoints.</p>
+                                    <strong>Your brief, read aloud</strong>
+                                    <p>A spoken Your 5 in your name, with chapters per story, sized to how deeply you like to read.</p>
                                 </div>
                             </div>
                             <div class="privilege-item">
                                 <div class="priv-icon">✓</div>
                                 <div>
-                                    <strong>Noise Vaporizer Access</strong>
-                                    <p>Every morning, inspect our signature "Safely Ignore Today" sheet vaporizing the 8 trending distractions of the day.</p>
+                                    <strong>The Ledger, and your own record</strong>
+                                    <p>Every forecast Pith has made, scored. Call them higher or lower yourself and see whether you beat the brief.</p>
                                 </div>
                             </div>
                         </div>
@@ -204,7 +185,7 @@
                 <div class="pillar-card lab-card">
                     <div class="pillar-num">02</div>
                     <h3 class="pillar-title">Mathematical Falsifiability</h3>
-                    <p class="pillar-desc">Opinions are cheap; calibration is earned. Every single story published on Pith includes an explicit, dated prediction with verifiable resolution criteria. Our public Brier score measures exactly how calibrated we are over time.</p>
+                    <p class="pillar-desc">Opinions are cheap; calibration is earned. Every single story published on Pith includes an explicit, dated prediction with verifiable resolution criteria. Our Brier score, published on the Forecast Ledger, measures exactly how calibrated we are over time.</p>
                 </div>
 
                 <div class="pillar-card lab-card">
@@ -230,19 +211,19 @@
                     <strong>Primary Source Ingestion</strong>
                     <p>Direct ingest from arXiv papers, Git release tags, regulatory filings, and cloud provider price sheets.</p>
                 </div>
-                <div class="method-step-arrow">&rarr;</div>
+                <div class="method-step-arrow" aria-hidden="true">&rarr;</div>
                 <div class="method-step">
                     <span class="method-step-num">Step 2</span>
                     <strong>6-Factor Signal Scoring</strong>
                     <p>Scoring breadth of impact, lock-in disruption, irreversibility, source corroboration, and time sensitivity.</p>
                 </div>
-                <div class="method-step-arrow">&rarr;</div>
+                <div class="method-step-arrow" aria-hidden="true">&rarr;</div>
                 <div class="method-step">
                     <span class="method-step-num">Step 3</span>
                     <strong>Quoted-Span Audit</strong>
                     <p>Every factual claim must match verbatim quoted evidence spans before passing the editorial barrier.</p>
                 </div>
-                <div class="method-step-arrow">&rarr;</div>
+                <div class="method-step-arrow" aria-hidden="true">&rarr;</div>
                 <div class="method-step">
                     <span class="method-step-num">Step 4</span>
                     <strong>Studio Audio &amp; Video</strong>
@@ -253,16 +234,18 @@
 
         
         <footer class="colophon">
-            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
-            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
-            <div class="footer-nav">
-                <a href="foryou.html">For You</a>
-                <a href="index.html">Daily News</a>
-                <a href="ledger.html">Forecast Ledger</a>
-                <a href="archive.html">News Archive</a>
-                <a href="patterns.html">Tech Patterns</a>
-                <a href="about.html">About Pith</a>
+            <div class="colophon-brand">
+                <div class="colophon-name"><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+                <div class="colophon-tagline">Primary-sourced &bull; Every forecast scored &bull; No sponsored content or noise</div>
             </div>
+            <nav class="footer-nav" aria-label="Footer">
+                <a href="foryou.html" data-members>For You</a>
+                <a href="index.html" data-members>Daily News</a>
+                <a href="ledger.html" data-members>Forecast Ledger</a>
+                <a href="archive.html" data-members>News Archive</a>
+                <a href="patterns.html" data-members>Tech Patterns</a>
+                <a href="about.html">About Pith</a>
+            </nav>
         </footer>
     
     </div>
