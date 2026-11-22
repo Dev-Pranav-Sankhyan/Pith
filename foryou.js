@@ -206,13 +206,17 @@
         <div class="fy-card-body">
           <div class="fy-card-meta">
             <span class="fy-pub">${esc(a.publisher)}</span><span>·</span><span>${timeAgo(a.published_at)}</span><span>·</span><span>${a.read_minutes} min</span>
+            ${a.source_count > 1 ? `<span class="fy-source-pill" title="Corroborated across ${esc(a.sources.join(', '))}">✦ ${a.source_count} sources: ${esc(a.sources.slice(0, 2).join(", "))}${a.sources.length > 2 ? ` +${a.sources.length - 2}` : ""}</span>` : ""}
             ${a.is_demo ? '<span class="fy-demo-tag">DEMO</span>' : ""}
           </div>
           <h2 class="fy-card-title"><a href="${esc(a.url)}" target="_blank" rel="noopener noreferrer" data-act="open">${esc(a.title)}</a></h2>
           ${a.summary ? `<p class="fy-card-summary">${esc(a.summary)}</p>` : ""}
           <div class="fy-why fy-why--${esc(a.why.type)}"><span aria-hidden="true">✦</span> ${esc(a.why.text)}</div>
           <div class="fy-card-foot">
-            <div class="fy-chips">${topics}</div>
+            <div class="fy-chips">
+              ${topics}
+              <button type="button" class="fy-worth-btn${a.state.reaction > 0 ? " on" : ""}" data-act="worth_time" title="Rate this shift as worth your time">✦ Worth my time</button>
+            </div>
             <div class="fy-actions">
               <button type="button" class="fy-act${a.state.reaction > 0 ? " on" : ""}" data-act="like" title="More like this" aria-label="More like this">♥</button>
               <button type="button" class="fy-act" data-act="dislike" title="Not for me" aria-label="Not for me">✕</button>
@@ -308,6 +312,13 @@
         if (on) { track("like", { article_id: id }); toast("Noted. More stories like this."); }
         return;
       }
+      case "worth_time": {
+        const on = !el.classList.contains("on");
+        el.classList.toggle("on", on);
+        track(on ? "worth_time" : "not_worth_time", { article_id: id });
+        toast(on ? "Noted: High satisfaction story for your profile." : "Feedback updated.");
+        return;
+      }
       case "dislike":
         track("dislike", { article_id: id });
         return removeCard(card, "Got it. Fewer stories like this.");
@@ -387,10 +398,45 @@
     $("fy-confidence").textContent = `${pct}%`;
     $("fy-meter-fill").style.width = `${pct}%`;
 
+    let roleEl = $("fy-inferred-role-card");
+    if (!roleEl) {
+      roleEl = document.createElement("div");
+      roleEl.id = "fy-inferred-role-card";
+      roleEl.className = "fy-inferred-role-box";
+      const dnaHead = document.querySelector(".fy-dna-head");
+      if (dnaHead) dnaHead.after(roleEl);
+    }
+    if (p.inferred_role) {
+      roleEl.innerHTML = `
+        <div class="fy-role-badge-row">
+          <span class="fy-role-title">INFERRED LENS</span>
+          <span class="fy-role-pill">✦ ${esc(p.inferred_role.toUpperCase())} (${Math.round((p.role_confidence || 0.75) * 100)}%)</span>
+        </div>
+        <p class="fy-role-reason">${esc(p.role_reason || "")}</p>
+      `;
+    }
+
     $("fy-dna-stats").innerHTML = [
       ["Stories read", p.stats.reads], ["Minutes reading", p.stats.minutes_read],
       ["Saved", p.stats.saved], ["Signals learned", p.stats.events],
     ].map(([k, v]) => `<div><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join("");
+
+    try {
+      const d = await api("/api/digest");
+      if (d && d.summary_text) {
+        let digestEl = $("fy-weekly-digest");
+        if (!digestEl) {
+          digestEl = document.createElement("div");
+          digestEl.id = "fy-weekly-digest";
+          digestEl.className = "fy-weekly-digest-box";
+          $("fy-dna-stats").after(digestEl);
+        }
+        digestEl.innerHTML = `
+          <div class="fy-digest-head">✦ WEEKLY SATISFACTION DIGEST</div>
+          <p class="fy-digest-body">${esc(d.summary_text)}</p>
+        `;
+      }
+    } catch (_) {}
 
     const max = Math.max(1, ...p.topics.map((t) => t.weight));
     $("fy-dna-topics").innerHTML = p.topics.length

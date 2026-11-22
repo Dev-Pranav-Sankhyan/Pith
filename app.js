@@ -7,9 +7,18 @@
 // ==========================================================================
 // 1. High-Fidelity Web Audio Synthesizer (Zero Audio Files, Realtime Synthesis)
 // ==========================================================================
+function safeGet(key) {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+function safeSet(key, value) {
+  try { localStorage.setItem(key, value); } catch (e) {}
+}
+const PREFERS_REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
 class SoundEngine {
   constructor() {
-    this.enabled = localStorage.getItem("pith_audio_enabled") !== "false"; // Default true
+    // Sound is opt-in: silent unless the reader turned it on.
+    this.enabled = safeGet("pith_audio_enabled") === "true";
     this.ctx = null;
     this.lastHoverTime = 0;
   }
@@ -34,7 +43,7 @@ class SoundEngine {
 
   toggle() {
     this.enabled = !this.enabled;
-    localStorage.setItem("pith_audio_enabled", this.enabled);
+    safeSet("pith_audio_enabled", String(this.enabled));
     if (this.enabled) {
       this.init();
       this.playSnap();
@@ -488,8 +497,12 @@ function scrambleText(element, targetText, durationMs = 220) {
     element._scrambleTimer = null;
   }
 
+  if (PREFERS_REDUCED_MOTION) {
+    element.textContent = targetText;
+    return;
+  }
+
   const originalText = element.textContent;
-  const length = Math.max(targetText.length, originalText.length);
   const steps = 7;
   const stepTime = durationMs / steps;
   let currentStep = 0;
@@ -756,6 +769,7 @@ function initBeatTheBrief() {
       if (btn) btn.classList.add("selected");
       if (crowdBox) crowdBox.style.display = "block";
       if (voteText) voteText.textContent = prev.vote.toUpperCase();
+      syncCrowd(widget, cardId, null);
     }
 
     // Attach click listeners
@@ -782,11 +796,51 @@ function initBeatTheBrief() {
 
         // Record vote in ELO engine + stamp card
         pithELO.recordVote(cardId, cardProb, vote, cardEl);
+        syncCrowd(widget, cardId, vote);
       });
     });
   });
 
   pithELO.restoreCardStamps();
+}
+
+// Real crowd distribution from the server. Shown only once enough readers have
+// voted; on the static (GitHub Pages) build there is no API, so it stays hidden.
+const CROWD_MIN_VOTES = 5;
+async function syncCrowd(widget, cardId, vote) {
+  const track = widget.querySelector(".crowd-bar-track");
+  const summary = widget.querySelector(".crowd-summary");
+  try {
+    let res;
+    if (vote) {
+      res = await fetch("/api/vote", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ card_id: cardId, vote: vote }),
+      });
+    } else {
+      res = await fetch("/api/votes?card_id=" + encodeURIComponent(cardId), { credentials: "same-origin" });
+    }
+    if (!res.ok) return;
+    const data = await res.json();
+    const c = data.counts || {};
+    const total = (c.higher || 0) + (c.agree || 0) + (c.lower || 0);
+    if (total < CROWD_MIN_VOTES) {
+      if (summary) summary.textContent = `Your call is on record. Crowd split appears after ${CROWD_MIN_VOTES} readers vote (${total} so far).`;
+      if (track) track.hidden = true;
+      return;
+    }
+    const pct = k => Math.round(((c[k] || 0) / total) * 100);
+    ["higher", "agree", "lower"].forEach(k => {
+      const el = widget.querySelector(`.crowd-bar-fill.${k}`);
+      if (el) { el.style.width = pct(k) + "%"; el.title = `${pct(k)}% ${k}`; }
+    });
+    if (track) track.hidden = false;
+    if (summary) summary.textContent = `Crowd (${total}): ${pct("agree")}% agree · ${pct("higher")}% higher · ${pct("lower")}% lower`;
+  } catch (e) {
+    /* offline or static hosting: keep just "Your pick" */
+  }
 }
 
 // ==========================================================================
@@ -1029,17 +1083,20 @@ function animateLedgerCounters() {
 function filterLedger() {
   sound.playSnap();
   const statusFilter = document.getElementById("status-filter")?.value || "all";
+  const horizonFilter = document.getElementById("horizon-filter")?.value || "all";
   const catFilter = document.getElementById("category-filter")?.value || "all";
   const rows = document.querySelectorAll("#ledger-table-body tr");
 
   rows.forEach(row => {
     const status = row.getAttribute("data-status");
     const category = row.getAttribute("data-category");
+    const horizon = row.getAttribute("data-horizon");
 
     const statusMatch = statusFilter === "all" || status === statusFilter;
     const catMatch = catFilter === "all" || category === catFilter;
+    const horizonMatch = horizonFilter === "all" || horizon === horizonFilter;
 
-    if (statusMatch && catMatch) {
+    if (statusMatch && catMatch && horizonMatch) {
       row.style.display = "";
     } else {
       row.style.display = "none";
@@ -1125,6 +1182,35 @@ function fallbackCopyText(text, btn) {
   document.execCommand("copy");
   document.body.removeChild(ta);
   showSlackCopiedFeedback(btn);
+}
+
+function initWorthTime() {
+  document.querySelectorAll(".worth-time-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const cardId = btn.getAttribute("data-card-id");
+      const isActive = btn.classList.toggle("active");
+      try {
+        await fetch("/api/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            events: [{
+              kind: isActive ? "worth_time" : "not_worth_time",
+              article_id: cardId
+            }]
+          })
+        });
+        if (sound) sound.playSnap();
+        const textSpan = btn.querySelector(".worth-time-text");
+        if (textSpan) {
+          textSpan.textContent = isActive ? "✓ Worth your time" : "Worth my time";
+        }
+      } catch (err) {
+        console.warn("Failed to record worth_time:", err);
+      }
+    });
+  });
 }
 
 // ==========================================================================
@@ -1396,8 +1482,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Hook ledger filters
   const statusSelect = document.getElementById("status-filter");
+  const horizonSelect = document.getElementById("horizon-filter");
   const catSelect = document.getElementById("category-filter");
   if (statusSelect) statusSelect.addEventListener("change", filterLedger);
+  if (horizonSelect) horizonSelect.addEventListener("change", filterLedger);
   if (catSelect) catSelect.addEventListener("change", filterLedger);
 
   // Initialize interactive 3D card tilt & spotlight
@@ -1423,8 +1511,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize Archive Page
   initArchivePage();
 
+  // Initialize Worth My Time satisfaction controls
+  initWorthTime();
+
   // Add hover ticks to interactive controls
-  document.querySelectorAll(".nav-link, .seg-btn, .theme-toggle, .pattern-pill, .deep-scan-btn, .vote-btn, .slack-share-btn, .shredder-btn, .replay-filter-btn, .lowpass-replay-pill").forEach(el => {
+  document.querySelectorAll(".nav-link, .seg-btn, .theme-toggle, .pattern-pill, .deep-scan-btn, .vote-btn, .slack-share-btn, .worth-time-btn, .shredder-btn, .replay-filter-btn, .lowpass-replay-pill").forEach(el => {
     el.addEventListener("mouseenter", () => sound.playTick());
   });
 });
@@ -1700,13 +1791,33 @@ async function initAuthGate() {
         window.location.href = "about.html";
       };
     }
+
+    if (!isAboutPage) {
+      try {
+        const pRes = await fetch("/api/profile");
+        if (pRes.ok) {
+          const profileData = await pRes.json();
+          if (profileData.inferred_role) {
+            setRole(profileData.inferred_role, false);
+            const activeBtn = document.querySelector(`.seg-btn[data-role="${profileData.inferred_role}"]`);
+            if (activeBtn && !activeBtn.querySelector(".inferred-pill")) {
+              const pill = document.createElement("span");
+              pill.className = "inferred-pill";
+              pill.textContent = "✦ Inferred";
+              pill.style.cssText = "font-size:9px; margin-left:5px; background:var(--gilt-soft); color:var(--gilt); padding:1px 5px; border-radius:99px; border:1px solid var(--gilt);";
+              activeBtn.appendChild(pill);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Inferred role fetch failed:", e);
+      }
+    }
   } else {
     if (crownChip) crownChip.style.display = "none";
-    // If not authenticated and attempting to view an internal page, redirect to about.html
-    if (!isAboutPage) {
-      window.location.href = "about.html";
-      return;
-    }
+    // The brief, Ledger, Archive and Patterns are public. Only For You needs an
+    // account, and the server enforces that. (On static hosting there is no
+    // /api/me at all, so redirecting here would lock everyone out.)
   }
 
   // If on About Page, configure Login / Register Portal
@@ -1833,40 +1944,26 @@ async function initAuthGate() {
           demoBtn.disabled = true;
           demoBtn.textContent = "Connecting guest pass...";
           try {
-            // Try guest login first
-            let res = await fetch("/api/auth/login", {
+            // Each guest pass is its own throwaway account, so guests never share
+            // a reading profile or votes. The password is random and never shown.
+            const rand = (n) => {
+              const bytes = new Uint8Array(n);
+              crypto.getRandomValues(bytes);
+              return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+            };
+            const res = await fetch("/api/auth/signup", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username: "guest", password: "guestpassword123" })
+              body: JSON.stringify({ username: "guest_" + rand(4), password: rand(16), display_name: "Guest" })
             });
-            if (!res.ok) {
-              // Create guest account if it doesn't exist
-              res = await fetch("/api/auth/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: "guest", password: "guestpassword123", display_name: "Guest Member" })
-              });
-            }
             const data = await res.json();
-            if (!res.ok && !data.user) throw new Error(data.error || "Guest access failed");
-            showAlert("Guest pass issued. Redirecting to station...", "success");
-            setTimeout(() => { window.location.href = "index.html"; }, 350);
+            if (res.ok && data.user) {
+              showAlert("Guest pass issued. Redirecting...", "success");
+              setTimeout(() => { window.location.href = "foryou.html"; }, 350);
+              return;
+            }
+            throw new Error(data.error || "Guest access failed");
           } catch (err) {
-            // Fallback: generate a random guest name
-            try {
-              const randGuest = "guest_" + Math.random().toString(36).substring(2, 7);
-              const res2 = await fetch("/api/auth/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: randGuest, password: "guestpassword123", display_name: "Guest Member" })
-              });
-              const data2 = await res2.json();
-              if (res2.ok) {
-                showAlert("Guest pass issued. Redirecting to station...", "success");
-                setTimeout(() => { window.location.href = "index.html"; }, 350);
-                return;
-              }
-            } catch (_) {}
             showAlert("Unable to issue instant guest pass. Please enter credentials above.");
             demoBtn.disabled = false;
             demoBtn.textContent = "⚡ Instant 1-Click Guest Pass";

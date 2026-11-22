@@ -142,6 +142,11 @@
 .fy-card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font: 500 11.5px var(--font-mono); color: var(--muted); letter-spacing: .02em; }
 .fy-pub { color: var(--ink-2); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
 .fy-demo-tag { border: 1px solid var(--warn-border); color: var(--warn); border-radius: 4px; padding: 1px 5px; font-size: 10px; }
+.fy-source-pill {
+  display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px;
+  border-radius: 99px; font: 600 10.5px var(--font-mono); color: var(--gilt);
+  background: var(--gilt-soft); border: 1px solid var(--hairline-strong); letter-spacing: .02em;
+}
 .fy-card-title { font: 600 22px/1.25 var(--font-serif); margin: 8px 0 8px; letter-spacing: -.01em; }
 .fy-card-title a { color: var(--ink); text-decoration: none; }
 .fy-card-title a:hover { text-decoration: underline; text-decoration-color: var(--gilt); text-underline-offset: 4px; }
@@ -218,6 +223,34 @@
 .fy-rhythm-row span { color: var(--muted); text-transform: capitalize; }
 .fy-rhythm-row b { font-weight: 500; color: var(--ink-2); }
 .fy-reset { margin-top: 24px; }
+
+/* ---------------- satisfaction & inferred role */
+.fy-worth-btn {
+  border: 1px solid var(--hairline); background: var(--surface-inset); color: var(--muted);
+  border-radius: 6px; padding: 3px 8px; cursor: pointer; font: 500 11px var(--font-mono);
+  letter-spacing: .03em; transition: all .15s ease;
+}
+.fy-worth-btn:hover { color: var(--gilt); border-color: var(--gilt); }
+.fy-worth-btn.on { color: var(--gilt); background: var(--gilt-soft); border-color: var(--gilt); }
+
+.fy-inferred-role-box {
+  margin-top: 16px; padding: 12px 14px; background: var(--surface-inset);
+  border: 1px solid var(--hairline); border-radius: 10px;
+}
+.fy-role-badge-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fy-role-title { font: 600 10.5px var(--font-mono); letter-spacing: .12em; color: var(--muted); }
+.fy-role-pill {
+  font: 600 11px var(--font-mono); color: var(--gilt); background: var(--gilt-soft);
+  border: 1px solid var(--hairline-strong); border-radius: 99px; padding: 2px 8px;
+}
+.fy-role-reason { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
+
+.fy-weekly-digest-box {
+  margin-top: 14px; padding: 12px 14px; background: var(--surface-2);
+  border-radius: 10px; border: 1px dashed var(--hairline-strong);
+}
+.fy-digest-head { font: 600 10.5px var(--font-mono); letter-spacing: .1em; color: var(--gilt); }
+.fy-digest-body { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
 
 /* ---------------- toast */
 .fy-toast {
