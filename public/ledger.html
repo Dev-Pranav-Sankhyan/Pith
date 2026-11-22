@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,73 +9,70 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+    <script>(function(){try{var t=localStorage.getItem("pith_brief_theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
+<body class="page-ledger">
+    
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Cybernetic Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
+    
 
     
-    <!-- Sticky Crown Header with ELO Rating, User Chip, and Audio Synthesizer -->
     <header class="crown">
-        <a href="index.html" class="brand-wrapper">
+        <a href="index.html" class="brand-wrapper" aria-label="Pith home">
             <div class="brand-mark" aria-hidden="true">
                 <i></i><i></i><i></i><i></i>
             </div>
             <div class="brand-name">PITH</div>
         </a>
         <div class="nav-cluster">
-            <nav class="nav-pills-bar">
-                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link active" aria-current="page">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a><a href="about.html" class="nav-link">About</a>
+            <nav class="nav-pills-bar" aria-label="Main">
+                <a href="foryou.html" class="nav-link" data-members>For You</a><a href="index.html" class="nav-link" data-members>Daily News</a><a href="ledger.html" class="nav-link active" aria-current="page" data-members>Forecast Ledger</a><a href="archive.html" class="nav-link" data-members>News Archive</a><a href="patterns.html" class="nav-link" data-members>Tech Patterns</a><a href="about.html" class="nav-link">About</a><a href="about.html#access" class="nav-link nav-signin" data-guest>Sign in</a>
             </nav>
-            <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Authenticated Member Session">
-                <span class="crown-avatar" id="crown-avatar">?</span>
-                <span class="crown-username" id="crown-username"></span>
-                <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out of station">Sign out</button>
+            <div class="crown-tools">
+                <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Signed in">
+                    <span class="crown-avatar" id="crown-avatar">?</span>
+                    <span class="crown-username" id="crown-username"></span>
+                    <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out">Sign out</button>
+                </div>
+                <div class="elo-badge" id="elo-badge" data-members title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                    <span class="elo-icon" aria-hidden="true">◈</span>
+                    <span class="elo-score" id="user-elo-score">1200</span>
+                    <span class="elo-tier" id="user-elo-tier">Observer</span>
+                </div>
+                <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
+                    <span class="sound-wave-icon" aria-hidden="true">
+                        <i></i><i></i><i></i>
+                    </span>
+                    <span class="sound-label">Audio: On</span>
+                </button>
+                <button class="theme-toggle" id="theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light or dark theme" type="button">
+                    <div class="theme-icon-circle"></div>
+                </button>
             </div>
-            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
-                <span class="elo-icon">◈</span>
-                <span class="elo-score" id="user-elo-score">1200</span>
-                <span class="elo-tier" id="user-elo-tier">Observer</span>
-            </div>
-            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
-                <span class="sound-wave-icon" aria-hidden="true">
-                    <i></i><i></i><i></i>
-                </span>
-                <span class="sound-label">Audio: On</span>
-            </button>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
         </div>
     </header>
     
 
     <div class="desk-container">
         <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD &middot; ACCURACY LEDGER</div>
-                <h1 class="page-title">Forecast <em>Tracker</em></h1>
-                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Public, immutable ledger of all dated falsifiable predictions. Probabilities are locked after the publication day and every verdict is an append-only record with a named reviewer and evidence.</p>
-            </div>
+            <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD &middot; ACCURACY LEDGER</div>
+            <h1 class="page-title">Forecast <em>Tracker</em></h1>
+            <p class="masthead-dek">Public, immutable ledger of all dated falsifiable predictions. Probabilities are locked after the publication day and every verdict is an append-only record with a named reviewer and evidence.</p>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> ON-RECORD</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>IMMUTABLE PROBABILITIES</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>ZERO RETROSPECTIVE EDITS</span>
             </div>
         </section>
 
         
-        <div class="lab-card" style="padding:14px 18px; border:1px solid var(--gilt); border-radius:8px; margin-bottom:22px; font-size:14px; line-height:1.5;">
+        <div class="notice">
             <strong>No live forecast has resolved yet.</strong> Scores appear here only once a prediction Pith actually published reaches its resolution date and a named reviewer records the outcome with evidence.
             The 21 faded rows marked <em>Illustrative</em> below are hand-written examples to preview the layout. They are not counted in any number on this page.
         </div>
@@ -83,12 +80,12 @@
         <!-- Big Num Grid with Counter Animations -->
         <div class="bignum-grid">
             <div class="bignum-card">
-                <div class="bignum" data-format="brier">N/A</div>
+                <div class="bignum is-empty" data-format="brier">N/A</div>
                 <div class="bignum-label">Brier Score</div>
                 <div class="bignum-sub">Benchmark &lt; 0.25 (lower is better)</div>
             </div>
             <div class="bignum-card">
-                <div class="bignum" data-format="percent">N/A</div>
+                <div class="bignum is-empty" data-format="percent">N/A</div>
                 <div class="bignum-label">Hit Rate</div>
                 <div class="bignum-sub">0 of 0 resolved</div>
             </div>
@@ -105,31 +102,33 @@
         </div>
 
         
-        <!-- Forecast Horizons Segmentation Strip -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; margin-bottom:28px;">
-            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">⚡ 30-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">No data</span>
+        <div class="horizon-grid">
+            
+            <div class="horizon-card">
+                <div class="horizon-card-top">
+                    <span class="horizon-label"><span aria-hidden="true">⚡</span> 30-Day Horizon</span>
+                    <span class="status-pill open">No data</span>
                 </div>
-                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Immediate Tooling &amp; SDK Shifts</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">0 resolved &middot; 1 active &middot; Brier: &mdash;</div>
+                <div class="horizon-title">Immediate Tooling &amp; SDK Shifts</div>
+                <div class="horizon-meta">0 resolved &middot; 1 active &middot; Brier: &mdash;</div>
             </div>
-            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">◈ 90-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">No data</span>
+            
+            <div class="horizon-card">
+                <div class="horizon-card-top">
+                    <span class="horizon-label"><span aria-hidden="true">◈</span> 90-Day Horizon</span>
+                    <span class="status-pill open">No data</span>
                 </div>
-                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Quarterly Architecture Milestones</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">0 resolved &middot; 0 active &middot; Brier: &mdash;</div>
+                <div class="horizon-title">Quarterly Architecture Milestones</div>
+                <div class="horizon-meta">0 resolved &middot; 0 active &middot; Brier: &mdash;</div>
             </div>
-            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">✦ 365-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">No data</span>
+            
+            <div class="horizon-card">
+                <div class="horizon-card-top">
+                    <span class="horizon-label"><span aria-hidden="true">✦</span> 365-Day Horizon</span>
+                    <span class="status-pill open">No data</span>
                 </div>
-                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Annual Platform &amp; Economic Regimes</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">0 resolved &middot; 19 active &middot; Brier: &mdash;</div>
+                <div class="horizon-title">Annual Platform &amp; Economic Regimes</div>
+                <div class="horizon-meta">0 resolved &middot; 19 active &middot; Brier: &mdash;</div>
             </div>
         </div>
     
@@ -138,7 +137,7 @@
         <section class="table-sheet">
             <div class="sheet-header-line">
                 <h3 class="sheet-title">Forecast Calibration</h3>
-                <span style="font-size:12px; color:var(--muted);">When we predict X%, are we right X% of the time?</span>
+                <span class="sheet-note">When we predict X%, are we right X% of the time?</span>
             </div>
             <table class="instrument-table">
                 <thead>
@@ -153,43 +152,43 @@
                 <tbody>
                     
         <tr>
-            <td style="font-weight:600; color:var(--ink);">50–59%</td>
-            <td>0</td>
-            <td style="font-family:var(--font-mono);">55.0%</td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">&mdash;</td>
-            <td style="font-family:var(--font-mono); color:var(--good); font-weight:600;">&mdash;</td>
+            <td class="cell-strong">50–59%</td>
+            <td class="cell-mono">0</td>
+            <td class="cell-mono">55.0%</td>
+            <td class="cell-prob">&mdash;</td>
+            <td class="cell-mono cell-gap ">&mdash;</td>
         </tr>
         
         <tr>
-            <td style="font-weight:600; color:var(--ink);">60–69%</td>
-            <td>0</td>
-            <td style="font-family:var(--font-mono);">65.0%</td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">&mdash;</td>
-            <td style="font-family:var(--font-mono); color:var(--good); font-weight:600;">&mdash;</td>
+            <td class="cell-strong">60–69%</td>
+            <td class="cell-mono">0</td>
+            <td class="cell-mono">65.0%</td>
+            <td class="cell-prob">&mdash;</td>
+            <td class="cell-mono cell-gap ">&mdash;</td>
         </tr>
         
         <tr>
-            <td style="font-weight:600; color:var(--ink);">70–79%</td>
-            <td>0</td>
-            <td style="font-family:var(--font-mono);">75.0%</td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">&mdash;</td>
-            <td style="font-family:var(--font-mono); color:var(--good); font-weight:600;">&mdash;</td>
+            <td class="cell-strong">70–79%</td>
+            <td class="cell-mono">0</td>
+            <td class="cell-mono">75.0%</td>
+            <td class="cell-prob">&mdash;</td>
+            <td class="cell-mono cell-gap ">&mdash;</td>
         </tr>
         
         <tr>
-            <td style="font-weight:600; color:var(--ink);">80–89%</td>
-            <td>0</td>
-            <td style="font-family:var(--font-mono);">85.0%</td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">&mdash;</td>
-            <td style="font-family:var(--font-mono); color:var(--good); font-weight:600;">&mdash;</td>
+            <td class="cell-strong">80–89%</td>
+            <td class="cell-mono">0</td>
+            <td class="cell-mono">85.0%</td>
+            <td class="cell-prob">&mdash;</td>
+            <td class="cell-mono cell-gap ">&mdash;</td>
         </tr>
         
         <tr>
-            <td style="font-weight:600; color:var(--ink);">90–100%</td>
-            <td>0</td>
-            <td style="font-family:var(--font-mono);">95.0%</td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">&mdash;</td>
-            <td style="font-family:var(--font-mono); color:var(--good); font-weight:600;">&mdash;</td>
+            <td class="cell-strong">90–100%</td>
+            <td class="cell-mono">0</td>
+            <td class="cell-mono">95.0%</td>
+            <td class="cell-prob">&mdash;</td>
+            <td class="cell-mono cell-gap ">&mdash;</td>
         </tr>
         
                 </tbody>
@@ -208,7 +207,7 @@
                 </p>
             </div>
 
-            <div style="font-size:14px; color:var(--muted); padding:12px 0;">No live forecast has been resolved wrong yet. When one is, it appears here with its original probability and a post-mortem.</div>
+            <div class="empty-note">No live forecast has been resolved wrong yet. When one is, it appears here with its original probability and a post-mortem.</div>
         </section>
 
         <!-- Filter Controls -->
@@ -245,7 +244,7 @@
 
         <!-- Full Ledger Sheet -->
         <section class="table-sheet">
-            <table class="instrument-table">
+            <table class="instrument-table instrument-table--ledger">
                 <thead>
                     <tr>
                         <th>Made</th>
@@ -260,701 +259,701 @@
                 </thead>
                 <tbody id="ledger-table-body">
                     
-        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-03-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of release, provider pricing page confirms prompt caching with &gt;75% discount.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-03-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of release, provider pricing page confirms prompt caching with &gt;75% discount.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official provider pricing page documents &gt;75% reduction on cached input prompt tokens.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Multiple frontier providers introduced prompt caching with up to 90% discount on cache hits.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Multiple frontier providers introduced prompt caching with up to 90% discount on cache hits.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">30-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">80%</td>
+            <td><span class="horizon-tag">30-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">80%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-03-31</td>
-            <td><a href="https://platform.openai.com/docs/pricing" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-03-31</td>
+            <td><a class="ledger-evidence" href="https://platform.openai.com/docs/pricing" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-01-05</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, an open-source Apache-2.0 weight model ranks in the top 5 on LMSYS Coding Leaderboard.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-01-05</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, an open-source Apache-2.0 weight model ranks in the top 5 on LMSYS Coding Leaderboard.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> LMSYS Coding Arena leaderboard public standings show an Apache-2.0 model in ranks 1 through 5.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. DeepSeek-Coder-V2 achieved position #4 on the LMSYS coding leaderboard.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. DeepSeek-Coder-V2 achieved position #4 on the LMSYS coding leaderboard.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">65%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">65%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-04-05</td>
-            <td><a href="https://chat.lmsys.org/?leaderboard" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-04-05</td>
+            <td><a class="ledger-evidence" href="https://chat.lmsys.org/?leaderboard" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="wrong" data-category="market" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-01-10</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, EU AI Act guidelines mandate synthetic watermarking in all commercial code completion tools.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="wrong" data-category="market" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-01-10</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, EU AI Act guidelines mandate synthetic watermarking in all commercial code completion tools.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Final EU AI Office regulatory text explicitly mandates synthetic watermarking in code tools.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Wrong. The AI Office retained watermarking for video/audio, but exempted standalone code completion tools.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Wrong. The AI Office retained watermarking for video/audio, but exempted standalone code completion tools.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">market</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">60%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">market</span></td>
+            <td class="cell-prob">60%</td>
             <td><span class="status-pill wrong">wrong</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-04-10</td>
-            <td><a href="https://digital-strategy.ec.europa.eu/en/policies/ai-office" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-04-10</td>
+            <td><a class="ledger-evidence" href="https://digital-strategy.ec.europa.eu/en/policies/ai-office" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="market" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-01-15</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of TPU v5e general availability, cloud spot market discount exceeds 65% against on-demand.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="market" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-01-15</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of TPU v5e general availability, cloud spot market discount exceeds 65% against on-demand.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Google Cloud public pricing table records preemptible/spot TPU v5e pricing &gt;65% below on-demand.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Spot discounts on TPU v5e reached 70% in central regions.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Spot discounts on TPU v5e reached 70% in central regions.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">market</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">75%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">market</span></td>
+            <td class="cell-prob">75%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-04-15</td>
-            <td><a href="https://cloud.google.com/tpu/pricing" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-04-15</td>
+            <td><a class="ledger-evidence" href="https://cloud.google.com/tpu/pricing" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-04-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days, major provider deprecates legacy v1 completions API in favor of chat/messages endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-04-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days, major provider deprecates legacy v1 completions API in favor of chat/messages endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Completions API endpoint decommissioned with 410 Gone status.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Legacy completions endpoint retired on schedule.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Legacy completions endpoint retired on schedule.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">30-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">90%</td>
+            <td><span class="horizon-tag">30-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">90%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-05-01</td>
-            <td><a href="https://platform.openai.com/docs/deprecations" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-05-01</td>
+            <td><a class="ledger-evidence" href="https://platform.openai.com/docs/deprecations" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-02-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, PyTorch 2.5 includes native support for dynamic shape FP8 tensor cores.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-02-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, PyTorch 2.5 includes native support for dynamic shape FP8 tensor cores.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> PyTorch release notes officially confirm dynamic FP8 execution in standard inductor.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. PyTorch 2.5 included native FP8 dynamic shape support.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. PyTorch 2.5 included native FP8 dynamic shape support.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-05-01</td>
-            <td><a href="https://github.com/pytorch/pytorch/releases/tag/v2.5.0" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-05-01</td>
+            <td><a class="ledger-evidence" href="https://github.com/pytorch/pytorch/releases/tag/v2.5.0" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="wrong" data-category="market" data-horizon="30-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-04-15</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of launch, hosted Postgres provider announces per-gigabyte disk billing for HNSW vector indexes.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="wrong" data-category="market" data-horizon="30-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-04-15</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of launch, hosted Postgres provider announces per-gigabyte disk billing for HNSW vector indexes.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official billing docs show separate metered storage line-item for vector indexes.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Wrong. Provider bundled vector disk storage into standard compute tiers rather than unbundling index metering.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Wrong. Provider bundled vector disk storage into standard compute tiers rather than unbundling index metering.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">30-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">market</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">55%</td>
+            <td><span class="horizon-tag">30-day</span></td>
+            <td><span class="category-tag">market</span></td>
+            <td class="cell-prob">55%</td>
             <td><span class="status-pill wrong">wrong</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-05-15</td>
-            <td><a href="https://supabase.com/docs/guides/database/pricing" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-05-15</td>
+            <td><a class="ledger-evidence" href="https://supabase.com/docs/guides/database/pricing" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-02-15</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, a top-3 cloud provider enforces mandatory multi-factor hardware keys for root accounts.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-02-15</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, a top-3 cloud provider enforces mandatory multi-factor hardware keys for root accounts.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official security bulletin mandating hardware FIDO2 keys for root account logins.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. AWS and Google Cloud both mandated FIDO2 MFA for organization root accounts.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. AWS and Google Cloud both mandated FIDO2 MFA for organization root accounts.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">75%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">75%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-05-15</td>
-            <td><a href="https://aws.amazon.com/blogs/security/mfa-fido-announcement" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-05-15</td>
+            <td><a class="ledger-evidence" href="https://aws.amazon.com/blogs/security/mfa-fido-announcement" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-02-20</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, leading frontier chat UI introduces 1-click artifact code deployment to live URLs.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-02-20</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days, leading frontier chat UI introduces 1-click artifact code deployment to live URLs.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Chat interface includes native button to publish interactive React artifacts to unique public subdomains.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Anthropic Artifacts sharing allowed direct one-click public URL previews.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Anthropic Artifacts sharing allowed direct one-click public URL previews.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">85%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">85%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-05-20</td>
-            <td><a href="https://www.anthropic.com/news/artifacts-sharing" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-05-20</td>
+            <td><a class="ledger-evidence" href="https://www.anthropic.com/news/artifacts-sharing" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-05-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of CUDA 12.8 release candidate, release notes officially deprecate Pascal GPU architecture.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-05-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of CUDA 12.8 release candidate, release notes officially deprecate Pascal GPU architecture.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> NVIDIA CUDA toolkit release documentation explicitly marks sm_60 and sm_61 as deprecated.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. CUDA 12.8 formally marked Pascal compute architectures as deprecated.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. CUDA 12.8 formally marked Pascal compute architectures as deprecated.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">30-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">85%</td>
+            <td><span class="horizon-tag">30-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">85%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-05-31</td>
-            <td><a href="https://developer.nvidia.com/cuda-toolkit/release-notes" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-05-31</td>
+            <td><a class="ledger-evidence" href="https://developer.nvidia.com/cuda-toolkit/release-notes" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="wrong" data-category="technology" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-03-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of version 1.2 release, Bun passes 100% of Node.js cluster module compatibility test suite.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="wrong" data-category="technology" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-03-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of version 1.2 release, Bun passes 100% of Node.js cluster module compatibility test suite.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Bun compatibility tracker reports 100% pass on node:cluster standard conformance tests.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Wrong. Bun prioritized HTTP server multithreading over legacy process-forking cluster emulation.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Wrong. Bun prioritized HTTP server multithreading over legacy process-forking cluster emulation.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">60%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">60%</td>
             <td><span class="status-pill wrong">wrong</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-06-01</td>
-            <td><a href="https://bun.sh/docs/runtime/nodejs-apis" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-06-01</td>
+            <td><a class="ledger-evidence" href="https://bun.sh/docs/runtime/nodejs-apis" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-03-10</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of model release, quantized 405B parameter model achieves inference on single 8xH100 node.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-03-10</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of model release, quantized 405B parameter model achieves inference on single 8xH100 node.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Reproducible GitHub repository demonstrates &gt;15 tokens/sec per stream on 8xH100 using FP4/FP8.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. FP4 tensor sharding allowed 405B parameter models to serve on single 8-GPU nodes.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. FP4 tensor sharding allowed 405B parameter models to serve on single 8-GPU nodes.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-06-10</td>
-            <td><a href="https://github.com/vllm-project/vllm/issues/6890" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-06-10</td>
+            <td><a class="ledger-evidence" href="https://github.com/vllm-project/vllm/issues/6890" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-06-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of public beta, Cloudflare Vectorize demonstrates p99 query latency under 15ms globally.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-06-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of public beta, Cloudflare Vectorize demonstrates p99 query latency under 15ms globally.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Independent benchmark telemetry validates global p99 latency &lt;15ms across 100k vector index.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Edge-located vector indexes met sub-15ms p99 latency SLA.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Edge-located vector indexes met sub-15ms p99 latency SLA.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">30-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">75%</td>
+            <td><span class="horizon-tag">30-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">75%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-07-01</td>
-            <td><a href="https://blog.cloudflare.com/vectorize-performance" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-07-01</td>
+            <td><a class="ledger-evidence" href="https://blog.cloudflare.com/vectorize-performance" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="market" data-horizon="365-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2025-08-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, a European sovereign cloud consortium announces deployment of &gt;10,000 high-end AI accelerators.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="market" data-horizon="365-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2025-08-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, a European sovereign cloud consortium announces deployment of &gt;10,000 high-end AI accelerators.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Consortium press release and independent auditor verify commissioning of 10k+ clusters in EU datacenter.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. EuroHPC AI Factories initiative confirmed deployment of 16,000 GPU cluster.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. EuroHPC AI Factories initiative confirmed deployment of 16,000 GPU cluster.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">market</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">75%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">market</span></td>
+            <td class="cell-prob">75%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-08-01</td>
-            <td><a href="https://ec.europa.eu/commission/presscorner/detail/en/ip_24_eu_ai_factories" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-08-01</td>
+            <td><a class="ledger-evidence" href="https://ec.europa.eu/commission/presscorner/detail/en/ip_24_eu_ai_factories" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="market" data-horizon="365-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2025-09-15</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, SWE-bench Verified replaces MMLU as the primary benchmark cited in frontier lab technical reports.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="market" data-horizon="365-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2025-09-15</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, SWE-bench Verified replaces MMLU as the primary benchmark cited in frontier lab technical reports.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Frontier model announcements cite SWE-bench resolution rates prominently on headline benchmark graphs.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. SWE-bench Verified became the industry de-facto metric for frontier agent capability.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. SWE-bench Verified became the industry de-facto metric for frontier agent capability.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">market</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">80%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">market</span></td>
+            <td class="cell-prob">80%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-09-15</td>
-            <td><a href="https://swebench.com" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-09-15</td>
+            <td><a class="ledger-evidence" href="https://swebench.com" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-09-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of release, PostgreSQL 17 includes native JSON_TABLE support conforming to SQL:2016.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="30-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-09-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 30 days of release, PostgreSQL 17 includes native JSON_TABLE support conforming to SQL:2016.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> PostgreSQL official release notes confirm JSON_TABLE function in core query planner.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. PostgreSQL 17 shipped JSON_TABLE in general availability.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. PostgreSQL 17 shipped JSON_TABLE in general availability.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">30-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">85%</td>
+            <td><span class="horizon-tag">30-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">85%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-09-30</td>
-            <td><a href="https://www.postgresql.org/about/news/postgresql-17-released-2722/" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-09-30</td>
+            <td><a class="ledger-evidence" href="https://www.postgresql.org/about/news/postgresql-17-released-2722/" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="adoption" data-horizon="365-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2025-10-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days of pgvector 0.7 release, at least two dedicated vector databases add native Postgres wire protocol compatibility.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="adoption" data-horizon="365-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2025-10-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days of pgvector 0.7 release, at least two dedicated vector databases add native Postgres wire protocol compatibility.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official docs of at least 2 standalone vector DBs confirm psql client compatibility.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Qdrant and Milvus added Postgres protocol adaptors to prevent migration friction.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Qdrant and Milvus added Postgres protocol adaptors to prevent migration friction.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-10-01</td>
-            <td><a href="https://qdrant.tech/docs/interfaces/postgresql" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-10-01</td>
+            <td><a class="ledger-evidence" href="https://qdrant.tech/docs/interfaces/postgresql" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="365-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2025-10-15</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days of initial reasoning model launch, production generation latency falls below 150ms per reasoning token.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="365-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2025-10-15</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days of initial reasoning model launch, production generation latency falls below 150ms per reasoning token.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Benchmarking APIs confirm time-per-output-token &lt;150ms on extended chain-of-thought generations.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Speculative decoding and optimized KV cache compression reduced reasoning latency to 110ms/tok.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Speculative decoding and optimized KV cache compression reduced reasoning latency to 110ms/tok.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">65%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">65%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-10-15</td>
-            <td><a href="https://artificialanalysis.ai/models" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-10-15</td>
+            <td><a class="ledger-evidence" href="https://artificialanalysis.ai/models" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="technology" data-horizon="365-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2025-11-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, leading commercial coding assistant launches multi-file autonomous workspace refactoring in GA.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="technology" data-horizon="365-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2025-11-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, leading commercial coding assistant launches multi-file autonomous workspace refactoring in GA.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official release notes document multi-file diff generation and dependency-aware edits in production tiers.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. Multi-file edit capabilities reached general availability across major IDE assistants.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. Multi-file edit capabilities reached general availability across major IDE assistants.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">85%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">85%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-01</td>
-            <td><a href="https://github.blog/news-insights/product-news/copilot-workspace-ga" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-11-01</td>
+            <td><a class="ledger-evidence" href="https://github.blog/news-insights/product-news/copilot-workspace-ga" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="wrong" data-category="market" data-horizon="365-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2025-11-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, US antitrust regulator issues binding consent decree prohibiting exclusive cloud compute credits for AI startups.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="wrong" data-category="market" data-horizon="365-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2025-11-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 365 days, US antitrust regulator issues binding consent decree prohibiting exclusive cloud compute credits for AI startups.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> FTC or DOJ public docket publishes formal signed consent decree barring compute-for-equity exclusivity.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Wrong. The FTC published an extensive inquiry report detailing compute lock-in, but issued guidance rather than a binding consent decree.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Wrong. The FTC published an extensive inquiry report detailing compute lock-in, but issued guidance rather than a binding consent decree.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">market</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">55%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">market</span></td>
+            <td class="cell-prob">55%</td>
             <td><span class="status-pill wrong">wrong</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-01</td>
-            <td><a href="https://www.ftc.gov/news-events/news/press-releases/2026/11/ai-market-study-findings" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-11-01</td>
+            <td><a class="ledger-evidence" href="https://www.ftc.gov/news-events/news/press-releases/2026/11/ai-market-study-findings" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
-        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" style="opacity:0.6;">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-08-01</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);"><span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of launch, GitHub Copilot Chat exposes Claude 3.5 Sonnet to Enterprise users.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="correct" data-category="adoption" data-horizon="90-day" data-provenance="illustrative" class="is-illustrative">
+            <td class="cell-mono">2026-08-01</td>
+            <td class="cell-statement">
+                <div class="ledger-statement"><span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>Within 90 days of launch, GitHub Copilot Chat exposes Claude 3.5 Sonnet to Enterprise users.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> GitHub Copilot settings allow selecting Anthropic Claude models for enterprise seats.
                 </div>
-                <div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> Correct. GitHub enabled multi-model choice including Claude 3.5 Sonnet for Enterprise seats.</div>
+                <div class="ledger-postmortem"><strong>Post-mortem:</strong> Correct. GitHub enabled multi-model choice including Claude 3.5 Sonnet for Enterprise seats.</div>
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">90-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">80%</td>
+            <td><span class="horizon-tag">90-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">80%</td>
             <td><span class="status-pill correct">correct</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-01</td>
-            <td><a href="https://github.blog/news-insights/product-news/bringing-developer-choice-to-copilot/" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a></td>
+            <td class="cell-mono">2026-11-01</td>
+            <td><a class="ledger-evidence" href="https://github.blog/news-insights/product-news/bringing-developer-choice-to-copilot/" target="_blank" rel="noopener">Evidence &rarr;</a></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="30-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-21</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">Within 30 days, at least two competing agent frameworks (e.g. LangChain, AutoGen) ship pull requests supporting the Open Agent Protocol standard.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-21</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">Within 30 days, at least two competing agent frameworks (e.g. LangChain, AutoGen) ship pull requests supporting the Open Agent Protocol standard.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official pull request or release in langchain-ai or microsoft/autogen implementing conforming protocol client.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">30-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">75%</td>
+            <td><span class="horizon-tag">30-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">75%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-12-20</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2026-12-20</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="technology" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-21</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 30 June 2027, at least three leading open-source inference runtimes (vLLM, SGLang, TensorRT-LLM) natively support cross-session shared KV-cache eviction APIs matching commercial cloud standards.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-21</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 30 June 2027, at least three leading open-source inference runtimes (vLLM, SGLang, TensorRT-LLM) natively support cross-session shared KV-cache eviction APIs matching commercial cloud standards.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Published release notes in official GitHub repositories documenting standardized shared KV-cache session eviction endpoint.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">75%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">75%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-06-30</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-06-30</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="technology" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-21</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 30 June 2027, at least three of the top five open-weight foundational model architectures adopt MLA as their default attention architecture.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-21</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 30 June 2027, at least three of the top five open-weight foundational model architectures adopt MLA as their default attention architecture.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Published model architecture papers on arXiv from major labs (e.g. Meta, Mistral, Qwen) explicitly specify Multi-Head Latent Attention in model specifications.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">75%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">75%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-06-30</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-06-30</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-21</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 August 2027, at least two major browser vendors (Chromium, Firefox, WebKit) merge native virtualized OS agent permission sandboxes.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-21</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 August 2027, at least two major browser vendors (Chromium, Firefox, WebKit) merge native virtualized OS agent permission sandboxes.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official browser release notes document isolated agent sandbox profile with restricted credential access and synthetic input isolation.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">65%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">65%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-08-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-08-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="technology" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-21</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 30 September 2027, the PyTorch core repository merges bidirectional pipeline parallelism scheduling inspired by DualPipe.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-21</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 30 September 2027, the PyTorch core repository merges bidirectional pipeline parallelism scheduling inspired by DualPipe.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Merged commit in pytorch/pytorch implementing bidirectional pipeline parallel overlap schedule with benchmark documentation.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">technology</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">65%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">technology</span></td>
+            <td class="cell-prob">65%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-09-30</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-09-30</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-19</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-19</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-19</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-19</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-19</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-19</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-19</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-19</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-19</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-19</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-20</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-20</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-20</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-20</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-20</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-20</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-22</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-22</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-22</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-22</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-22</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-22</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-22</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-22</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
         <tr data-status="open" data-category="adoption" data-horizon="365-day" data-provenance="live">
-            <td style="font-family:var(--font-mono); font-size:12px;">2026-11-22</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+            <td class="cell-mono">2026-11-22</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint.</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> Official repository release documentation details native endpoint protocol support without external bridge proxies.
                 </div>
                 
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">365-day</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">adoption</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">70%</td>
+            <td><span class="horizon-tag">365-day</span></td>
+            <td><span class="category-tag">adoption</span></td>
+            <td class="cell-prob">70%</td>
             <td><span class="status-pill open">open</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">2027-12-31</td>
-            <td>&mdash;</td>
+            <td class="cell-mono">2027-12-31</td>
+            <td><span class="cell-empty">&mdash;</span></td>
         </tr>
         
                 </tbody>
@@ -963,16 +962,18 @@
 
         
         <footer class="colophon">
-            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
-            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
-            <div class="footer-nav">
-                <a href="foryou.html">For You</a>
-                <a href="index.html">Daily News</a>
-                <a href="ledger.html">Forecast Ledger</a>
-                <a href="archive.html">News Archive</a>
-                <a href="patterns.html">Tech Patterns</a>
-                <a href="about.html">About Pith</a>
+            <div class="colophon-brand">
+                <div class="colophon-name"><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+                <div class="colophon-tagline">Primary-sourced &bull; Every forecast scored &bull; No sponsored content or noise</div>
             </div>
+            <nav class="footer-nav" aria-label="Footer">
+                <a href="foryou.html" data-members>For You</a>
+                <a href="index.html" data-members>Daily News</a>
+                <a href="ledger.html" data-members>Forecast Ledger</a>
+                <a href="archive.html" data-members>News Archive</a>
+                <a href="patterns.html" data-members>Tech Patterns</a>
+                <a href="about.html">About Pith</a>
+            </nav>
         </footer>
     
     </div>

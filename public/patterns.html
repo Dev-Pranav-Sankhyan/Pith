@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,80 +9,72 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+    <script>(function(){try{var t=localStorage.getItem("pith_brief_theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
+<body class="page-patterns">
+    
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Cybernetic Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
+    
 
     
-    <!-- Sticky Crown Header with ELO Rating, User Chip, and Audio Synthesizer -->
     <header class="crown">
-        <a href="index.html" class="brand-wrapper">
+        <a href="index.html" class="brand-wrapper" aria-label="Pith home">
             <div class="brand-mark" aria-hidden="true">
                 <i></i><i></i><i></i><i></i>
             </div>
             <div class="brand-name">PITH</div>
         </a>
         <div class="nav-cluster">
-            <nav class="nav-pills-bar">
-                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link active" aria-current="page">Tech Patterns</a><a href="about.html" class="nav-link">About</a>
+            <nav class="nav-pills-bar" aria-label="Main">
+                <a href="foryou.html" class="nav-link" data-members>For You</a><a href="index.html" class="nav-link" data-members>Daily News</a><a href="ledger.html" class="nav-link" data-members>Forecast Ledger</a><a href="archive.html" class="nav-link" data-members>News Archive</a><a href="patterns.html" class="nav-link active" aria-current="page" data-members>Tech Patterns</a><a href="about.html" class="nav-link">About</a><a href="about.html#access" class="nav-link nav-signin" data-guest>Sign in</a>
             </nav>
-            <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Authenticated Member Session">
-                <span class="crown-avatar" id="crown-avatar">?</span>
-                <span class="crown-username" id="crown-username"></span>
-                <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out of station">Sign out</button>
+            <div class="crown-tools">
+                <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Signed in">
+                    <span class="crown-avatar" id="crown-avatar">?</span>
+                    <span class="crown-username" id="crown-username"></span>
+                    <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out">Sign out</button>
+                </div>
+                <div class="elo-badge" id="elo-badge" data-members title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                    <span class="elo-icon" aria-hidden="true">◈</span>
+                    <span class="elo-score" id="user-elo-score">1200</span>
+                    <span class="elo-tier" id="user-elo-tier">Observer</span>
+                </div>
+                <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
+                    <span class="sound-wave-icon" aria-hidden="true">
+                        <i></i><i></i><i></i>
+                    </span>
+                    <span class="sound-label">Audio: On</span>
+                </button>
+                <button class="theme-toggle" id="theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light or dark theme" type="button">
+                    <div class="theme-icon-circle"></div>
+                </button>
             </div>
-            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
-                <span class="elo-icon">◈</span>
-                <span class="elo-score" id="user-elo-score">1200</span>
-                <span class="elo-tier" id="user-elo-tier">Observer</span>
-            </div>
-            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
-                <span class="sound-wave-icon" aria-hidden="true">
-                    <i></i><i></i><i></i>
-                </span>
-                <span class="sound-label">Audio: On</span>
-            </button>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
         </div>
     </header>
     
 
     <div class="desk-container">
         <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; HISTORICAL PRECEDENTS &middot; MENTAL MODELS</div>
-                <h1 class="page-title">Tech <em>Patterns</em></h1>
-            </div>
+            <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; HISTORICAL PRECEDENTS &middot; MENTAL MODELS</div>
+            <h1 class="page-title">Tech <em>Patterns</em></h1>
+            <p class="masthead-dek">Tech shifts appear sudden, but infrastructure history repeats in predictable economic and architectural dynamics. We evaluate candidate events against recurring failure modes, historical base rates, and cognitive bias warnings before drafting predictions.</p>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> CATALOGUED</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>MENTAL MODELS</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>6 ARCHITECTURAL DYNAMICS</span>
             </div>
         </section>
 
-        <div style="margin-bottom:28px;">
-            <p style="font-size:15px; color:var(--ink-2); line-height:1.6; max-width:68ch;">
-                Tech shifts appear sudden, but infrastructure history repeats in predictable economic and architectural dynamics. We evaluate candidate events against recurring failure modes, historical base rates, and cognitive bias warnings before drafting predictions.
-            </p>
-        </div>
-
         <!-- Pattern Filter Controls -->
-        <section class="role-bar" style="margin-bottom:30px;">
+        <section class="role-bar role-bar--filters">
             <div class="role-bar-label">Filter Category</div>
-            <div class="seg-control" id="pattern-filters">
+            <div class="seg-control" id="pattern-filters" role="group" aria-label="Filter patterns by category">
                 <button class="seg-btn active" data-category="all" type="button">All Patterns</button>
                 <button class="seg-btn" data-category="Platform Economics" type="button">Platform Economics</button>
                 <button class="seg-btn" data-category="Open Source & Standards" type="button">Open Source &amp; Standards</button>
@@ -95,17 +87,15 @@
             
         <article class="lab-card pattern-card" id="pattern-commoditisation-cascade" data-category="Platform Economics">
             <div class="card-header-line">
-                <span class="card-roman">I &middot; PLATFORM ECONOMICS</span>
+                <span class="card-roman"><span class="card-num">I</span><span class="card-beat">PLATFORM ECONOMICS</span></span>
                 <span class="card-sources-count">2 documented cases</span>
             </div>
 
             <h2 class="card-headline">The Commoditisation Cascade</h2>
             
-            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
-                Open-weight models match 90% of closed frontier capability at 10% the operating cost, triggering a price collapse that erodes thin wrapper margins and pushes value to proprietary data and execution.
-            </p>
+            <p class="pattern-summary">Open-weight models match 90% of closed frontier capability at 10% the operating cost, triggering a price collapse that erodes thin wrapper margins and pushes value to proprietary data and execution.</p>
 
-            <div class="story-block" style="margin-top:10px;">
+            <div class="story-block">
                 <span class="story-lead">The Core Dynamic:</span>
                 <span>Initial frontier monopoly prices create massive margin incentives for open replication. Once permissive architectures reach &#x27;good enough&#x27; utility for 80% of enterprise tasks, proprietary API pricing power breaks. Infrastructure providers are forced to discount inference or bundle it into platform subscriptions.</span>
             </div>
@@ -120,7 +110,7 @@
 
             <!-- Documented Case Studies -->
             <div class="pattern-cases-section">
-                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="drawer-title">Documented Historical Precedents</div>
                 <div class="pattern-cases-grid">
                     
             <div class="case-study-card">
@@ -150,17 +140,15 @@
         
         <article class="lab-card pattern-card" id="pattern-standards-war" data-category="Open Source &amp; Standards">
             <div class="card-header-line">
-                <span class="card-roman">II &middot; OPEN SOURCE &amp; STANDARDS</span>
+                <span class="card-roman"><span class="card-num">II</span><span class="card-beat">OPEN SOURCE &amp; STANDARDS</span></span>
                 <span class="card-sources-count">2 documented cases</span>
             </div>
 
             <h2 class="card-headline">The Standards War &amp; CNI Moment</h2>
             
-            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
-                Competing vendors unite under a neutral foundation (e.g., CNCF, Linux Foundation) to standardize an interface, neutralizing a dominant single-vendor tollbooth.
-            </p>
+            <p class="pattern-summary">Competing vendors unite under a neutral foundation (e.g., CNCF, Linux Foundation) to standardize an interface, neutralizing a dominant single-vendor tollbooth.</p>
 
-            <div class="story-block" style="margin-top:10px;">
+            <div class="story-block">
                 <span class="story-lead">The Core Dynamic:</span>
                 <span>When a platform leader begins leveraging proprietary connector protocols to extract ecosystem tolls, competing cloud providers and developer toolmakers form an open consortium. The resulting open standard commoditizes the connector layer and shifts value to infrastructure reliability and execution sandboxes.</span>
             </div>
@@ -175,7 +163,7 @@
 
             <!-- Documented Case Studies -->
             <div class="pattern-cases-section">
-                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="drawer-title">Documented Historical Precedents</div>
                 <div class="pattern-cases-grid">
                     
             <div class="case-study-card">
@@ -205,17 +193,15 @@
         
         <article class="lab-card pattern-card" id="pattern-price-war-compression" data-category="Platform Economics">
             <div class="card-header-line">
-                <span class="card-roman">III &middot; PLATFORM ECONOMICS</span>
+                <span class="card-roman"><span class="card-num">III</span><span class="card-beat">PLATFORM ECONOMICS</span></span>
                 <span class="card-sources-count">2 documented cases</span>
             </div>
 
             <h2 class="card-headline">Price-War Margin Compression</h2>
             
-            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
-                Hyperscalers with massive balance sheets slash marginal costs on compute primitives to near-zero, squeezing venture-backed challenger clouds and anchoring customer lock-in to their memory clusters.
-            </p>
+            <p class="pattern-summary">Hyperscalers with massive balance sheets slash marginal costs on compute primitives to near-zero, squeezing venture-backed challenger clouds and anchoring customer lock-in to their memory clusters.</p>
 
-            <div class="story-block" style="margin-top:10px;">
+            <div class="story-block">
                 <span class="story-lead">The Core Dynamic:</span>
                 <span>Cloud hyper-scalers treat low-level compute and caching as loss leaders to capture high-margin enterprise data residency and platform orchestration. Challenger clouds unable to cross-subsidize infrastructure face rapid gross margin compression.</span>
             </div>
@@ -230,7 +216,7 @@
 
             <!-- Documented Case Studies -->
             <div class="pattern-cases-section">
-                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="drawer-title">Documented Historical Precedents</div>
                 <div class="pattern-cases-grid">
                     
             <div class="case-study-card">
@@ -260,17 +246,15 @@
         
         <article class="lab-card pattern-card" id="pattern-relicensing-trap" data-category="Open Source &amp; Standards">
             <div class="card-header-line">
-                <span class="card-roman">IV &middot; OPEN SOURCE &amp; STANDARDS</span>
+                <span class="card-roman"><span class="card-num">IV</span><span class="card-beat">OPEN SOURCE &amp; STANDARDS</span></span>
                 <span class="card-sources-count">2 documented cases</span>
             </div>
 
             <h2 class="card-headline">The Relicensing &amp; Moat Pivot</h2>
             
-            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
-                Permissive open-source infrastructure projects face revenue capture from cloud giants, pivot to restrictive source-available licenses (BSL, SSPL), and provoke immediate community forks.
-            </p>
+            <p class="pattern-summary">Permissive open-source infrastructure projects face revenue capture from cloud giants, pivot to restrictive source-available licenses (BSL, SSPL), and provoke immediate community forks.</p>
 
-            <div class="story-block" style="margin-top:10px;">
+            <div class="story-block">
                 <span class="story-lead">The Core Dynamic:</span>
                 <span>Single-vendor commercial open-source companies struggle to monetize against hyper-scaler managed offerings. Stewards adopt restrictive source-available licenses to force commercial licensing, creating an immediate opportunity for cloud rivals and community consortiums to fork the permissive codebase.</span>
             </div>
@@ -285,7 +269,7 @@
 
             <!-- Documented Case Studies -->
             <div class="pattern-cases-section">
-                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="drawer-title">Documented Historical Precedents</div>
                 <div class="pattern-cases-grid">
                     
             <div class="case-study-card">
@@ -315,17 +299,15 @@
         
         <article class="lab-card pattern-card" id="pattern-platform-squeeze" data-category="Platform Economics">
             <div class="card-header-line">
-                <span class="card-roman">V &middot; PLATFORM ECONOMICS</span>
+                <span class="card-roman"><span class="card-num">V</span><span class="card-beat">PLATFORM ECONOMICS</span></span>
                 <span class="card-sources-count">2 documented cases</span>
             </div>
 
             <h2 class="card-headline">The Platform Squeeze &amp; Sherlocking</h2>
             
-            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
-                A platform cultivates an active ecosystem of third-party builders, reaches market dominance, and then systematically restricts API access or ships native clones of the most successful third-party tools.
-            </p>
+            <p class="pattern-summary">A platform cultivates an active ecosystem of third-party builders, reaches market dominance, and then systematically restricts API access or ships native clones of the most successful third-party tools.</p>
 
-            <div class="story-block" style="margin-top:10px;">
+            <div class="story-block">
                 <span class="story-lead">The Core Dynamic:</span>
                 <span>In early phases, platforms offer generous free APIs and developer grants to build ecosystem gravity. Once user and data lock-in are achieved, the platform absorbs high-demand utility apps into core product tiers or imposes steep API usage tollbooths.</span>
             </div>
@@ -340,7 +322,7 @@
 
             <!-- Documented Case Studies -->
             <div class="pattern-cases-section">
-                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="drawer-title">Documented Historical Precedents</div>
                 <div class="pattern-cases-grid">
                     
             <div class="case-study-card">
@@ -370,17 +352,15 @@
         
         <article class="lab-card pattern-card" id="pattern-codesign-bottleneck" data-category="Architecture &amp; Silicon">
             <div class="card-header-line">
-                <span class="card-roman">VI &middot; ARCHITECTURE &amp; SILICON</span>
+                <span class="card-roman"><span class="card-num">VI</span><span class="card-beat">ARCHITECTURE &amp; SILICON</span></span>
                 <span class="card-sources-count">2 documented cases</span>
             </div>
 
             <h2 class="card-headline">The Hardware/Software Co-Design Bottleneck</h2>
             
-            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
-                When hardware interconnects become the primary cost bottleneck, algorithmic kernel breakthroughs (FlashAttention, DualPipe, MLA) temporarily narrow the performance moat of closed hyper-scalers.
-            </p>
+            <p class="pattern-summary">When hardware interconnects become the primary cost bottleneck, algorithmic kernel breakthroughs (FlashAttention, DualPipe, MLA) temporarily narrow the performance moat of closed hyper-scalers.</p>
 
-            <div class="story-block" style="margin-top:10px;">
+            <div class="story-block">
                 <span class="story-lead">The Core Dynamic:</span>
                 <span>Hardware scaling encounters physical thermal and bandwidth walls (HBM capacity, memory bus width, cross-node communication). Software engineers rewrite execution kernels to overlap compute with communication or compress attention states, yielding 2x to 4x efficiency gains on existing commodity hardware.</span>
             </div>
@@ -395,7 +375,7 @@
 
             <!-- Documented Case Studies -->
             <div class="pattern-cases-section">
-                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="drawer-title">Documented Historical Precedents</div>
                 <div class="pattern-cases-grid">
                     
             <div class="case-study-card">
@@ -427,16 +407,18 @@
 
         
         <footer class="colophon">
-            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
-            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
-            <div class="footer-nav">
-                <a href="foryou.html">For You</a>
-                <a href="index.html">Daily News</a>
-                <a href="ledger.html">Forecast Ledger</a>
-                <a href="archive.html">News Archive</a>
-                <a href="patterns.html">Tech Patterns</a>
-                <a href="about.html">About Pith</a>
+            <div class="colophon-brand">
+                <div class="colophon-name"><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+                <div class="colophon-tagline">Primary-sourced &bull; Every forecast scored &bull; No sponsored content or noise</div>
             </div>
+            <nav class="footer-nav" aria-label="Footer">
+                <a href="foryou.html" data-members>For You</a>
+                <a href="index.html" data-members>Daily News</a>
+                <a href="ledger.html" data-members>Forecast Ledger</a>
+                <a href="archive.html" data-members>News Archive</a>
+                <a href="patterns.html" data-members>Tech Patterns</a>
+                <a href="about.html">About Pith</a>
+            </nav>
         </footer>
     
     </div>

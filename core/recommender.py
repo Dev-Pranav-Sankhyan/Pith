@@ -33,11 +33,16 @@ import json
 import math
 import random
 import threading
+import time
 from collections import Counter, defaultdict
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from core.newsfeed import FOR_YOU_DB, _write_lock, connect, init_schema, now_iso
+from core.brief_bridge import BRIEF, BRIEF_DB
 from core.clustering import ClusterEngine, StoryCluster
+from core import experiments, follows as follows_mod, prefs as prefs_mod
+from core.userfeeds import PRIVATE_FEED_PREFIX, subscribed_feed_ids
+from core.newsfeed import FEED_REGIONS
 from core.textfeatures import (TOPICS, display_term, estimate_read_seconds, jaccard,
                                tfidf_keywords, tokenize)
 
@@ -60,7 +65,18 @@ SIGNALS = {
     "worth_time": 3.5,
     "not_worth_time": -3.0,
 }
-EXPLORE_EVERY = 6          # one exploration slot per N items
+# Event kinds the server accepts. Anything else is dropped before it reaches the log.
+ALLOWED_KINDS = frozenset({
+    "impression", "click", "dwell", "like", "dislike", "save", "unsave", "share", "hide",
+    "worth_time", "not_worth_time", "clear_worth", "more_topic", "less_topic",
+    "mute_source", "unmute_source", "search",
+})
+BOUNCE_SECONDS = 8          # back within 8s: the headline over-promised
+DWELL_MIN_SAMPLES = 5       # reads needed before dwell is judged against the reader's own median
+CF_CACHE_SECONDS = 300      # collaborative-filtering engagement sets are rebuilt at most this often
+EXPLORE_EVERY = 6          # one exploration slot per N items (experiments may override)
+FOLLOW_BOOST = 0.6          # ranking bonus for anything matching a follow
+REGION_BOOST = 0.15         # bonus for outlets from the reader's chosen region
 MMR_LAMBDA = 0.78
 RECENCY_HOURS = 30.0
 CORPUS_DAYS = 7
@@ -132,6 +148,7 @@ class Corpus:
                 "topics": json.loads(r["topics_json"] or "{}"),
                 "keywords": kw, "kwset": set(list(kw)[:8]),
                 "entities": entities, "is_demo": bool(r["is_demo"]),
+                "feed_id": r["feed_id"] or "", "fetched_at": r["fetched_at"],
             }
             order.append(r["id"])
         self.articles, self.order = arts, order
@@ -156,7 +173,8 @@ class Corpus:
                 "publisher": r["publisher"] or "Unknown", "image_url": r["image_url"],
                 "published_at": r["published_at"], "word_count": r["word_count"] or 0,
                 "topics": json.loads(r["topics_json"] or "{}"), "keywords": kw, "kwset": set(list(kw)[:8]),
-                "entities": json.loads(r["entities_json"] or "[]"), "is_demo": bool(r["is_demo"])}
+                "entities": json.loads(r["entities_json"] or "[]"), "is_demo": bool(r["is_demo"]),
+                "feed_id": r["feed_id"] or ""}
 
 
 CORPUS = Corpus()
@@ -178,9 +196,17 @@ def article_features(a: Dict[str, Any], part: str) -> List[Tuple[str, str, float
 
 # ---------------------------------------------------------------- learning
 class Recommender:
-    def __init__(self, db_path: str = FOR_YOU_DB):
+    def __init__(self, db_path: str = FOR_YOU_DB, brief_db: str = BRIEF_DB):
         self.db = db_path
+        self.brief_db = brief_db
+        self._cf_cache: Tuple[float, Dict[int, set]] = (0.0, {})
         init_schema(db_path)
+
+    def lookup(self, aid: str) -> Optional[Dict[str, Any]]:
+        """An article from the For You corpus, or a Daily Brief card in the same feature shape."""
+        if not aid:
+            return None
+        return CORPUS.article(aid, self.db) or BRIEF.article(aid, self.brief_db)
 
     # ---- profile storage
     def _apply(self, conn, user_id: int, updates: Iterable[Tuple[str, str, float]]):
@@ -202,8 +228,23 @@ class Recommender:
 
     def _bandit(self, conn, user_id: int, topic: str, success: float = 0.0, failure: float = 0.0):
         conn.execute("""INSERT INTO topic_bandit (user_id, topic, successes, failures) VALUES (?,?,?,?)
-                        ON CONFLICT(user_id, topic) DO UPDATE SET successes=successes+excluded.successes,
-                        failures=failures+excluded.failures""", (user_id, topic, success, failure))
+                        ON CONFLICT(user_id, topic) DO UPDATE SET successes=MAX(0, successes+excluded.successes),
+                        failures=MAX(0, failures+excluded.failures)""",
+                     (user_id, topic, max(0.0, success), max(0.0, failure)))
+
+    def _typical_dwell(self, conn, user_id: int, a: Dict[str, Any]) -> float:
+        """Seconds this reader usually spends on a story they actually read (median of recent reads).
+
+        Falls back to a length estimate until there are enough reads. RSS summaries are too short to
+        say how long the real article is, so the reader's own habit is the better yardstick."""
+        rows = conn.execute("""SELECT dwell_seconds FROM user_articles WHERE user_id=? AND dwell_seconds >= ?
+                               ORDER BY last_seen DESC LIMIT 40""", (user_id, BOUNCE_SECONDS)).fetchall()
+        if len(rows) < DWELL_MIN_SAMPLES:
+            return estimate_read_seconds(a["word_count"])
+        vals = sorted(r[0] for r in rows)
+        mid = len(vals) // 2
+        median = vals[mid] if len(vals) % 2 else (vals[mid - 1] + vals[mid]) / 2
+        return max(20.0, median)
 
     def _ua(self, conn, user_id: int, aid: str, **fields):
         conn.execute("INSERT OR IGNORE INTO user_articles (user_id, article_id) VALUES (?, ?)", (user_id, aid))
@@ -226,24 +267,85 @@ class Recommender:
             sql = f"UPDATE user_articles SET {', '.join(set_clauses)} WHERE user_id=? AND article_id=?"
             conn.execute(sql, params)
 
-    def onboard(self, user_id: int, topics: List[str], sources: Optional[List[str]] = None):
+    def onboarding_pairs(self, n_pairs: int = 5, rng: Optional[random.Random] = None) -> List[List[Dict[str, Any]]]:
+        """"Which would you rather read?" pairs: real recent headlines from different topics.
+
+        One representative per topic (best corroborated, non-demo, with a summary), then topics
+        are paired off at random so every pair is a genuine trade-off between two subjects."""
+        rng = rng or random.Random()
+        corpus = CORPUS.get(self.db)
+        best: Dict[str, Tuple[float, str]] = {}
+        for aid in corpus.order[:600]:
+            a = corpus.articles[aid]
+            if not self._visible(a, set()) or not a["topics"]:
+                continue
+            topic = next(iter(a["topics"]))
+            c = corpus.cluster_by_aid.get(aid)
+            quality = ((c.corroboration_score if c else 0.5) + (0.2 if a["summary"] else 0)
+                       + (0.1 if a["image_url"] else 0) - (0.5 if a["is_demo"] else 0) + rng.random() * 0.15)
+            if topic not in best or quality > best[topic][0]:
+                best[topic] = (quality, aid)
+        topics = list(best)
+        rng.shuffle(topics)
+        pairs = []
+        for i in range(0, len(topics) - 1, 2):
+            pair = []
+            for t in topics[i:i + 2]:
+                a = corpus.articles[best[t][1]]
+                pair.append({"id": a["id"], "title": a["title"], "summary": a["summary"][:220],
+                             "publisher": a["publisher"], "topic": t, "image_url": a["image_url"]})
+            pairs.append(pair)
+            if len(pairs) >= n_pairs:
+                break
+        return pairs
+
+    def onboard(self, user_id: int, topics: List[str], sources: Optional[List[str]] = None,
+                choices: Optional[List[Dict[str, str]]] = None):
+        """Seeds a new profile from picked topics and/or "which would you rather read?" choices."""
         topics = [t for t in topics if t in TOPICS]
+        picked = []
+        for ch in (choices or [])[:10]:
+            if not isinstance(ch, dict):
+                continue
+            chosen, rejected = self.lookup(str(ch.get("chosen") or "")), self.lookup(str(ch.get("rejected") or ""))
+            if chosen:
+                picked.append((chosen, rejected))
+        part = daypart(None)
         with _write_lock, connect(self.db) as conn:
             self._apply(conn, user_id, [("topic", t, 3.0) for t in topics])
             self._apply(conn, user_id, [("source", s, 2.0) for s in (sources or [])])
             for t in topics:
                 self._bandit(conn, user_id, t, success=2.0)
+            # A choice between two real headlines says more than a topic tick-box: learn the
+            # chosen story like a "like", and the passed-over one as a mild skip.
+            for chosen, rejected in picked:
+                conn.execute("INSERT INTO events (user_id, article_id, kind, meta, created_at) VALUES (?,?,?,?,?)",
+                             (user_id, chosen["id"], "onboard_choice",
+                              json.dumps({"rejected": rejected["id"] if rejected else None}), now_iso()))
+                self._learn_article(conn, user_id, chosen, 2.0, part)
+                if chosen["topics"]:
+                    self._bandit(conn, user_id, next(iter(chosen["topics"])), success=1.5)
+                if rejected:
+                    self._learn_article(conn, user_id, rejected, -0.6, part)
+                    if rejected["topics"]:
+                        self._bandit(conn, user_id, next(iter(rejected["topics"])), failure=0.5)
             conn.execute("UPDATE users SET onboarded = 1 WHERE id = ?", (user_id,))
             conn.execute("INSERT INTO events (user_id, kind, meta, created_at) VALUES (?,?,?,?)",
-                         (user_id, "onboard", json.dumps({"topics": topics}), now_iso()))
+                         (user_id, "onboard", json.dumps({"topics": topics, "choices": len(picked)}), now_iso()))
 
     def record(self, user_id: int, ev: Dict[str, Any]) -> None:
         """Record one behavioural event and update the taste profile."""
         kind = ev.get("kind")
+        if kind not in ALLOWED_KINDS:
+            return
         aid = ev.get("article_id")
+        aid = str(aid)[:200] if aid else None
         part = daypart(ev.get("local_hour"))
-        value = float(ev.get("value") or 0)
-        a = CORPUS.article(aid, self.db) if aid else None
+        try:
+            value = float(ev.get("value") or 0)
+        except (TypeError, ValueError):
+            value = 0.0
+        a = self.lookup(aid)
 
         with _write_lock, connect(self.db) as conn:
             conn.execute("INSERT INTO events (user_id, article_id, kind, value, meta, created_at) VALUES (?,?,?,?,?,?)",
@@ -291,14 +393,15 @@ class Recommender:
                         self._bandit(conn, user_id, primary, success=1.0)
             elif kind == "dwell":
                 secs = max(0.0, min(value, 900.0))
+                baseline = self._typical_dwell(conn, user_id, a)
                 self._ua(conn, user_id, aid, dwell_seconds=secs, last_seen=now_str)
-                if secs < 8:  # bounced straight back: the headline over-promised
+                if secs < BOUNCE_SECONDS:  # bounced straight back: the headline over-promised
                     # Net must be negative: click added +1.0, so -1.5 results in a net -0.5 penalty
                     self._learn_article(conn, user_id, a, -1.5, part)
                     if primary:
                         self._bandit(conn, user_id, primary, failure=1.2)
                 else:
-                    ratio = secs / estimate_read_seconds(a["word_count"])
+                    ratio = secs / baseline
                     self._learn_article(conn, user_id, a, 0.8 * min(ratio, 2.0), part)
             elif kind in ("like", "dislike"):
                 self._ua(conn, user_id, aid, reaction=1 if kind == "like" else -1, last_seen=now_str)
@@ -310,12 +413,25 @@ class Recommender:
                 self._learn_article(conn, user_id, a, SIGNALS[kind], part)
             elif kind == "share":
                 self._learn_article(conn, user_id, a, SIGNALS["share"], part)
-            elif kind in ("worth_time", "not_worth_time"):
-                sat_val = 1 if kind == "worth_time" else -1
-                self._ua(conn, user_id, aid, reaction=sat_val, last_seen=now_str)
-                self._learn_article(conn, user_id, a, SIGNALS[kind], part)
-                if primary:
-                    self._bandit(conn, user_id, primary, success=3.0 if sat_val == 1 else 0, failure=3.0 if sat_val == -1 else 0)
+            elif kind in ("worth_time", "not_worth_time", "clear_worth"):
+                row = conn.execute("SELECT reaction FROM user_articles WHERE user_id=? AND article_id=?",
+                                   (user_id, aid)).fetchone()
+                prev = (row["reaction"] or 0) if row else 0
+                new = {"worth_time": 1, "not_worth_time": -1, "clear_worth": 0}[kind]
+                if new == prev:
+                    return  # repeated tap: nothing new learned
+                # Undo the previous rating first, so switching or clearing is neutral, not a fresh negative.
+                if prev:
+                    undo = SIGNALS["worth_time" if prev > 0 else "not_worth_time"]
+                    self._learn_article(conn, user_id, a, -undo, part)
+                    if primary:
+                        self._bandit(conn, user_id, primary, success=-3.0 if prev > 0 else 0,
+                                     failure=-3.0 if prev < 0 else 0)
+                self._ua(conn, user_id, aid, reaction=new, last_seen=now_str)
+                if new:
+                    self._learn_article(conn, user_id, a, SIGNALS["worth_time" if new > 0 else "not_worth_time"], part)
+                    if primary:
+                        self._bandit(conn, user_id, primary, success=3.0 if new > 0 else 0, failure=3.0 if new < 0 else 0)
             elif kind == "hide":
                 self._ua(conn, user_id, aid, hidden=1, last_seen=now_str)
                 self._learn_article(conn, user_id, a, SIGNALS["hide"], part)
@@ -347,17 +463,45 @@ class Recommender:
             return conn.execute("""SELECT COUNT(*) FROM user_articles WHERE user_id=? AND
                 (clicked=1 OR reaction=1 OR saved=1)""", (user_id,)).fetchone()[0] + \
                    conn.execute("SELECT COUNT(*) FROM events WHERE user_id=? AND kind IN ('onboard','more_topic')",
-                                (user_id,)).fetchone()[0] * 3
+                                (user_id,)).fetchone()[0] * 3 + \
+                   conn.execute("SELECT COUNT(*) FROM events WHERE user_id=? AND kind='onboard_choice'",
+                                (user_id,)).fetchone()[0] + \
+                   min(2, conn.execute("SELECT COUNT(*) FROM social_signals WHERE user_id=?",
+                                       (user_id,)).fetchone()[0]) * 3 + \
+                   conn.execute("SELECT COUNT(*) FROM follows WHERE user_id=?", (user_id,)).fetchone()[0]
+
+    def confidence(self, user_id: int) -> float:
+        """0..1: how much the ranker trusts this reader's profile over the generic baseline."""
+        return 1 - math.exp(-self._positive_count(user_id) / 12)
+
+    def _visible(self, a: Dict[str, Any], private_ok: set) -> bool:
+        """Articles from reader-added feeds are only shown to readers subscribed to that feed."""
+        fid = a.get("feed_id") or ""
+        return not fid.startswith(PRIVATE_FEED_PREFIX) or fid in private_ok
 
     # ---- collaborative filtering (user-user cosine over positive engagement)
-    def _collaborative(self, user_id: int) -> Dict[str, float]:
+    def _engagement_sets(self) -> Dict[int, set]:
+        """user -> positively engaged article ids, cached so ranking doesn't rescan the table per request."""
+        built, cached = self._cf_cache
+        if time.monotonic() - built < CF_CACHE_SECONDS:
+            return cached
         with connect(self.db) as conn:
             rows = conn.execute("""SELECT user_id, article_id FROM user_articles
                                    WHERE (clicked=1 AND reaction>=0) OR reaction=1 OR saved=1""").fetchall()
         by_user: Dict[int, set] = defaultdict(set)
         for r in rows:
             by_user[r["user_id"]].add(r["article_id"])
-        mine = by_user.get(user_id, set())
+        self._cf_cache = (time.monotonic(), by_user)
+        return by_user
+
+    def _own_engagement(self, user_id: int) -> set:
+        with connect(self.db) as conn:
+            return {r[0] for r in conn.execute("""SELECT article_id FROM user_articles WHERE user_id=? AND
+                    ((clicked=1 AND reaction>=0) OR reaction=1 OR saved=1)""", (user_id,))}
+
+    def _collaborative(self, user_id: int) -> Dict[str, float]:
+        by_user = self._engagement_sets()
+        mine = self._own_engagement(user_id)  # always fresh: the reader's latest clicks matter now
         if not mine:
             return {}
         scores: Dict[str, float] = defaultdict(float)
@@ -450,13 +594,20 @@ class Recommender:
         cf = self._collaborative(user_id)
         pop = self._popularity()
         exclude = set(exclude)
-        confidence = 1 - math.exp(-self._positive_count(user_id) / 12)
+        confidence = self.confidence(user_id)
+        params = experiments.params(user_id, self.db)
+        fl = follows_mod.list_follows(user_id, self.db)
+        private_ok = subscribed_feed_ids(user_id, self.db)
+        region = prefs_mod.get_prefs(user_id, self.db)["region"]
+        followed: Dict[str, Dict[str, Any]] = {}
 
         scored = []
         for aid in corpus.order:
             a = corpus.articles[aid]
             st = state.get(aid, {})
             if aid in exclude or st.get("hidden") or st.get("clicked") or a["publisher"] in muted:
+                continue
+            if not self._visible(a, private_ok):
                 continue
             if topic and topic not in a["topics"]:
                 continue
@@ -469,6 +620,13 @@ class Recommender:
             personal = 1.6 * content + 0.35 * cf.get(aid, 0) + 0.35 * rec + 0.12 * p + corroboration - fatigue
             baseline = 0.6 * rec + 0.4 * p + corroboration - fatigue
             score = confidence * personal + (1 - confidence) * baseline + 0.4 * content * (1 - confidence)
+            # Explicit choices (follows, home region) apply at full strength from day one.
+            f = follows_mod.match_any(fl, a) if fl else None
+            if f:
+                score += FOLLOW_BOOST
+                followed[aid] = f
+            if region != "global" and FEED_REGIONS.get(a.get("feed_id")) == region:
+                score += REGION_BOOST
             scored.append((score, aid, best))
         scored.sort(key=lambda x: -x[0])
 
@@ -481,7 +639,7 @@ class Recommender:
             for i, (s, aid, _) in enumerate(pool):
                 a = corpus.articles[aid]
                 sim = max((self._similarity(a, corpus.articles[c[1]]) for c in chosen[-6:]), default=0.0)
-                val = MMR_LAMBDA * s - (1 - MMR_LAMBDA) * sim
+                val = params["mmr_lambda"] * s - (1 - params["mmr_lambda"]) * sim
                 if val > best_val:
                     best_i, best_val = i, val
             pick = pool.pop(best_i)
@@ -503,7 +661,8 @@ class Recommender:
                 arms = {r["topic"]: (r["successes"], r["failures"]) for r in
                         conn.execute("SELECT * FROM topic_bandit WHERE user_id=?", (user_id,))}
             used = {c[1] for c in chosen} | exclude
-            for slot in range(EXPLORE_EVERY - 2, len(chosen), EXPLORE_EVERY):
+            every = params["explore_every"]
+            for slot in range(every - 2, len(chosen), every):
                 samples = {t: rng.betavariate(arms.get(t, (0, 0))[0] + 1, arms.get(t, (0, 0))[1] + 1)
                            for t in TOPICS if t not in top_topics and aff.get("topic", {}).get(t, 0) > -4}
                 if not samples:
@@ -515,6 +674,7 @@ class Recommender:
                                    and not state.get(item[1], {}).get("hidden")
                                    and not state.get(item[1], {}).get("clicked")
                                    and corpus.articles[item[1]]["publisher"] not in muted
+                                   and self._visible(corpus.articles[item[1]], private_ok)
                                    and (not corpus.cluster_by_aid.get(item[1]) or corpus.cluster_by_aid[item[1]].id not in chosen_clusters)), None)
                 if cand_match:
                     s_score, cand, best_why = cand_match
@@ -530,10 +690,59 @@ class Recommender:
         for s, aid, best in chosen:
             a = corpus.articles[aid]
             clust = corpus.cluster_by_aid.get(aid)
-            out.append(self._card(a, state.get(aid, {}), score=round(s, 4),
-                                  why=self._explain(a, best, cf.get(aid, 0), explore_ids.get(aid), part),
-                                  cluster=clust))
+            why = ({"type": "follow", "text": follows_mod.describe(followed[aid])} if aid in followed
+                   else self._explain(a, best, cf.get(aid, 0), explore_ids.get(aid), part))
+            out.append(self._card(a, state.get(aid, {}), score=round(s, 4), why=why, cluster=clust))
         return out
+
+    def following(self, user_id: int, limit: int = 40) -> List[Dict[str, Any]]:
+        """New coverage of everything the reader follows, newest first, unread only."""
+        fl = follows_mod.list_follows(user_id, self.db)
+        if not fl:
+            return []
+        corpus = CORPUS.get(self.db)
+        state = self._user_state(user_id)
+        muted = self._muted(user_id)
+        private_ok = subscribed_feed_ids(user_id, self.db)
+        out = []
+        for aid in corpus.order:  # newest first
+            a = corpus.articles[aid]
+            st = state.get(aid, {})
+            if st.get("hidden") or st.get("clicked") or a["publisher"] in muted or not self._visible(a, private_ok):
+                continue
+            f = follows_mod.match_any(fl, a)
+            if not f:
+                continue
+            since = (f.get("seed") or {}).get("published_at") or ""
+            if f["kind"] == "story" and a["published_at"] <= since:
+                continue  # older than the story itself: background, not an update
+            card = self._card(a, st, score=0, why={"type": "follow", "text": follows_mod.describe(f)},
+                              cluster=corpus.cluster_by_aid.get(aid))
+            card["follow"] = {"kind": f["kind"], "key": f["key"], "label": f["label"]}
+            card["is_new"] = a["fetched_at"] > f["last_checked"] if a.get("fetched_at") else False
+            out.append(card)
+            if len(out) >= limit:
+                break
+        return out
+
+    def follow(self, user_id: int, kind: str, key: str = "", label: Optional[str] = None,
+               article_id: Optional[str] = None) -> Dict[str, Any]:
+        """Follow something and seed the profile with it, so the feed responds immediately."""
+        seed = None
+        if kind == "story":
+            a = self.lookup(article_id or key)
+            if not a:
+                raise ValueError("Story not found")
+            key, label, seed = a["id"], a["title"], follows_mod.story_seed(a)
+        result = follows_mod.follow(user_id, kind, key, label, seed, self.db)
+        with _write_lock, connect(self.db) as conn:
+            if kind == "entity":
+                self._apply(conn, user_id, [("entity", label or key, 4.0)])
+            elif kind == "keyword":
+                self._apply(conn, user_id, [("keyword", t, 2.0) for t in tokenize(key)[:6]])
+            elif kind == "story" and seed:
+                self._learn_article(conn, user_id, self.lookup(key), 1.0, daypart(None))
+        return result
 
     def trending(self, user_id: Optional[int], limit: int = 30, exclude: Iterable[str] = ()) -> List[Dict[str, Any]]:
         corpus = CORPUS.get(self.db)
@@ -542,7 +751,8 @@ class Recommender:
         state = self._user_state(user_id) if user_id else {}
         exclude = set(exclude)
         scored = sorted(((0.55 * self._recency(a, now) + 0.45 * pop.get(aid, 0), aid)
-                         for aid, a in corpus.articles.items() if aid not in exclude and not state.get(aid, {}).get("hidden")),
+                         for aid, a in corpus.articles.items() if aid not in exclude and not state.get(aid, {}).get("hidden")
+                         and self._visible(a, set())),  # reader-added feeds never trend site-wide
                         reverse=True)
         out, per_source = [], Counter()
         for s, aid in scored:
@@ -565,8 +775,11 @@ class Recommender:
             return []
         state = self._user_state(user_id)
         now = dt.datetime.now(dt.timezone.utc)
+        private_ok = subscribed_feed_ids(user_id, self.db)
         hits = []
         for aid, a in corpus.articles.items():
+            if not self._visible(a, private_ok):
+                continue
             title_terms = set(tokenize(a["title"]))
             s = sum(a["keywords"].get(t, 0) for t in terms) + 0.5 * len(terms & title_terms)
             if s > 0:
@@ -647,12 +860,13 @@ class Recommender:
             "muted_sources": muted,
             "stats": {"reads": stats["reads"], "minutes_read": round(stats["dwell"] / 60, 1),
                       "saved": stats["saved"], "seen": stats["seen"], "events": n_events,
-                      "confidence": round(1 - math.exp(-self._positive_count(user_id) / 12), 3)},
+                      "confidence": round(self.confidence(user_id), 3)},
             "all_topics": TOPICS,
         }
 
     def reset(self, user_id: int) -> None:
         with _write_lock, connect(self.db) as conn:
-            for table in ("affinities", "user_articles", "topic_bandit", "muted_sources", "events"):
+            for table in ("affinities", "user_articles", "topic_bandit", "muted_sources", "events",
+                          "follows", "user_prefs", "user_feeds", "experiment_exposures", "social_signals"):
                 conn.execute(f"DELETE FROM {table} WHERE user_id=?", (user_id,))
             conn.execute("UPDATE users SET onboarded = 0 WHERE id=?", (user_id,))

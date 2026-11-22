@@ -25,7 +25,8 @@ from pipeline.render_extended import (
     render_about,
     get_nav_html,
     get_footer_html,
-    get_ambient_bg_html
+    get_ambient_bg_html,
+    get_head_assets
 )
 
 
@@ -134,7 +135,7 @@ def render_index(issue, path: str):
 
         second_order_lis = "".join([f"<li>{escape(so)}</li>" for so in card.second_order])
         evidence_lis = "".join([
-            f'<li><a href="{escape(el.url)}" target="_blank" rel="noopener" style="color:var(--ink); font-weight:600;">{escape(el.title)}</a> &mdash; {escape(el.publisher)}<br><span style="font-size:12px; color:var(--muted);">&ldquo;{escape(el.quoted_span or "")}&rdquo;</span></li>'
+            f'<li><a class="evidence-link" href="{escape(el.url)}" target="_blank" rel="noopener">{escape(el.title)}</a> <span class="evidence-publisher">&mdash; {escape(el.publisher)}</span><span class="evidence-quote">&ldquo;{escape(el.quoted_span or "")}&rdquo;</span></li>'
             for el in card.evidence_links
         ])
 
@@ -153,14 +154,14 @@ def render_index(issue, path: str):
         roles_comparison_html = """
         <div class="drawer-section">
             <div class="drawer-title">Cross-Role Lens Comparison</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="role-compare-list">
         """
         for r_name, r_view in card.role_views.items():
             roles_comparison_html += f"""
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">{escape(r_name)} &middot; {escape(r_view.action_type)}</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">{escape(r_view.impact)}</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; {escape(r_view.action_text)}</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">{escape(r_name)} <span class="action-pill {escape(r_view.action_type.lower())}">{escape(r_view.action_type)}</span></div>
+                    <div class="role-compare-impact">{escape(r_view.impact)}</div>
+                    <div class="role-compare-action">&rarr; {escape(r_view.action_text)}</div>
                 </div>
             """
         roles_comparison_html += "</div></div>"
@@ -205,14 +206,14 @@ def render_index(issue, path: str):
 """
             forecast_line_html = f"""
                 <div class="headline-forecast" title="Pith's falsifiable forecast for this story">
-                    <span class="forecast-badge">{int(pred.probability * 100)}%</span>
+                    <span class="forecast-badge" aria-label="Forecast probability">{int(pred.probability * 100)}%</span>
                     <span class="prediction-text">{escape(pred.statement)}</span>
                     <span class="resolves-badge">Resolves {escape(pred.resolves_at)}</span>
                 </div>"""
             criteria_html = f"""
                 <div class="drawer-section">
                     <div class="drawer-title">Falsifiable Resolution Criteria</div>
-                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                    <div class="criteria-box">
                         {escape(pred.resolution_criteria)}
                     </div>
                 </div>"""
@@ -225,10 +226,10 @@ def render_index(issue, path: str):
         <article class="lab-card news-story-card is-collapsed" id="{escape(card.id)}" data-role-views='{role_views_json}'>
             <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
                 <div class="card-header-line">
-                    <span class="card-roman">{roman} &middot; {escape(card.beat)}</span>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="card-roman"><span class="card-num">{roman}</span><span class="card-beat">{escape(card.beat)}</span></span>
+                    <div class="card-header-meta">
                         {pattern_badge}
-                        <span class="card-sources-count">{len(card.evidence_links)} primary source</span>
+                        <span class="card-sources-count">{len(card.evidence_links)} primary source{"" if len(card.evidence_links) == 1 else "s"}</span>
                     </div>
                 </div>
 
@@ -257,7 +258,7 @@ def render_index(issue, path: str):
             <div class="action-panel action-{dev_view.action_type.lower() if dev_view else 'do'} dev-glow">
                 <div class="action-panel-top">
                     <span class="action-pill {dev_view.action_type.lower() if dev_view else 'do'}">{dev_view.action_type if dev_view else 'DO'}</span>
-                    <span style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); font-weight:600;">Action this week</span>
+                    <span class="action-panel-label">Action this week</span>
                 </div>
                 <div class="role-impact-preview">{escape(dev_view.impact if dev_view else '')}</div>
                 <div class="action-directive">{escape(dev_view.action_text if dev_view else card.action_text)}</div>
@@ -268,10 +269,10 @@ def render_index(issue, path: str):
                 <div class="gauge-item">
                     <span>Signal:</span>
                     <span class="badge-tag {card.signal_level.lower()}">{escape(card.signal_level)}</span>
-                    <span style="font-size:12px; color:var(--muted); margin-left:4px;">({escape(card.signal_reason)})</span>
+                    <span class="gauge-note">{escape(card.signal_reason)}</span>
                 </div>
                 <div class="gauge-item">
-                    <span>Confidence: <strong style="color:var(--ink);">{escape(card.confidence)}</strong></span>
+                    <span>Confidence:</span> <strong>{escape(card.confidence)}</strong>
                 </div>
             </div>
 
@@ -344,6 +345,26 @@ def render_index(issue, path: str):
         </article>
         """)
 
+    # Pool: cards that passed the same threshold and verification as the 5 above. Listing them
+    # here publishes their forecasts openly, and signed-in readers get them mixed into Your 5.
+    pool_items_html = []
+    for pc in getattr(issue, "pool", []) or []:
+        link = pc.evidence_links[0] if pc.evidence_links else None
+        pred = pc.prediction
+        pool_items_html.append(f"""
+            <li class="pool-item" id="pool-{escape(pc.id)}">
+                <div class="pool-item-meta"><span class="pool-score">{int(pc.signal_score)}</span> signal{f' · <a href="{escape(link.url)}" target="_blank" rel="noopener noreferrer">{escape(link.publisher or "source")}</a>' if link else ""}</div>
+                <div class="pool-item-headline">{escape(pc.headline)}</div>
+                {f'<div class="pool-item-forecast"><b>{int(round(pred.probability * 100))}%</b> {escape(pred.statement)} <span class="pool-resolves">resolves {escape(pred.resolves_at)}</span></div>' if pred else ""}
+            </li>""")
+    pool_html = f"""
+            <section class="pool-sheet" id="more-shifts" aria-labelledby="more-shifts-title">
+                <div class="eyebrow"><span class="gilt-dot"></span> ALSO PASSED THE BAR TODAY</div>
+                <h3 class="pool-title" id="more-shifts-title">More verified shifts</h3>
+                <p class="pool-sub">These cleared the same signal threshold and quote verification as the five above. Signed-in readers get the ones that fit them mixed into <a href="foryou.html">Your 5</a>.</p>
+                <ol class="pool-list">{"".join(pool_items_html)}</ol>
+            </section>""" if pool_items_html else ""
+
     not_included_items_html = []
     for ni in issue.not_included_today:
         tag, period = get_kill_tag_and_period(ni.headline, ni.reason)
@@ -361,7 +382,7 @@ def render_index(issue, path: str):
     issue_date_formatted = datetime.datetime.strptime(issue.date, "%Y-%m-%d").strftime("%d %B %Y")
 
     html_content = f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -371,44 +392,32 @@ def render_index(issue, path: str):
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    {get_head_assets()}
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
-    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Subtle Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
+<body class="page-brief">
+    {get_ambient_bg_html()}
 
     {get_nav_html("index.html")}
 
     <div class="desk-container">
         <!-- Masthead -->
         <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> DAILY TECH INTELLIGENCE &middot; {escape(issue.beat)}</div>
-                <h1 class="page-title">Daily <em>Tech News</em></h1>
-                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Today's 5 grounded architectural and market power shifts. Filtered down to events that alter software architectures, unit economics, or competitive moats.</p>
-            </div>
+            <div class="eyebrow"><span class="gilt-dot"></span> DAILY TECH INTELLIGENCE &middot; {escape(issue.beat)}</div>
+            <h1 class="page-title">Daily <em>Tech News</em></h1>
+            <p class="masthead-dek">Today's 5 grounded architectural and market power shifts. Filtered down to events that alter software architectures, unit economics, or competitive moats.</p>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> AUDITED</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>{escape(issue_date_formatted)}</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>ISSUE #01</span>
-            </div>
-            <div class="scroll-cue" id="scroll-cue" title="Scroll down to read today's 5 falsifiable shifts">
-                <span class="scroll-mouse-icon"><i class="scroll-mouse-dot"></i></span>
-                <span class="scroll-cue-text">Scroll to explore 5 high-signal shifts</span>
             </div>
         </section>
 
+        <section class="brief-controls" aria-label="Listen and choose a lens">
         <!-- 90-Second Studio Audio Briefing Player -->
-        <section class="audio-brief-section">
+        <div class="audio-brief-section">
             <div class="audio-brief-bar" id="audio-brief-bar">
                 <div class="audio-brief-main-row">
                     <div class="audio-brief-play-side">
@@ -446,17 +455,18 @@ def render_index(issue, path: str):
 
                 <audio id="audio-player" preload="metadata" src="audio/brief-developer.mp3"></audio>
             </div>
-        </section>
+        </div>
 
         <!-- Segmented Role Selector -->
-        <section class="role-bar">
+        <div class="role-bar">
             <div class="role-bar-label">Personal Lens</div>
-            <div class="seg-control">
+            <div class="seg-control" role="group" aria-label="Personal lens">
                 <button class="seg-btn active" data-role="developer" type="button">Developer</button>
                 <button class="seg-btn" data-role="founder" type="button">Founder</button>
                 <button class="seg-btn" data-role="investor" type="button">Investor</button>
                 <button class="seg-btn" data-role="everyday" type="button">Everyday Person</button>
             </div>
+        </div>
         </section>
 
         <!-- Cards Flow -->
@@ -486,16 +496,17 @@ def render_index(issue, path: str):
                     <button class="replay-filter-btn" id="replay-lowpass-btn" type="button">↻ Replay Lowpass</button>
                 </div>
             </div>
+            {pool_html}
         </main>
 
         <!-- Signature "Safely Ignore Today" Filter-Proof Sheet with Shredder -->
         <section class="filter-sheet" id="safely-ignore">
             <div class="filter-sheet-header">
                 <div>
-                    <div class="eyebrow" style="margin-bottom:2px;"><span class="gilt-dot"></span> NOISE FILTER AT WORK</div>
+                    <div class="eyebrow"><span class="gilt-dot"></span> NOISE FILTER AT WORK</div>
                     <h3 class="filter-sheet-title">Safely Ignore Today</h3>
                 </div>
-                <div style="display:flex; align-items:center; gap:10px;">
+                <div class="filter-sheet-actions">
                     <button class="shredder-btn" id="shredder-btn" type="button" title="Vaporize today's filtered distractions">
                         <span class="shredder-icon">⚡</span>
                         <span class="shredder-label">Clear the Noise</span>
@@ -535,26 +546,26 @@ def render_ledger(predictions, stats, path: str):
     for p in predictions:
         status_cls = p.status.lower()
         horizon = LedgerEngine.get_horizon(p)
-        postmortem_html = f'<div style="font-size:12px; color:var(--red-ink); margin-top:4px;"><strong>Post-mortem:</strong> {escape(p.postmortem)}</div>' if p.postmortem else ""
-        evidence_html = f'<a href="{escape(p.evidence_url)}" target="_blank" rel="noopener" style="font-size:12px; color:var(--ink); font-weight:600;">Evidence &rarr;</a>' if p.evidence_url else "&mdash;"
+        postmortem_html = f'<div class="ledger-postmortem"><strong>Post-mortem:</strong> {escape(p.postmortem)}</div>' if p.postmortem else ""
+        evidence_html = f'<a class="ledger-evidence" href="{escape(p.evidence_url)}" target="_blank" rel="noopener">Evidence &rarr;</a>' if p.evidence_url else '<span class="cell-empty">&mdash;</span>'
 
         is_live = LedgerEngine.is_live(p)
-        prov_html = "" if is_live else '<span class="badge-tag low" style="font-size:9px; padding:1px 6px; margin-right:6px;" title="Hand-written example. Not counted in any score.">Illustrative</span>'
+        prov_html = "" if is_live else '<span class="badge-tag low prov-tag" title="Hand-written example. Not counted in any score.">Illustrative</span>'
         rows_html.append(f"""
-        <tr data-status="{escape(p.status)}" data-category="{escape(p.category)}" data-horizon="{escape(horizon)}" data-provenance="{escape(p.provenance)}"{'' if is_live else ' style="opacity:0.6;"'}>
-            <td style="font-family:var(--font-mono); font-size:12px;">{escape(p.made_at)}</td>
-            <td>
-                <div style="font-weight:600; color:var(--ink);">{prov_html}{escape(p.statement)}</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        <tr data-status="{escape(p.status)}" data-category="{escape(p.category)}" data-horizon="{escape(horizon)}" data-provenance="{escape(p.provenance)}"{'' if is_live else ' class="is-illustrative"'}>
+            <td class="cell-mono">{escape(p.made_at)}</td>
+            <td class="cell-statement">
+                <div class="ledger-statement">{prov_html}{escape(p.statement)}</div>
+                <div class="ledger-criteria">
                     <em>Resolution standard:</em> {escape(p.resolution_criteria)}
                 </div>
                 {postmortem_html}
             </td>
-            <td><span class="badge-tag low" style="font-size:10px; padding:2px 7px;">{escape(horizon)}</span></td>
-            <td><span style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600;">{escape(p.category)}</span></td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">{int(p.probability * 100)}%</td>
+            <td><span class="horizon-tag">{escape(horizon)}</span></td>
+            <td><span class="category-tag">{escape(p.category)}</span></td>
+            <td class="cell-prob">{int(p.probability * 100)}%</td>
             <td><span class="status-pill {status_cls}">{escape(p.status)}</span></td>
-            <td style="font-family:var(--font-mono); font-size:12px;">{escape(p.resolves_at)}</td>
+            <td class="cell-mono">{escape(p.resolves_at)}</td>
             <td>{evidence_html}</td>
         </tr>
         """)
@@ -563,14 +574,14 @@ def render_ledger(predictions, stats, path: str):
     for b in stats["calibration"]:
         actual_str = f"{b['actual_rate']}%" if b['actual_rate'] is not None else "&mdash;"
         gap_str = f"{b['calibration_gap']:+.1f}%" if b['calibration_gap'] is not None else "&mdash;"
-        gap_color = "var(--good)" if (b['calibration_gap'] or 0) >= 0 else "var(--bad)"
+        gap_cls = "" if b['calibration_gap'] is None else ("is-good" if b['calibration_gap'] >= 0 else "is-bad")
         calibration_rows.append(f"""
         <tr>
-            <td style="font-weight:600; color:var(--ink);">{escape(b['bucket'])}</td>
-            <td>{b['count']}</td>
-            <td style="font-family:var(--font-mono);">{b['avg_forecast']}%</td>
-            <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink);">{actual_str}</td>
-            <td style="font-family:var(--font-mono); color:{gap_color}; font-weight:600;">{gap_str}</td>
+            <td class="cell-strong">{escape(b['bucket'])}</td>
+            <td class="cell-mono">{b['count']}</td>
+            <td class="cell-mono">{b['avg_forecast']}%</td>
+            <td class="cell-prob">{actual_str}</td>
+            <td class="cell-mono cell-gap {gap_cls}">{gap_str}</td>
         </tr>
         """)
 
@@ -584,13 +595,13 @@ def render_ledger(predictions, stats, path: str):
     ill = stats.get("illustrative", {})
     if stats["resolved_count"] == 0:
         record_banner = f"""
-        <div class="lab-card" style="padding:14px 18px; border:1px solid var(--gilt); border-radius:8px; margin-bottom:22px; font-size:14px; line-height:1.5;">
+        <div class="notice">
             <strong>No live forecast has resolved yet.</strong> Scores appear here only once a prediction Pith actually published reaches its resolution date and a named reviewer records the outcome with evidence.
             {f"The {ill.get('count', 0)} faded rows marked <em>Illustrative</em> below are hand-written examples to preview the layout. They are not counted in any number on this page." if ill.get('count') else ""}
         </div>"""
     elif ill.get("count"):
         record_banner = f"""
-        <div style="font-size:12.5px; color:var(--muted); margin-bottom:18px;">Scores count live forecasts only. {ill['count']} faded <em>Illustrative</em> rows are examples and are excluded.</div>"""
+        <div class="notice notice--quiet">Scores count live forecasts only. {ill['count']} faded <em>Illustrative</em> rows are examples and are excluded.</div>"""
     else:
         record_banner = ""
 
@@ -599,53 +610,43 @@ def render_ledger(predictions, stats, path: str):
     if live_wrong:
         wrong_cards_html = "".join(f"""
             <div class="wrong-card">
-                <div class="wrong-card-top" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="wrong-card-top">
                     <span class="status-pill wrong">&#10005; Wrong Call</span>
-                    <span style="font-family:var(--font-mono); font-size:12px; color:var(--muted);">Forecast: {int(w.probability * 100)}% &middot; Resolved {escape(w.resolved_at or "")}{(" by " + escape(w.resolved_by)) if w.resolved_by else ""}</span>
+                    <span class="wrong-card-meta">Forecast: {int(w.probability * 100)}% &middot; Resolved {escape(w.resolved_at or "")}{(" by " + escape(w.resolved_by)) if w.resolved_by else ""}</span>
                 </div>
                 <div class="wrong-statement">&ldquo;{escape(w.statement)}&rdquo;</div>
-                {f'<div class="wrong-postmortem-block"><div class="wrong-postmortem-title">Post-mortem:</div><div class="wrong-postmortem-text">{escape(w.postmortem)}</div>' + (f'<div style="margin-top:10px;"><a href="{escape(w.evidence_url)}" target="_blank" rel="noopener" class="wrong-evidence-link">Evidence &rarr;</a></div>' if w.evidence_url else "") + '</div>' if w.postmortem else ""}
+                {f'<div class="wrong-postmortem-block"><div class="wrong-postmortem-title">Post-mortem:</div><div class="wrong-postmortem-text">{escape(w.postmortem)}</div>' + (f'<div class="wrong-evidence"><a href="{escape(w.evidence_url)}" target="_blank" rel="noopener" class="wrong-evidence-link">Evidence &rarr;</a></div>' if w.evidence_url else "") + '</div>' if w.postmortem else ""}
             </div>""" for w in live_wrong[:3])
     else:
-        wrong_cards_html = '<div style="font-size:14px; color:var(--muted); padding:12px 0;">No live forecast has been resolved wrong yet. When one is, it appears here with its original probability and a post-mortem.</div>'
+        wrong_cards_html = '<div class="empty-note">No live forecast has been resolved wrong yet. When one is, it appears here with its original probability and a post-mortem.</div>'
 
     horizon_stats = stats.get("horizon_breakdown", {})
     h30 = horizon_stats.get("30-day", {})
     h90 = horizon_stats.get("90-day", {})
     h365 = horizon_stats.get("365-day", {})
 
+    def _horizon_card(icon: str, label: str, title: str, h: dict) -> str:
+        brier = h.get('brier_score') if h.get('brier_score') is not None else '&mdash;'
+        return f"""
+            <div class="horizon-card">
+                <div class="horizon-card-top">
+                    <span class="horizon-label"><span aria-hidden="true">{icon}</span> {label}</span>
+                    <span class="status-pill {'correct' if h.get('hit_rate_pct') is not None else 'open'}">{_pct(h)}</span>
+                </div>
+                <div class="horizon-title">{title}</div>
+                <div class="horizon-meta">{h.get('resolved', 0)} resolved &middot; {h.get('open', 0)} active &middot; Brier: {brier}</div>
+            </div>"""
+
     horizon_cards_html = f"""
-        <!-- Forecast Horizons Segmentation Strip -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; margin-bottom:28px;">
-            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">⚡ 30-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">{_pct(h30)}</span>
-                </div>
-                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Immediate Tooling &amp; SDK Shifts</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h30.get('resolved', 0)} resolved &middot; {h30.get('open', 0)} active &middot; Brier: {h30.get('brier_score') if h30.get('brier_score') is not None else '&mdash;'}</div>
-            </div>
-            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">◈ 90-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">{_pct(h90)}</span>
-                </div>
-                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Quarterly Architecture Milestones</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h90.get('resolved', 0)} resolved &middot; {h90.get('open', 0)} active &middot; Brier: {h90.get('brier_score') if h90.get('brier_score') is not None else '&mdash;'}</div>
-            </div>
-            <div class="lab-card" style="padding:16px 20px; border:1px solid var(--hairline); background:var(--surface); border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--gilt); text-transform:uppercase;">✦ 365-Day Horizon</span>
-                    <span class="status-pill correct" style="font-size:10px;">{_pct(h365)}</span>
-                </div>
-                <div style="font-size:13.5px; color:var(--ink); font-weight:700;">Annual Platform &amp; Economic Regimes</div>
-                <div style="font-size:12px; color:var(--muted); margin-top:4px;">{h365.get('resolved', 0)} resolved &middot; {h365.get('open', 0)} active &middot; Brier: {h365.get('brier_score') if h365.get('brier_score') is not None else '&mdash;'}</div>
-            </div>
+        <div class="horizon-grid">
+            {_horizon_card("⚡", "30-Day Horizon", "Immediate Tooling &amp; SDK Shifts", h30)}
+            {_horizon_card("◈", "90-Day Horizon", "Quarterly Architecture Milestones", h90)}
+            {_horizon_card("✦", "365-Day Horizon", "Annual Platform &amp; Economic Regimes", h365)}
         </div>
     """
 
     html_content = f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -655,33 +656,24 @@ def render_ledger(predictions, stats, path: str):
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    {get_head_assets()}
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
-    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Cybernetic Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
+<body class="page-ledger">
+    {get_ambient_bg_html()}
 
     {get_nav_html("ledger.html")}
 
     <div class="desk-container">
         <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD &middot; ACCURACY LEDGER</div>
-                <h1 class="page-title">Forecast <em>Tracker</em></h1>
-                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Public, immutable ledger of all dated falsifiable predictions. Probabilities are locked after the publication day and every verdict is an append-only record with a named reviewer and evidence.</p>
-            </div>
+            <div class="eyebrow"><span class="gilt-dot"></span> AUDIT &middot; PUBLIC TRACK RECORD &middot; ACCURACY LEDGER</div>
+            <h1 class="page-title">Forecast <em>Tracker</em></h1>
+            <p class="masthead-dek">Public, immutable ledger of all dated falsifiable predictions. Probabilities are locked after the publication day and every verdict is an append-only record with a named reviewer and evidence.</p>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> ON-RECORD</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>IMMUTABLE PROBABILITIES</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>ZERO RETROSPECTIVE EDITS</span>
             </div>
         </section>
@@ -691,12 +683,12 @@ def render_ledger(predictions, stats, path: str):
         <!-- Big Num Grid with Counter Animations -->
         <div class="bignum-grid">
             <div class="bignum-card">
-                <div class="bignum"{brier_target} data-format="brier">{brier_val}</div>
+                <div class="bignum{'' if brier_target else ' is-empty'}"{brier_target} data-format="brier">{brier_val}</div>
                 <div class="bignum-label">Brier Score</div>
                 <div class="bignum-sub">{brier_sub}</div>
             </div>
             <div class="bignum-card">
-                <div class="bignum"{hit_target} data-format="percent">{hit_rate_val}</div>
+                <div class="bignum{'' if hit_target else ' is-empty'}"{hit_target} data-format="percent">{hit_rate_val}</div>
                 <div class="bignum-label">Hit Rate</div>
                 <div class="bignum-sub">{stats['correct_count']} of {stats['resolved_count']} resolved</div>
             </div>
@@ -718,7 +710,7 @@ def render_ledger(predictions, stats, path: str):
         <section class="table-sheet">
             <div class="sheet-header-line">
                 <h3 class="sheet-title">Forecast Calibration</h3>
-                <span style="font-size:12px; color:var(--muted);">When we predict X%, are we right X% of the time?</span>
+                <span class="sheet-note">When we predict X%, are we right X% of the time?</span>
             </div>
             <table class="instrument-table">
                 <thead>
@@ -785,7 +777,7 @@ def render_ledger(predictions, stats, path: str):
 
         <!-- Full Ledger Sheet -->
         <section class="table-sheet">
-            <table class="instrument-table">
+            <table class="instrument-table instrument-table--ledger">
                 <thead>
                     <tr>
                         <th>Made</th>
@@ -844,7 +836,7 @@ def render_patterns(patterns, issue, path: str):
         if matched_cards:
             active_in_brief_html = f"""
             <div class="pattern-active-brief">
-                <span style="font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--gilt);">Active in Today's Issue:</span>
+                <span class="pattern-active-label">Active in Today's Issue:</span>
                 {" &middot; ".join(matched_cards)}
             </div>
             """
@@ -852,17 +844,15 @@ def render_patterns(patterns, issue, path: str):
         patterns_html.append(f"""
         <article class="lab-card pattern-card" id="{escape(p['id'])}" data-category="{escape(p['category'])}">
             <div class="card-header-line">
-                <span class="card-roman">{roman} &middot; {escape(p['tag'])}</span>
+                <span class="card-roman"><span class="card-num">{roman}</span><span class="card-beat">{escape(p['tag'])}</span></span>
                 <span class="card-sources-count">{len(p['cases'])} documented cases</span>
             </div>
 
             <h2 class="card-headline">{escape(p['name'])}</h2>
             
-            <p class="story-block" style="font-size:16px; color:var(--ink); font-weight:500;">
-                {escape(p['summary'])}
-            </p>
+            <p class="pattern-summary">{escape(p['summary'])}</p>
 
-            <div class="story-block" style="margin-top:10px;">
+            <div class="story-block">
                 <span class="story-lead">The Core Dynamic:</span>
                 <span>{escape(p['dynamics'])}</span>
             </div>
@@ -877,7 +867,7 @@ def render_patterns(patterns, issue, path: str):
 
             <!-- Documented Case Studies -->
             <div class="pattern-cases-section">
-                <div class="drawer-title" style="margin-bottom:10px;">Documented Historical Precedents</div>
+                <div class="drawer-title">Documented Historical Precedents</div>
                 <div class="pattern-cases-grid">
                     {"".join(cases_html)}
                 </div>
@@ -897,7 +887,7 @@ def render_patterns(patterns, issue, path: str):
         """)
 
     html_content = f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -907,46 +897,32 @@ def render_patterns(patterns, issue, path: str):
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    {get_head_assets()}
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
-    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Cybernetic Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
+<body class="page-patterns">
+    {get_ambient_bg_html()}
 
     {get_nav_html("patterns.html")}
 
     <div class="desk-container">
         <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; HISTORICAL PRECEDENTS &middot; MENTAL MODELS</div>
-                <h1 class="page-title">Tech <em>Patterns</em></h1>
-            </div>
+            <div class="eyebrow"><span class="gilt-dot"></span> RECURRING DYNAMICS &middot; HISTORICAL PRECEDENTS &middot; MENTAL MODELS</div>
+            <h1 class="page-title">Tech <em>Patterns</em></h1>
+            <p class="masthead-dek">Tech shifts appear sudden, but infrastructure history repeats in predictable economic and architectural dynamics. We evaluate candidate events against recurring failure modes, historical base rates, and cognitive bias warnings before drafting predictions.</p>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> CATALOGUED</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>MENTAL MODELS</span>
-                <span>&middot;</span>
-                <span>6 ARCHITECTURAL DYNAMICS</span>
+                <span class="meta-sep">&middot;</span>
+                <span>{len(patterns)} ARCHITECTURAL DYNAMICS</span>
             </div>
         </section>
 
-        <div style="margin-bottom:28px;">
-            <p style="font-size:15px; color:var(--ink-2); line-height:1.6; max-width:68ch;">
-                Tech shifts appear sudden, but infrastructure history repeats in predictable economic and architectural dynamics. We evaluate candidate events against recurring failure modes, historical base rates, and cognitive bias warnings before drafting predictions.
-            </p>
-        </div>
-
         <!-- Pattern Filter Controls -->
-        <section class="role-bar" style="margin-bottom:30px;">
+        <section class="role-bar role-bar--filters">
             <div class="role-bar-label">Filter Category</div>
-            <div class="seg-control" id="pattern-filters">
+            <div class="seg-control" id="pattern-filters" role="group" aria-label="Filter patterns by category">
                 <button class="seg-btn active" data-category="all" type="button">All Patterns</button>
                 <button class="seg-btn" data-category="Platform Economics" type="button">Platform Economics</button>
                 <button class="seg-btn" data-category="Open Source & Standards" type="button">Open Source &amp; Standards</button>
