@@ -224,9 +224,12 @@ class TestPublicRouting(unittest.TestCase):
             self.assertEqual(status, 200, path)
 
     def test_for_you_requires_login(self):
-        status, loc, _ = self._get("/foryou")
-        self.assertEqual(status, 302)
-        self.assertIn("about.html", loc)
+        # The page itself is its own sign-in screen; everything personal behind it needs a session.
+        status, _, _ = self._get("/foryou")
+        self.assertEqual(status, 200)
+        for path in ("/api/feed?tab=foryou", "/api/profile", "/api/your5/script"):
+            status, _, _ = self._get(path)
+            self.assertEqual(status, 401, path)
 
     def test_no_directory_listing(self):
         status, _, _ = self._get("/audio/")

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,51 +9,50 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+    <script>(function(){try{var t=localStorage.getItem("pith_brief_theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <!-- Particle Ember FX Canvas for Dynamic Animations -->
+<body class="page-brief">
+    
     <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
-
-    <!-- Atmospheric Subtle Background Elements -->
-    <div class="ambient-orb ambient-orb--red" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="ambient-orb ambient-orb--teal" aria-hidden="true"></div>
-    <div class="scan-line" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
+    
 
     
-    <!-- Sticky Crown Header with ELO Rating, User Chip, and Audio Synthesizer -->
     <header class="crown">
-        <a href="index.html" class="brand-wrapper">
+        <a href="index.html" class="brand-wrapper" aria-label="Pith home">
             <div class="brand-mark" aria-hidden="true">
                 <i></i><i></i><i></i><i></i>
             </div>
             <div class="brand-name">PITH</div>
         </a>
         <div class="nav-cluster">
-            <nav class="nav-pills-bar">
+            <nav class="nav-pills-bar" aria-label="Main">
                 <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link active" aria-current="page">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a><a href="about.html" class="nav-link">About</a>
             </nav>
-            <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Authenticated Member Session">
-                <span class="crown-avatar" id="crown-avatar">?</span>
-                <span class="crown-username" id="crown-username"></span>
-                <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out of station">Sign out</button>
+            <div class="crown-tools">
+                <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Signed in">
+                    <span class="crown-avatar" id="crown-avatar">?</span>
+                    <span class="crown-username" id="crown-username"></span>
+                    <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out">Sign out</button>
+                </div>
+                <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                    <span class="elo-icon" aria-hidden="true">◈</span>
+                    <span class="elo-score" id="user-elo-score">1200</span>
+                    <span class="elo-tier" id="user-elo-tier">Observer</span>
+                </div>
+                <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
+                    <span class="sound-wave-icon" aria-hidden="true">
+                        <i></i><i></i><i></i>
+                    </span>
+                    <span class="sound-label">Audio: On</span>
+                </button>
+                <button class="theme-toggle" id="theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light or dark theme" type="button">
+                    <div class="theme-icon-circle"></div>
+                </button>
             </div>
-            <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
-                <span class="elo-icon">◈</span>
-                <span class="elo-score" id="user-elo-score">1200</span>
-                <span class="elo-tier" id="user-elo-tier">Observer</span>
-            </div>
-            <button class="sound-toggle" id="sound-toggle-btn" title="Toggle tactile audio feedback" type="button">
-                <span class="sound-wave-icon" aria-hidden="true">
-                    <i></i><i></i><i></i>
-                </span>
-                <span class="sound-label">Audio: On</span>
-            </button>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
         </div>
     </header>
     
@@ -61,26 +60,21 @@
     <div class="desk-container">
         <!-- Masthead -->
         <section class="masthead">
-            <div>
-                <div class="eyebrow"><span class="gilt-dot"></span> DAILY TECH INTELLIGENCE &middot; AI &amp; Developer Infrastructure</div>
-                <h1 class="page-title">Daily <em>Tech News</em></h1>
-                <p style="font-size:15px; color:var(--muted); max-width:680px; margin-top:8px; line-height:1.5;">Today's 5 grounded architectural and market power shifts. Filtered down to events that alter software architectures, unit economics, or competitive moats.</p>
-            </div>
+            <div class="eyebrow"><span class="gilt-dot"></span> DAILY TECH INTELLIGENCE &middot; AI &amp; Developer Infrastructure</div>
+            <h1 class="page-title">Daily <em>Tech News</em></h1>
+            <p class="masthead-dek">Today's 5 grounded architectural and market power shifts. Filtered down to events that alter software architectures, unit economics, or competitive moats.</p>
             <div class="meta-pill-group">
                 <span class="live-telemetry-chip"><i class="radar-dot"></i> AUDITED</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>21 November 2026</span>
-                <span>&middot;</span>
+                <span class="meta-sep">&middot;</span>
                 <span>ISSUE #01</span>
-            </div>
-            <div class="scroll-cue" id="scroll-cue" title="Scroll down to read today's 5 falsifiable shifts">
-                <span class="scroll-mouse-icon"><i class="scroll-mouse-dot"></i></span>
-                <span class="scroll-cue-text">Scroll to explore 5 high-signal shifts</span>
             </div>
         </section>
 
+        <section class="brief-controls" aria-label="Listen and choose a lens">
         <!-- 90-Second Studio Audio Briefing Player -->
-        <section class="audio-brief-section">
+        <div class="audio-brief-section">
             <div class="audio-brief-bar" id="audio-brief-bar">
                 <div class="audio-brief-main-row">
                     <div class="audio-brief-play-side">
@@ -118,17 +112,18 @@
 
                 <audio id="audio-player" preload="metadata" src="audio/brief-developer.mp3"></audio>
             </div>
-        </section>
+        </div>
 
         <!-- Segmented Role Selector -->
-        <section class="role-bar">
+        <div class="role-bar">
             <div class="role-bar-label">Personal Lens</div>
-            <div class="seg-control">
+            <div class="seg-control" role="group" aria-label="Personal lens">
                 <button class="seg-btn active" data-role="developer" type="button">Developer</button>
                 <button class="seg-btn" data-role="founder" type="button">Founder</button>
                 <button class="seg-btn" data-role="investor" type="button">Investor</button>
                 <button class="seg-btn" data-role="everyday" type="button">Everyday Person</button>
             </div>
+        </div>
         </section>
 
         <!-- Cards Flow -->
@@ -148,8 +143,8 @@
         <article class="lab-card news-story-card is-collapsed" id="card-20261119-cache-cut" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Your prompt engineering shifts from dynamic template injection to strict static prefix isolation to maximize the 90% cache discount window.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Audit prompt formatting utilities this week; split user state and variable data to the tail of the prompt sequence.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;The everyday AI tools you use just got 90% cheaper for companies to run. They can now remember much longer conversations and documents without crashing or cutting you off.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Notice if your writing apps start handling 50-page PDFs without asking you to buy an expensive add-on.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Gross margins on conversational and reasoning agent features improve by 30-45%, giving runway buffer or pricing leverage against competitors.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Recalculate monthly per-active-user COGS and evaluate expanding agent search depth without raising customer subscription tiers.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Unit economics for token-heavy verticals (code generation, legal document parsing) stabilize; defensive moats shift from raw token volume to orchestration stickiness.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Review portfolio company gross margins to verify teams have captured cache discounts rather than subsidizing inefficient prompt construction.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
             <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
                 <div class="card-header-line">
-                    <span class="card-roman">I &middot; AI &amp; Developer Infrastructure</span>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="card-roman"><span class="card-num">I</span><span class="card-beat">AI &amp; Developer Infrastructure</span></span>
+                    <div class="card-header-meta">
                         <a href="patterns.html#pattern-commoditisation-cascade" class="pattern-pill" title="View historical dynamic & base rates">✦ The Commoditisation Cascade</a>
                         <span class="card-sources-count">1 primary source</span>
                     </div>
@@ -164,7 +159,7 @@
                 </div>
                 
                 <div class="headline-forecast" title="Pith's falsifiable forecast for this story">
-                    <span class="forecast-badge">75%</span>
+                    <span class="forecast-badge" aria-label="Forecast probability">75%</span>
                     <span class="prediction-text">By 30 June 2027, at least three leading open-source inference runtimes (vLLM, SGLang, TensorRT-LLM) natively support cross-session shared KV-cache eviction APIs matching commercial cloud standards.</span>
                     <span class="resolves-badge">Resolves 2027-06-30</span>
                 </div>
@@ -185,7 +180,7 @@
             <div class="action-panel action-do dev-glow">
                 <div class="action-panel-top">
                     <span class="action-pill do">DO</span>
-                    <span style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); font-weight:600;">Action this week</span>
+                    <span class="action-panel-label">Action this week</span>
                 </div>
                 <div class="role-impact-preview">Your prompt engineering shifts from dynamic template injection to strict static prefix isolation to maximize the 90% cache discount window.</div>
                 <div class="action-directive">Audit prompt formatting utilities this week; split user state and variable data to the tail of the prompt sequence.</div>
@@ -196,10 +191,10 @@
                 <div class="gauge-item">
                     <span>Signal:</span>
                     <span class="badge-tag high">High</span>
-                    <span style="font-size:12px; color:var(--muted); margin-left:4px;">(Broad ecosystem impact (alters switching costs and platform dependencies))</span>
+                    <span class="gauge-note">Broad ecosystem impact (alters switching costs and platform dependencies)</span>
                 </div>
                 <div class="gauge-item">
-                    <span>Confidence: <strong style="color:var(--ink);">High</strong></span>
+                    <span>Confidence:</span> <strong>High</strong>
                 </div>
             </div>
 
@@ -385,7 +380,7 @@
                 
                 <div class="drawer-section">
                     <div class="drawer-title">Falsifiable Resolution Criteria</div>
-                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                    <div class="criteria-box">
                         Published release notes in official GitHub repositories documenting standardized shared KV-cache session eviction endpoint.
                     </div>
                 </div>
@@ -393,37 +388,37 @@
                 
         <div class="drawer-section">
             <div class="drawer-title">Cross-Role Lens Comparison</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="role-compare-list">
         
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">developer &middot; DO</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Your prompt engineering shifts from dynamic template injection to strict static prefix isolation to maximize the 90% cache discount window.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Audit prompt formatting utilities this week; split user state and variable data to the tail of the prompt sequence.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">developer <span class="action-pill do">DO</span></div>
+                    <div class="role-compare-impact">Your prompt engineering shifts from dynamic template injection to strict static prefix isolation to maximize the 90% cache discount window.</div>
+                    <div class="role-compare-action">&rarr; Audit prompt formatting utilities this week; split user state and variable data to the tail of the prompt sequence.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">everyday &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">The everyday AI tools you use just got 90% cheaper for companies to run. They can now remember much longer conversations and documents without crashing or cutting you off.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Notice if your writing apps start handling 50-page PDFs without asking you to buy an expensive add-on.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">everyday <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">The everyday AI tools you use just got 90% cheaper for companies to run. They can now remember much longer conversations and documents without crashing or cutting you off.</div>
+                    <div class="role-compare-action">&rarr; Notice if your writing apps start handling 50-page PDFs without asking you to buy an expensive add-on.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">founder &middot; DO</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Gross margins on conversational and reasoning agent features improve by 30-45%, giving runway buffer or pricing leverage against competitors.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Recalculate monthly per-active-user COGS and evaluate expanding agent search depth without raising customer subscription tiers.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">founder <span class="action-pill do">DO</span></div>
+                    <div class="role-compare-impact">Gross margins on conversational and reasoning agent features improve by 30-45%, giving runway buffer or pricing leverage against competitors.</div>
+                    <div class="role-compare-action">&rarr; Recalculate monthly per-active-user COGS and evaluate expanding agent search depth without raising customer subscription tiers.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">investor &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Unit economics for token-heavy verticals (code generation, legal document parsing) stabilize; defensive moats shift from raw token volume to orchestration stickiness.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Review portfolio company gross margins to verify teams have captured cache discounts rather than subsidizing inefficient prompt construction.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">investor <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Unit economics for token-heavy verticals (code generation, legal document parsing) stabilize; defensive moats shift from raw token volume to orchestration stickiness.</div>
+                    <div class="role-compare-action">&rarr; Review portfolio company gross margins to verify teams have captured cache discounts rather than subsidizing inefficient prompt construction.</div>
                 </div>
             </div></div>
 
                 <div class="drawer-section">
                     <div class="drawer-title">Primary Sources &amp; Quoted Spans</div>
                     <ul class="clean-list">
-                        <li><a href="https://platform.openai.com/docs/guides/prompt-caching" target="_blank" rel="noopener" style="color:var(--ink); font-weight:600;">API Pricing &amp; Caching Architecture Update</a> &mdash; OpenAI Platform Documentation<br><span style="font-size:12px; color:var(--muted);">&ldquo;cached input tokens receive an automatic 50% to 90% discount when hitting identical prompt prefixes&rdquo;</span></li>
+                        <li><a class="evidence-link" href="https://platform.openai.com/docs/guides/prompt-caching" target="_blank" rel="noopener">API Pricing &amp; Caching Architecture Update</a> <span class="evidence-publisher">&mdash; OpenAI Platform Documentation</span><span class="evidence-quote">&ldquo;cached input tokens receive an automatic 50% to 90% discount when hitting identical prompt prefixes&rdquo;</span></li>
                     </ul>
                 </div>
             </div>
@@ -433,8 +428,8 @@
         <article class="lab-card news-story-card is-collapsed" id="card-20261119-computer-use" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Enables end-to-end automation across legacy desktop software, CLI tools, and web apps that lack programmatic REST APIs.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Build a test sandbox VM and evaluate coordinate latency on your internal testing workflow.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Instead of you clicking and typing across 5 websites to complete boring tasks, an AI can now see your screen and move the mouse to fill out forms and book appointments for you.&quot;, &quot;action_type&quot;: &quot;TRY&quot;, &quot;action_text&quot;: &quot;Watch a 2-minute demo of computer-use automation to see if your repetitive office chores could be handed off.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Lowers build costs for autonomous vertical agents (accounting, claims processing, legal onboarding) by bypassing API integration backlogs.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Audit which customer onboarding tasks can be converted from manual operator labor to supervised OS agents.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Puts intense margin pressure on legacy RPA giants (UiPath, Automation Anywhere) whose seat-based licensing models depend on brittle workflow recorders.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Assess exposure to workflow automation incumbents without foundational multi-modal agent roadmaps.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
             <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
                 <div class="card-header-line">
-                    <span class="card-roman">II &middot; AI &amp; Developer Infrastructure</span>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="card-roman"><span class="card-num">II</span><span class="card-beat">AI &amp; Developer Infrastructure</span></span>
+                    <div class="card-header-meta">
                         <a href="patterns.html#pattern-platform-squeeze" class="pattern-pill" title="View historical dynamic & base rates">✦ The Platform Squeeze &amp; Sherlocking</a>
                         <span class="card-sources-count">1 primary source</span>
                     </div>
@@ -449,7 +444,7 @@
                 </div>
                 
                 <div class="headline-forecast" title="Pith's falsifiable forecast for this story">
-                    <span class="forecast-badge">65%</span>
+                    <span class="forecast-badge" aria-label="Forecast probability">65%</span>
                     <span class="prediction-text">By 31 August 2027, at least two major browser vendors (Chromium, Firefox, WebKit) merge native virtualized OS agent permission sandboxes.</span>
                     <span class="resolves-badge">Resolves 2027-08-31</span>
                 </div>
@@ -470,7 +465,7 @@
             <div class="action-panel action-do dev-glow">
                 <div class="action-panel-top">
                     <span class="action-pill do">DO</span>
-                    <span style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); font-weight:600;">Action this week</span>
+                    <span class="action-panel-label">Action this week</span>
                 </div>
                 <div class="role-impact-preview">Enables end-to-end automation across legacy desktop software, CLI tools, and web apps that lack programmatic REST APIs.</div>
                 <div class="action-directive">Build a test sandbox VM and evaluate coordinate latency on your internal testing workflow.</div>
@@ -481,10 +476,10 @@
                 <div class="gauge-item">
                     <span>Signal:</span>
                     <span class="badge-tag high">High</span>
-                    <span style="font-size:12px; color:var(--muted); margin-left:4px;">(Broad ecosystem impact (alters switching costs and automation platform dependencies))</span>
+                    <span class="gauge-note">Broad ecosystem impact (alters switching costs and automation platform dependencies)</span>
                 </div>
                 <div class="gauge-item">
-                    <span>Confidence: <strong style="color:var(--ink);">High</strong></span>
+                    <span>Confidence:</span> <strong>High</strong>
                 </div>
             </div>
 
@@ -650,7 +645,7 @@
                 
                 <div class="drawer-section">
                     <div class="drawer-title">Falsifiable Resolution Criteria</div>
-                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                    <div class="criteria-box">
                         Official browser release notes document isolated agent sandbox profile with restricted credential access and synthetic input isolation.
                     </div>
                 </div>
@@ -658,37 +653,37 @@
                 
         <div class="drawer-section">
             <div class="drawer-title">Cross-Role Lens Comparison</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="role-compare-list">
         
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">developer &middot; DO</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Enables end-to-end automation across legacy desktop software, CLI tools, and web apps that lack programmatic REST APIs.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Build a test sandbox VM and evaluate coordinate latency on your internal testing workflow.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">developer <span class="action-pill do">DO</span></div>
+                    <div class="role-compare-impact">Enables end-to-end automation across legacy desktop software, CLI tools, and web apps that lack programmatic REST APIs.</div>
+                    <div class="role-compare-action">&rarr; Build a test sandbox VM and evaluate coordinate latency on your internal testing workflow.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">everyday &middot; TRY</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Instead of you clicking and typing across 5 websites to complete boring tasks, an AI can now see your screen and move the mouse to fill out forms and book appointments for you.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Watch a 2-minute demo of computer-use automation to see if your repetitive office chores could be handed off.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">everyday <span class="action-pill try">TRY</span></div>
+                    <div class="role-compare-impact">Instead of you clicking and typing across 5 websites to complete boring tasks, an AI can now see your screen and move the mouse to fill out forms and book appointments for you.</div>
+                    <div class="role-compare-action">&rarr; Watch a 2-minute demo of computer-use automation to see if your repetitive office chores could be handed off.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">founder &middot; DO</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Lowers build costs for autonomous vertical agents (accounting, claims processing, legal onboarding) by bypassing API integration backlogs.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Audit which customer onboarding tasks can be converted from manual operator labor to supervised OS agents.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">founder <span class="action-pill do">DO</span></div>
+                    <div class="role-compare-impact">Lowers build costs for autonomous vertical agents (accounting, claims processing, legal onboarding) by bypassing API integration backlogs.</div>
+                    <div class="role-compare-action">&rarr; Audit which customer onboarding tasks can be converted from manual operator labor to supervised OS agents.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">investor &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Puts intense margin pressure on legacy RPA giants (UiPath, Automation Anywhere) whose seat-based licensing models depend on brittle workflow recorders.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Assess exposure to workflow automation incumbents without foundational multi-modal agent roadmaps.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">investor <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Puts intense margin pressure on legacy RPA giants (UiPath, Automation Anywhere) whose seat-based licensing models depend on brittle workflow recorders.</div>
+                    <div class="role-compare-action">&rarr; Assess exposure to workflow automation incumbents without foundational multi-modal agent roadmaps.</div>
                 </div>
             </div></div>
 
                 <div class="drawer-section">
                     <div class="drawer-title">Primary Sources &amp; Quoted Spans</div>
                     <ul class="clean-list">
-                        <li><a href="https://www.anthropic.com/news/3-5-models-and-computer-use" target="_blank" rel="noopener" style="color:var(--ink); font-weight:600;">Developing Computer Use with Claude 3.5 Sonnet</a> &mdash; Anthropic Engineering<br><span style="font-size:12px; color:var(--muted);">&ldquo;developers can direct Claude to use computers the way people do—by looking at a screen, moving a cursor, clicking buttons, and typing text&rdquo;</span></li>
+                        <li><a class="evidence-link" href="https://www.anthropic.com/news/3-5-models-and-computer-use" target="_blank" rel="noopener">Developing Computer Use with Claude 3.5 Sonnet</a> <span class="evidence-publisher">&mdash; Anthropic Engineering</span><span class="evidence-quote">&ldquo;developers can direct Claude to use computers the way people do—by looking at a screen, moving a cursor, clicking buttons, and typing text&rdquo;</span></li>
                     </ul>
                 </div>
             </div>
@@ -698,8 +693,8 @@
         <article class="lab-card news-story-card is-collapsed" id="card-20261119-open-agent-protocol" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Eliminates the maintenance headache of writing and syncing multiple function calling schemas for separate LLM client SDKs.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Standardize internal service interfaces on OAP tool definitions to ensure model neutrality.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Tech companies agreed to build a single universal plug\u2014like USB-C, but for AI\u2014so assistants can easily work with your calendar, email, and files without requiring 10 separate logins.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;You don&#x27;t have to configure anything; future app updates will automatically connect your tools smoothly.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Removes distribution barriers: your product can be exposed as an agent skill to any compliant client without bilateral partnership agreements.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Track whether major client platforms (Claude Desktop, VS Code, OpenAI Operator) commit to upstream protocol conformance.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Commoditizes thin tool-routing middleware; value moves to privileged enterprise data access and verifiable agent execution sandboxes.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Assess whether tooling portfolio companies rely on proprietary protocol lock-in that will be erased by CNCF standardization.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
             <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
                 <div class="card-header-line">
-                    <span class="card-roman">III &middot; AI &amp; Developer Infrastructure</span>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="card-roman"><span class="card-num">III</span><span class="card-beat">AI &amp; Developer Infrastructure</span></span>
+                    <div class="card-header-meta">
                         <a href="patterns.html#pattern-standards-war" class="pattern-pill" title="View historical dynamic & base rates">✦ The Standards War &amp; CNI Moment</a>
                         <span class="card-sources-count">1 primary source</span>
                     </div>
@@ -714,7 +709,7 @@
                 </div>
                 
                 <div class="headline-forecast" title="Pith's falsifiable forecast for this story">
-                    <span class="forecast-badge">75%</span>
+                    <span class="forecast-badge" aria-label="Forecast probability">75%</span>
                     <span class="prediction-text">Within 30 days, at least two competing agent frameworks (e.g. LangChain, AutoGen) ship pull requests supporting the Open Agent Protocol standard.</span>
                     <span class="resolves-badge">Resolves 2026-12-20</span>
                 </div>
@@ -735,7 +730,7 @@
             <div class="action-panel action-do dev-glow">
                 <div class="action-panel-top">
                     <span class="action-pill do">DO</span>
-                    <span style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); font-weight:600;">Action this week</span>
+                    <span class="action-panel-label">Action this week</span>
                 </div>
                 <div class="role-impact-preview">Eliminates the maintenance headache of writing and syncing multiple function calling schemas for separate LLM client SDKs.</div>
                 <div class="action-directive">Standardize internal service interfaces on OAP tool definitions to ensure model neutrality.</div>
@@ -746,10 +741,10 @@
                 <div class="gauge-item">
                     <span>Signal:</span>
                     <span class="badge-tag high">High</span>
-                    <span style="font-size:12px; color:var(--muted); margin-left:4px;">(Broad ecosystem impact (breaks from existing industry trajectory and eliminates proprietary lock-in))</span>
+                    <span class="gauge-note">Broad ecosystem impact (breaks from existing industry trajectory and eliminates proprietary lock-in)</span>
                 </div>
                 <div class="gauge-item">
-                    <span>Confidence: <strong style="color:var(--ink);">High</strong></span>
+                    <span>Confidence:</span> <strong>High</strong>
                 </div>
             </div>
 
@@ -898,7 +893,7 @@
                 
                 <div class="drawer-section">
                     <div class="drawer-title">Falsifiable Resolution Criteria</div>
-                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                    <div class="criteria-box">
                         Official pull request or release in langchain-ai or microsoft/autogen implementing conforming protocol client.
                     </div>
                 </div>
@@ -906,37 +901,37 @@
                 
         <div class="drawer-section">
             <div class="drawer-title">Cross-Role Lens Comparison</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="role-compare-list">
         
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">developer &middot; DO</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Eliminates the maintenance headache of writing and syncing multiple function calling schemas for separate LLM client SDKs.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Standardize internal service interfaces on OAP tool definitions to ensure model neutrality.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">developer <span class="action-pill do">DO</span></div>
+                    <div class="role-compare-impact">Eliminates the maintenance headache of writing and syncing multiple function calling schemas for separate LLM client SDKs.</div>
+                    <div class="role-compare-action">&rarr; Standardize internal service interfaces on OAP tool definitions to ensure model neutrality.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">everyday &middot; IGNORE</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Tech companies agreed to build a single universal plug—like USB-C, but for AI—so assistants can easily work with your calendar, email, and files without requiring 10 separate logins.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; You don&#x27;t have to configure anything; future app updates will automatically connect your tools smoothly.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">everyday <span class="action-pill ignore">IGNORE</span></div>
+                    <div class="role-compare-impact">Tech companies agreed to build a single universal plug—like USB-C, but for AI—so assistants can easily work with your calendar, email, and files without requiring 10 separate logins.</div>
+                    <div class="role-compare-action">&rarr; You don&#x27;t have to configure anything; future app updates will automatically connect your tools smoothly.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">founder &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Removes distribution barriers: your product can be exposed as an agent skill to any compliant client without bilateral partnership agreements.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Track whether major client platforms (Claude Desktop, VS Code, OpenAI Operator) commit to upstream protocol conformance.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">founder <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Removes distribution barriers: your product can be exposed as an agent skill to any compliant client without bilateral partnership agreements.</div>
+                    <div class="role-compare-action">&rarr; Track whether major client platforms (Claude Desktop, VS Code, OpenAI Operator) commit to upstream protocol conformance.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">investor &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Commoditizes thin tool-routing middleware; value moves to privileged enterprise data access and verifiable agent execution sandboxes.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Assess whether tooling portfolio companies rely on proprietary protocol lock-in that will be erased by CNCF standardization.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">investor <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Commoditizes thin tool-routing middleware; value moves to privileged enterprise data access and verifiable agent execution sandboxes.</div>
+                    <div class="role-compare-action">&rarr; Assess whether tooling portfolio companies rely on proprietary protocol lock-in that will be erased by CNCF standardization.</div>
                 </div>
             </div></div>
 
                 <div class="drawer-section">
                     <div class="drawer-title">Primary Sources &amp; Quoted Spans</div>
                     <ul class="clean-list">
-                        <li><a href="https://www.linuxfoundation.org/press/open-agent-protocol" target="_blank" rel="noopener" style="color:var(--ink); font-weight:600;">Linux Foundation Announces Open Agent Protocol Initiative</a> &mdash; Linux Foundation Press Release<br><span style="font-size:12px; color:var(--muted);">&ldquo;working group will establish open governance for Model Context Protocol and cross-platform agent execution specs&rdquo;</span></li>
+                        <li><a class="evidence-link" href="https://www.linuxfoundation.org/press/open-agent-protocol" target="_blank" rel="noopener">Linux Foundation Announces Open Agent Protocol Initiative</a> <span class="evidence-publisher">&mdash; Linux Foundation Press Release</span><span class="evidence-quote">&ldquo;working group will establish open governance for Model Context Protocol and cross-platform agent execution specs&rdquo;</span></li>
                     </ul>
                 </div>
             </div>
@@ -946,8 +941,8 @@
         <article class="lab-card news-story-card is-collapsed" id="card-20261119-mla-kernels" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Enables hosting long-context models without out-of-memory crashes on resource-constrained development nodes.&quot;, &quot;action_type&quot;: &quot;DO&quot;, &quot;action_text&quot;: &quot;Test SGLang/vLLM MLA branch with your long-context RAG prompts to evaluate throughput gains.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Engineers found a trick to shrink the memory needed to run AI by 70%, so apps won&#x27;t slow down or show &#x27;system overloaded&#x27; during busy hours.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Enjoy faster, more reliable web tools without having to care about the computer memory under the hood.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Reduces inference hosting hardware requirements by up to 50%, directly cutting private cloud infrastructure bills.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Review cloud GPU cluster capacity planning and defer hardware expansion until MLA benchmarks are verified.&quot;, &quot;stakes&quot;: &quot;High&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;Lowers infrastructure barriers for self-hosted sovereign AI, reducing enterprise reliance on closed hyper-scaler APIs.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Assess whether private cloud AI infrastructure margins widen as serving software efficiency doubles.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}}'>
             <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
                 <div class="card-header-line">
-                    <span class="card-roman">IV &middot; AI &amp; Developer Infrastructure</span>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="card-roman"><span class="card-num">IV</span><span class="card-beat">AI &amp; Developer Infrastructure</span></span>
+                    <div class="card-header-meta">
                         <a href="patterns.html#pattern-commoditisation-cascade" class="pattern-pill" title="View historical dynamic & base rates">✦ The Commoditisation Cascade</a>
                         <span class="card-sources-count">1 primary source</span>
                     </div>
@@ -962,7 +957,7 @@
                 </div>
                 
                 <div class="headline-forecast" title="Pith's falsifiable forecast for this story">
-                    <span class="forecast-badge">75%</span>
+                    <span class="forecast-badge" aria-label="Forecast probability">75%</span>
                     <span class="prediction-text">By 30 June 2027, at least three of the top five open-weight foundational model architectures adopt MLA as their default attention architecture.</span>
                     <span class="resolves-badge">Resolves 2027-06-30</span>
                 </div>
@@ -983,7 +978,7 @@
             <div class="action-panel action-do dev-glow">
                 <div class="action-panel-top">
                     <span class="action-pill do">DO</span>
-                    <span style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); font-weight:600;">Action this week</span>
+                    <span class="action-panel-label">Action this week</span>
                 </div>
                 <div class="role-impact-preview">Enables hosting long-context models without out-of-memory crashes on resource-constrained development nodes.</div>
                 <div class="action-directive">Test SGLang/vLLM MLA branch with your long-context RAG prompts to evaluate throughput gains.</div>
@@ -994,10 +989,10 @@
                 <div class="gauge-item">
                     <span>Signal:</span>
                     <span class="badge-tag high">High</span>
-                    <span style="font-size:12px; color:var(--muted); margin-left:4px;">(Broad ecosystem impact (alters switching costs and deployment infrastructure requirements))</span>
+                    <span class="gauge-note">Broad ecosystem impact (alters switching costs and deployment infrastructure requirements)</span>
                 </div>
                 <div class="gauge-item">
-                    <span>Confidence: <strong style="color:var(--ink);">High</strong></span>
+                    <span>Confidence:</span> <strong>High</strong>
                 </div>
             </div>
 
@@ -1146,7 +1141,7 @@
                 
                 <div class="drawer-section">
                     <div class="drawer-title">Falsifiable Resolution Criteria</div>
-                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                    <div class="criteria-box">
                         Published model architecture papers on arXiv from major labs (e.g. Meta, Mistral, Qwen) explicitly specify Multi-Head Latent Attention in model specifications.
                     </div>
                 </div>
@@ -1154,37 +1149,37 @@
                 
         <div class="drawer-section">
             <div class="drawer-title">Cross-Role Lens Comparison</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="role-compare-list">
         
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">developer &middot; DO</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Enables hosting long-context models without out-of-memory crashes on resource-constrained development nodes.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Test SGLang/vLLM MLA branch with your long-context RAG prompts to evaluate throughput gains.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">developer <span class="action-pill do">DO</span></div>
+                    <div class="role-compare-impact">Enables hosting long-context models without out-of-memory crashes on resource-constrained development nodes.</div>
+                    <div class="role-compare-action">&rarr; Test SGLang/vLLM MLA branch with your long-context RAG prompts to evaluate throughput gains.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">everyday &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Engineers found a trick to shrink the memory needed to run AI by 70%, so apps won&#x27;t slow down or show &#x27;system overloaded&#x27; during busy hours.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Enjoy faster, more reliable web tools without having to care about the computer memory under the hood.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">everyday <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Engineers found a trick to shrink the memory needed to run AI by 70%, so apps won&#x27;t slow down or show &#x27;system overloaded&#x27; during busy hours.</div>
+                    <div class="role-compare-action">&rarr; Enjoy faster, more reliable web tools without having to care about the computer memory under the hood.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">founder &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Reduces inference hosting hardware requirements by up to 50%, directly cutting private cloud infrastructure bills.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Review cloud GPU cluster capacity planning and defer hardware expansion until MLA benchmarks are verified.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">founder <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Reduces inference hosting hardware requirements by up to 50%, directly cutting private cloud infrastructure bills.</div>
+                    <div class="role-compare-action">&rarr; Review cloud GPU cluster capacity planning and defer hardware expansion until MLA benchmarks are verified.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">investor &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Lowers infrastructure barriers for self-hosted sovereign AI, reducing enterprise reliance on closed hyper-scaler APIs.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Assess whether private cloud AI infrastructure margins widen as serving software efficiency doubles.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">investor <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Lowers infrastructure barriers for self-hosted sovereign AI, reducing enterprise reliance on closed hyper-scaler APIs.</div>
+                    <div class="role-compare-action">&rarr; Assess whether private cloud AI infrastructure margins widen as serving software efficiency doubles.</div>
                 </div>
             </div></div>
 
                 <div class="drawer-section">
                     <div class="drawer-title">Primary Sources &amp; Quoted Spans</div>
                     <ul class="clean-list">
-                        <li><a href="https://github.com/vllm-project/vllm/pull/11245" target="_blank" rel="noopener" style="color:var(--ink); font-weight:600;">vLLM Multi-Head Latent Attention Implementation</a> &mdash; vLLM GitHub<br><span style="font-size:12px; color:var(--muted);">&ldquo;native MLA decoding kernels compress KV-cache memory footprints by over 70% with near-zero perplexity degradation&rdquo;</span></li>
+                        <li><a class="evidence-link" href="https://github.com/vllm-project/vllm/pull/11245" target="_blank" rel="noopener">vLLM Multi-Head Latent Attention Implementation</a> <span class="evidence-publisher">&mdash; vLLM GitHub</span><span class="evidence-quote">&ldquo;native MLA decoding kernels compress KV-cache memory footprints by over 70% with near-zero perplexity degradation&rdquo;</span></li>
                     </ul>
                 </div>
             </div>
@@ -1194,8 +1189,8 @@
         <article class="lab-card news-story-card is-collapsed" id="card-20261119-dualpipe-kernels" data-role-views='{&quot;developer&quot;: {&quot;impact&quot;: &quot;Distributed model fine-tuning and pre-training clusters can increase MFU throughput without hardware topology changes.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Follow PyTorch distributed pull requests and review kernel benchmarks for your specific cluster interconnect.&quot;, &quot;stakes&quot;: &quot;Medium&quot;}, &quot;everyday&quot;: {&quot;impact&quot;: &quot;Researchers released free open software that lets smaller teams train AI models much faster, breaking Big Tech&#x27;s monopoly on building smart computer brains.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;No action needed. Expect more free, high-powered tools competing with big commercial chatbots.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;founder&quot;: {&quot;impact&quot;: &quot;Lowers the capital expenditure hurdle for training domain-specific proprietary models, narrowing the gap with frontier labs.&quot;, &quot;action_type&quot;: &quot;IGNORE&quot;, &quot;action_text&quot;: &quot;No immediate engineering intervention needed unless actively managing a multi-node GPU training cluster.&quot;, &quot;stakes&quot;: &quot;Low&quot;}, &quot;investor&quot;: {&quot;impact&quot;: &quot;High-cost proprietary interconnect networking moats face incremental erosion as clever software algorithms mitigate hardware bottlenecks.&quot;, &quot;action_type&quot;: &quot;WATCH&quot;, &quot;action_text&quot;: &quot;Track compute cost per token trajectory for open-source AI labs versus hyperscale frontier providers.&quot;, &quot;stakes&quot;: &quot;Low&quot;}}'>
             <div class="card-headline-trigger" role="button" tabindex="0" aria-expanded="false" title="Click headline to view details">
                 <div class="card-header-line">
-                    <span class="card-roman">V &middot; AI &amp; Developer Infrastructure</span>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span class="card-roman"><span class="card-num">V</span><span class="card-beat">AI &amp; Developer Infrastructure</span></span>
+                    <div class="card-header-meta">
                         <a href="patterns.html#pattern-codesign-bottleneck" class="pattern-pill" title="View historical dynamic & base rates">✦ The Hardware/Software Co-Design Bottleneck</a>
                         <span class="card-sources-count">1 primary source</span>
                     </div>
@@ -1210,7 +1205,7 @@
                 </div>
                 
                 <div class="headline-forecast" title="Pith's falsifiable forecast for this story">
-                    <span class="forecast-badge">65%</span>
+                    <span class="forecast-badge" aria-label="Forecast probability">65%</span>
                     <span class="prediction-text">By 30 September 2027, the PyTorch core repository merges bidirectional pipeline parallelism scheduling inspired by DualPipe.</span>
                     <span class="resolves-badge">Resolves 2027-09-30</span>
                 </div>
@@ -1231,7 +1226,7 @@
             <div class="action-panel action-watch dev-glow">
                 <div class="action-panel-top">
                     <span class="action-pill watch">WATCH</span>
-                    <span style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); font-weight:600;">Action this week</span>
+                    <span class="action-panel-label">Action this week</span>
                 </div>
                 <div class="role-impact-preview">Distributed model fine-tuning and pre-training clusters can increase MFU throughput without hardware topology changes.</div>
                 <div class="action-directive">Follow PyTorch distributed pull requests and review kernel benchmarks for your specific cluster interconnect.</div>
@@ -1242,10 +1237,10 @@
                 <div class="gauge-item">
                     <span>Signal:</span>
                     <span class="badge-tag high">High</span>
-                    <span style="font-size:12px; color:var(--muted); margin-left:4px;">(Broad ecosystem impact (breaks from existing industry trajectory via open-source release))</span>
+                    <span class="gauge-note">Broad ecosystem impact (breaks from existing industry trajectory via open-source release)</span>
                 </div>
                 <div class="gauge-item">
-                    <span>Confidence: <strong style="color:var(--ink);">Medium</strong></span>
+                    <span>Confidence:</span> <strong>Medium</strong>
                 </div>
             </div>
 
@@ -1394,7 +1389,7 @@
                 
                 <div class="drawer-section">
                     <div class="drawer-title">Falsifiable Resolution Criteria</div>
-                    <div style="font-size:13px; font-family:var(--font-mono); background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline); color:var(--ink-2);">
+                    <div class="criteria-box">
                         Merged commit in pytorch/pytorch implementing bidirectional pipeline parallel overlap schedule with benchmark documentation.
                     </div>
                 </div>
@@ -1402,37 +1397,37 @@
                 
         <div class="drawer-section">
             <div class="drawer-title">Cross-Role Lens Comparison</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="role-compare-list">
         
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">developer &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Distributed model fine-tuning and pre-training clusters can increase MFU throughput without hardware topology changes.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Follow PyTorch distributed pull requests and review kernel benchmarks for your specific cluster interconnect.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">developer <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">Distributed model fine-tuning and pre-training clusters can increase MFU throughput without hardware topology changes.</div>
+                    <div class="role-compare-action">&rarr; Follow PyTorch distributed pull requests and review kernel benchmarks for your specific cluster interconnect.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">everyday &middot; IGNORE</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Researchers released free open software that lets smaller teams train AI models much faster, breaking Big Tech&#x27;s monopoly on building smart computer brains.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; No action needed. Expect more free, high-powered tools competing with big commercial chatbots.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">everyday <span class="action-pill ignore">IGNORE</span></div>
+                    <div class="role-compare-impact">Researchers released free open software that lets smaller teams train AI models much faster, breaking Big Tech&#x27;s monopoly on building smart computer brains.</div>
+                    <div class="role-compare-action">&rarr; No action needed. Expect more free, high-powered tools competing with big commercial chatbots.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">founder &middot; IGNORE</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">Lowers the capital expenditure hurdle for training domain-specific proprietary models, narrowing the gap with frontier labs.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; No immediate engineering intervention needed unless actively managing a multi-node GPU training cluster.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">founder <span class="action-pill ignore">IGNORE</span></div>
+                    <div class="role-compare-impact">Lowers the capital expenditure hurdle for training domain-specific proprietary models, narrowing the gap with frontier labs.</div>
+                    <div class="role-compare-action">&rarr; No immediate engineering intervention needed unless actively managing a multi-node GPU training cluster.</div>
                 </div>
             
-                <div style="background:var(--surface); padding:10px 12px; border-radius:6px; border:1px solid var(--hairline);">
-                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gilt);">investor &middot; WATCH</div>
-                    <div style="font-size:13.5px; margin-top:2px; color:var(--ink);">High-cost proprietary interconnect networking moats face incremental erosion as clever software algorithms mitigate hardware bottlenecks.</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--ink); margin-top:3px;">&rarr; Track compute cost per token trajectory for open-source AI labs versus hyperscale frontier providers.</div>
+                <div class="role-compare-item">
+                    <div class="role-compare-label">investor <span class="action-pill watch">WATCH</span></div>
+                    <div class="role-compare-impact">High-cost proprietary interconnect networking moats face incremental erosion as clever software algorithms mitigate hardware bottlenecks.</div>
+                    <div class="role-compare-action">&rarr; Track compute cost per token trajectory for open-source AI labs versus hyperscale frontier providers.</div>
                 </div>
             </div></div>
 
                 <div class="drawer-section">
                     <div class="drawer-title">Primary Sources &amp; Quoted Spans</div>
                     <ul class="clean-list">
-                        <li><a href="https://github.com/deepseek-ai/DualPipe" target="_blank" rel="noopener" style="color:var(--ink); font-weight:600;">DeepSeek-V3 Technical Report &amp; DualPipe Repository</a> &mdash; DeepSeek GitHub<br><span style="font-size:12px; color:var(--muted);">&ldquo;DualPipe achieves full computation and communication overlap across pipeline stages under Apache 2.0&rdquo;</span></li>
+                        <li><a class="evidence-link" href="https://github.com/deepseek-ai/DualPipe" target="_blank" rel="noopener">DeepSeek-V3 Technical Report &amp; DualPipe Repository</a> <span class="evidence-publisher">&mdash; DeepSeek GitHub</span><span class="evidence-quote">&ldquo;DualPipe achieves full computation and communication overlap across pipeline stages under Apache 2.0&rdquo;</span></li>
                     </ul>
                 </div>
             </div>
@@ -1452,16 +1447,17 @@
                     <button class="replay-filter-btn" id="replay-lowpass-btn" type="button">↻ Replay Lowpass</button>
                 </div>
             </div>
+            
         </main>
 
         <!-- Signature "Safely Ignore Today" Filter-Proof Sheet with Shredder -->
         <section class="filter-sheet" id="safely-ignore">
             <div class="filter-sheet-header">
                 <div>
-                    <div class="eyebrow" style="margin-bottom:2px;"><span class="gilt-dot"></span> NOISE FILTER AT WORK</div>
+                    <div class="eyebrow"><span class="gilt-dot"></span> NOISE FILTER AT WORK</div>
                     <h3 class="filter-sheet-title">Safely Ignore Today</h3>
                 </div>
-                <div style="display:flex; align-items:center; gap:10px;">
+                <div class="filter-sheet-actions">
                     <button class="shredder-btn" id="shredder-btn" type="button" title="Vaporize today's filtered distractions">
                         <span class="shredder-icon">⚡</span>
                         <span class="shredder-label">Clear the Noise</span>
@@ -1510,16 +1506,18 @@
 
         
         <footer class="colophon">
-            <div><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
-            <div style="font-size:12px; margin-top:4px;">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
-            <div class="footer-nav">
+            <div class="colophon-brand">
+                <div class="colophon-name"><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
+                <div class="colophon-tagline">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
+            </div>
+            <nav class="footer-nav" aria-label="Footer">
                 <a href="foryou.html">For You</a>
                 <a href="index.html">Daily News</a>
                 <a href="ledger.html">Forecast Ledger</a>
                 <a href="archive.html">News Archive</a>
                 <a href="patterns.html">Tech Patterns</a>
                 <a href="about.html">About Pith</a>
-            </div>
+            </nav>
         </footer>
     
     </div>

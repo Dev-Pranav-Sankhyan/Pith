@@ -171,6 +171,11 @@ class NotIncludedStory:
     source_url: Optional[str] = None
 
 
+# Cards beyond the public 5 that passed the same threshold and verification. They are published
+# (API, feed.json, "More verified shifts" on the page) and feed each reader's personal Your 5.
+POOL_MAX = 20
+
+
 @dataclass
 class DailyIssue:
     issue_id: str
@@ -181,14 +186,20 @@ class DailyIssue:
     not_included_today: List[NotIncludedStory] = field(default_factory=list)
     published_at: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
     meta: Dict[str, Any] = field(default_factory=dict)
+    pool: List[Card] = field(default_factory=list)
 
     def validate(self) -> List[str]:
         errors = []
         if len(self.cards) > 5:
             errors.append(f"Issue allows at most 5 cards per day, got {len(self.cards)}")
+        if len(self.pool) > POOL_MAX:
+            errors.append(f"Issue allows at most {POOL_MAX} pool cards, got {len(self.pool)}")
+        core_ids = {c.id for c in self.cards}
+        if any(c.id in core_ids for c in self.pool):
+            errors.append("A card cannot be in both the core 5 and the pool")
         if len(self.not_included_today) > 5:
             errors.append(f"Issue allows at most 5 'Not Included' stories, got {len(self.not_included_today)}")
-        for c in self.cards:
+        for c in self.cards + self.pool:
             errors.extend(c.validate())
         return errors
 
@@ -202,6 +213,11 @@ class DailyIssue:
             data["cards"] = [
                 c if isinstance(c, Card) else Card.from_dict(c)
                 for c in data["cards"]
+            ]
+        if "pool" in data:
+            data["pool"] = [
+                c if isinstance(c, Card) else Card.from_dict(c)
+                for c in data["pool"]
             ]
         if "not_included_today" in data:
             data["not_included_today"] = [

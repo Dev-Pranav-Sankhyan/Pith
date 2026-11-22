@@ -9,11 +9,26 @@ from premier technical sources:
 5. Regulatory & CapEx Filings (SEC EDGAR, Cloud Infrastructure CapEx)
 """
 
+import datetime
+import os
 import urllib.request
 import urllib.error
 import json
 import re
 from typing import List, Dict, Any, Optional
+
+# Each candidate costs one LLM call in the daily run, so the total is capped.
+MAX_CANDIDATES = int(os.environ.get("PITH_MAX_CANDIDATES", "30"))
+FEED_CANDIDATES = [
+    # (feed url, publisher, max items, max age in days)
+    ("https://blog.cloudflare.com/rss/", "Cloudflare Engineering", 3, 3),
+    ("https://github.com/vllm-project/vllm/releases.atom", "vLLM Project / GitHub", 1, 7),
+    ("https://github.com/sgl-project/sglang/releases.atom", "SGLang / GitHub", 1, 7),
+    ("https://github.com/pytorch/pytorch/releases.atom", "PyTorch / GitHub", 1, 7),
+    ("https://github.com/ggml-org/llama.cpp/releases.atom", "llama.cpp / GitHub", 1, 3),
+    ("http://export.arxiv.org/api/query?search_query=cat:cs.DC+OR+cat:cs.LG&sortBy=submittedDate&max_results=5",
+     "arXiv", 3, 4),
+]
 
 
 SOURCE_REGISTRY = [
@@ -85,19 +100,22 @@ class SourceCollector:
                 ids = json.loads(resp.read().decode("utf-8"))[:limit]
             
             results = []
-            for item_id in ids[:6]:  # sample top 6
+            for item_id in ids:
                 item_url = f"https://hacker-news.firebaseio.com/v0/item/{item_id}.json"
                 req_item = urllib.request.Request(item_url, headers={"User-Agent": "Pith-Intelligence-Bot/1.0"})
-                with urllib.request.urlopen(req_item, timeout=4) as item_resp:
-                    item_data = json.loads(item_resp.read().decode("utf-8"))
-                    if item_data and item_data.get("score", 0) > 80:
-                        results.append({
-                            "title": item_data.get("title"),
-                            "url": item_data.get("url", f"https://news.ycombinator.com/item?id={item_id}"),
-                            "score": item_data.get("score"),
-                            "source": "Hacker News",
-                            "comments": item_data.get("descendants", 0)
-                        })
+                try:  # one slow item must not throw away the whole list
+                    with urllib.request.urlopen(req_item, timeout=4) as item_resp:
+                        item_data = json.loads(item_resp.read().decode("utf-8"))
+                except (urllib.error.URLError, TimeoutError, ValueError):
+                    continue
+                if item_data and item_data.get("score", 0) > 80:
+                    results.append({
+                        "title": item_data.get("title"),
+                        "url": item_data.get("url", f"https://news.ycombinator.com/item?id={item_id}"),
+                        "score": item_data.get("score"),
+                        "source": "Hacker News",
+                        "comments": item_data.get("descendants", 0)
+                    })
             return results
         except Exception:
             # Fallback high-signal simulated buffer for offline/sandboxed execution
@@ -122,7 +140,7 @@ class SourceCollector:
     def fetch_daily_candidates() -> List[Dict[str, Any]]:
         """Collects candidate stories from high-signal feeds for the daily pipeline."""
         candidates = []
-        hn_items = SourceCollector.fetch_hacker_news_top(limit=10)
+        hn_items = SourceCollector.fetch_hacker_news_top(limit=20)
         for item in hn_items:
             candidates.append({
                 "title": item.get("title"),
@@ -131,6 +149,9 @@ class SourceCollector:
                 "score": item.get("score", 100),
                 "comments": item.get("comments", 0)
             })
+
+        # Primary sources: engineering blogs, runtime releases, preprints. Failures are skipped.
+        candidates.extend(SourceCollector.fetch_feed_candidates())
 
         # Ensure we always have benchmark technical candidates ready for scoring
         default_structural_candidates = [
@@ -178,13 +199,40 @@ class SourceCollector:
             }
         ]
 
-        # Merge deduplicated by title
-        seen_titles = set(c["title"].lower() for c in candidates)
-        for d in default_structural_candidates:
-            if d["title"].lower() not in seen_titles:
-                candidates.append(d)
+        # Merge deduplicated by title (and URL for the live sources)
+        seen_titles, seen_urls, merged = set(), set(), []
+        for c in candidates + default_structural_candidates:
+            title, url = (c.get("title") or "").lower(), c.get("url")
+            if not title or title in seen_titles or (url and url in seen_urls):
+                continue
+            seen_titles.add(title)
+            if url:
+                seen_urls.add(url)
+            merged.append(c)
+        return merged[:MAX_CANDIDATES]
 
-        return candidates
+    @staticmethod
+    def fetch_feed_candidates() -> List[Dict[str, Any]]:
+        """Recent items from primary-source feeds (RSS/Atom), newest first per feed."""
+        from core.newsfeed import fetch_feed  # stdlib RSS/Atom parser shared with For You
+        now = datetime.datetime.now(datetime.timezone.utc)
+        out: List[Dict[str, Any]] = []
+        for url, publisher, max_items, max_age_days in FEED_CANDIDATES:
+            try:
+                items = fetch_feed({"id": "brief-src", "publisher": publisher, "topic": "AI", "url": url}, timeout=6)
+            except Exception:
+                continue
+            fresh = []
+            for it in items:
+                try:
+                    age = now - datetime.datetime.fromisoformat(it["published_at"])
+                except (ValueError, TypeError):
+                    continue
+                if age.days <= max_age_days:
+                    fresh.append(it)
+            for it in sorted(fresh, key=lambda i: i["published_at"], reverse=True)[:max_items]:
+                out.append({"title": it["title"], "publisher": publisher, "url": it["url"], "score": 200})
+        return out
 
     @staticmethod
     def get_discovery_digest() -> Dict[str, Any]:

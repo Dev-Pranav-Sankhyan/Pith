@@ -368,16 +368,24 @@ const sound = new SoundEngine();
 // 2. Theme Switcher with Shutter Sound
 // ==========================================================================
 function initTheme() {
-  const savedTheme = localStorage.getItem("pith_brief_theme") || "dark";
-  document.documentElement.setAttribute("data-theme", savedTheme);
+  // A saved choice wins; otherwise follow the operating system.
+  let theme = safeGet("pith_brief_theme");
+  if (theme !== "light" && theme !== "dark") {
+    theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  }
+  document.documentElement.setAttribute("data-theme", theme);
 }
 
 function toggleTheme() {
   sound.playShutter();
-  const current = document.documentElement.getAttribute("data-theme") || "dark";
+  const current = document.documentElement.getAttribute("data-theme") || "light";
   const next = current === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("pith_brief_theme", next);
+  safeSet("pith_brief_theme", next);
+  // The waveform is drawn on a canvas, so repaint it in the new theme's colours.
+  if (window.audioBrief && window.audioBrief.audio) {
+    window.audioBrief.drawVisualizer(!window.audioBrief.audio.paused);
+  }
 }
 
 // ==========================================================================
@@ -1196,7 +1204,8 @@ function initWorthTime() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             events: [{
-              kind: isActive ? "worth_time" : "not_worth_time",
+              // Switching it off removes the rating; it is not a "not worth it" vote.
+              kind: isActive ? "worth_time" : "clear_worth",
               article_id: cardId
             }]
           })
@@ -1264,12 +1273,7 @@ class AudioBriefController {
         const x = i * (barWidth + gap) + 4;
         const y = h - barHeight;
 
-        const grad = ctx.createLinearGradient(0, y, 0, h);
-        grad.addColorStop(0, "#10B981");
-        grad.addColorStop(0.5, "#B58900");
-        grad.addColorStop(1, "#D97706");
-
-        ctx.fillStyle = grad;
+        ctx.fillStyle = this.themeColor("--accent", "#C8321D");
         ctx.beginPath();
         if (ctx.roundRect) {
           ctx.roundRect(x, y, barWidth, barHeight, 2);
@@ -1291,7 +1295,7 @@ class AudioBriefController {
       ctx.clearRect(0, 0, w, h);
       for (let i = 0; i < bars; i++) {
         const x = i * (barWidth + gap) + 4;
-        ctx.fillStyle = "rgba(181, 137, 0, 0.35)";
+        ctx.fillStyle = this.themeColor("--hairline-strong", "rgba(18, 19, 22, 0.34)");
         ctx.beginPath();
         if (ctx.roundRect) {
           ctx.roundRect(x, h - 3, barWidth, 3, 1.5);
@@ -1301,6 +1305,11 @@ class AudioBriefController {
         ctx.fill();
       }
     }
+  }
+
+  themeColor(name, fallback) {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
   }
 
   formatTime(secs) {
@@ -1524,16 +1533,10 @@ document.addEventListener("DOMContentLoaded", () => {
 // 14. Scroll Animation Engine (Hero Parallax, Staggered Card Reveal)
 // ==========================================================================
 function initScrollAnimations() {
-  const scrollCue = document.getElementById("scroll-cue");
-  const masthead = document.querySelector(".masthead");
   const crown = document.querySelector(".crown");
-  const orbRed = document.querySelector(".ambient-orb--red");
-  const orbGilt = document.querySelector(".ambient-orb--gilt");
-  const orbTeal = document.querySelector(".ambient-orb--teal");
   const cards = Array.from(document.querySelectorAll(".lab-card, .filter-sheet, .slide-reveal-card"));
   let ticking = false;
 
-  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
   function update() {
     ticking = false;
@@ -1543,27 +1546,6 @@ function initScrollAnimations() {
     // 1. Crown Header frosted glass elevation on scroll
     if (crown) {
       crown.classList.toggle("scrolled", y > 15);
-    }
-
-    // 3. Ambient Background Orbs Parallax Drift
-    if (orbRed) orbRed.style.transform = `translateY(${y * 0.08}px)`;
-    if (orbGilt) orbGilt.style.transform = `translateY(${-y * 0.06}px)`;
-    if (orbTeal) orbTeal.style.transform = `translateY(${y * 0.04}px)`;
-
-    // 4. Masthead scroll cue fade
-    if (scrollCue) {
-      if (y > 30) {
-        scrollCue.classList.add("hidden");
-      } else {
-        scrollCue.classList.remove("hidden");
-      }
-    }
-
-    // 5. Subtle Masthead Hero Parallax
-    if (masthead && y <= vh) {
-      const h = clamp(y / vh, 0, 1);
-      masthead.style.transform = `translateY(${h * 24}px)`;
-      masthead.style.opacity = `${1 - h * 0.45}`;
     }
 
     // 6. Active Center Reading Highlight
@@ -1788,7 +1770,7 @@ async function initAuthGate() {
             body: "{}"
           });
         } catch (_) {}
-        window.location.href = "about.html";
+        window.location.reload();
       };
     }
 
@@ -1797,14 +1779,20 @@ async function initAuthGate() {
         const pRes = await fetch("/api/profile");
         if (pRes.ok) {
           const profileData = await pRes.json();
+          // Readers who read in depth get every card opened for them.
+          if (profileData.depth && profileData.depth.depth === "deep") {
+            const allBtn = document.getElementById("toggle-all-headlines-btn");
+            const cardsAll = document.querySelectorAll(".lab-card.news-story-card");
+            if (allBtn && cardsAll.length && ![...cardsAll].every(c => c.classList.contains("is-expanded"))) allBtn.click();
+          }
           if (profileData.inferred_role) {
             setRole(profileData.inferred_role, false);
             const activeBtn = document.querySelector(`.seg-btn[data-role="${profileData.inferred_role}"]`);
             if (activeBtn && !activeBtn.querySelector(".inferred-pill")) {
               const pill = document.createElement("span");
               pill.className = "inferred-pill";
-              pill.textContent = "✦ Inferred";
-              pill.style.cssText = "font-size:9px; margin-left:5px; background:var(--gilt-soft); color:var(--gilt); padding:1px 5px; border-radius:99px; border:1px solid var(--gilt);";
+              pill.textContent = "Inferred";
+              pill.title = "Picked from your reading history";
               activeBtn.appendChild(pill);
             }
           }
@@ -1820,29 +1808,12 @@ async function initAuthGate() {
     // /api/me at all, so redirecting here would lock everyone out.)
   }
 
-  // If on About Page, configure Login / Register Portal
+  // About page: everything is public, so this card only offers sign-in for For You.
   if (isAboutPage) {
     const loggedInBox = document.getElementById("auth-logged-in-box");
     const formsWrap = document.getElementById("auth-forms-wrap");
     const loggedInLabel = document.getElementById("logged-in-username-label");
     const portalSignoutBtn = document.getElementById("portal-signout-btn");
-    const tabLogin = document.getElementById("tab-btn-login");
-    const tabSignup = document.getElementById("tab-btn-signup");
-    const loginForm = document.getElementById("about-login-form");
-    const signupForm = document.getElementById("about-signup-form");
-    const alertBox = document.getElementById("auth-alert-box");
-    const demoBtn = document.getElementById("demo-login-btn");
-
-    function showAlert(msg, type = "error") {
-      if (!alertBox) return;
-      alertBox.textContent = msg;
-      alertBox.className = `auth-alert-box ${type}`;
-      alertBox.style.display = "block";
-    }
-
-    function clearAlert() {
-      if (alertBox) alertBox.style.display = "none";
-    }
 
     if (currentUser) {
       if (loggedInBox) loggedInBox.style.display = "block";
@@ -1863,113 +1834,34 @@ async function initAuthGate() {
     } else {
       if (loggedInBox) loggedInBox.style.display = "none";
       if (formsWrap) formsWrap.style.display = "block";
-
-      // Tab switching
-      if (tabLogin && tabSignup && loginForm && signupForm) {
-        tabLogin.onclick = () => {
-          tabLogin.classList.add("active");
-          tabSignup.classList.remove("active");
-          loginForm.style.display = "block";
-          signupForm.style.display = "none";
-          clearAlert();
-        };
-        tabSignup.onclick = () => {
-          tabSignup.classList.add("active");
-          tabLogin.classList.remove("active");
-          signupForm.style.display = "block";
-          loginForm.style.display = "none";
-          clearAlert();
-        };
-      }
-
-      // Login submission
-      if (loginForm) {
-        loginForm.onsubmit = async (e) => {
-          e.preventDefault();
-          clearAlert();
-          const username = document.getElementById("login-username").value.trim();
-          const password = document.getElementById("login-password").value;
-          const submitBtn = document.getElementById("login-submit-btn");
-          if (submitBtn) submitBtn.disabled = true;
-
-          try {
-            const res = await fetch("/api/auth/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Authentication failed");
-            showAlert("Authentication verified. Entering station...", "success");
-            setTimeout(() => { window.location.href = "index.html"; }, 400);
-          } catch (err) {
-            showAlert(err.message || "Invalid station username or password.");
-            if (submitBtn) submitBtn.disabled = false;
-          }
-        };
-      }
-
-      // Signup submission
-      if (signupForm) {
-        signupForm.onsubmit = async (e) => {
-          e.preventDefault();
-          clearAlert();
-          const username = document.getElementById("signup-username").value.trim();
-          const display_name = document.getElementById("signup-displayname").value.trim();
-          const password = document.getElementById("signup-password").value;
-          const submitBtn = document.getElementById("signup-submit-btn");
-          if (submitBtn) submitBtn.disabled = true;
-
-          try {
-            const res = await fetch("/api/auth/signup", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password, display_name })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Account creation failed");
-            showAlert("Account created successfully. Initializing station session...", "success");
-            setTimeout(() => { window.location.href = "index.html"; }, 400);
-          } catch (err) {
-            showAlert(err.message || "Failed to create account.");
-            if (submitBtn) submitBtn.disabled = false;
-          }
-        };
-      }
-
-      // Instant 1-Click Guest Pass
-      if (demoBtn) {
-        demoBtn.onclick = async () => {
-          clearAlert();
-          demoBtn.disabled = true;
-          demoBtn.textContent = "Connecting guest pass...";
-          try {
-            // Each guest pass is its own throwaway account, so guests never share
-            // a reading profile or votes. The password is random and never shown.
-            const rand = (n) => {
-              const bytes = new Uint8Array(n);
-              crypto.getRandomValues(bytes);
-              return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
-            };
-            const res = await fetch("/api/auth/signup", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username: "guest_" + rand(4), password: rand(16), display_name: "Guest" })
-            });
-            const data = await res.json();
-            if (res.ok && data.user) {
-              showAlert("Guest pass issued. Redirecting...", "success");
-              setTimeout(() => { window.location.href = "foryou.html"; }, 350);
-              return;
-            }
-            throw new Error(data.error || "Guest access failed");
-          } catch (err) {
-            showAlert("Unable to issue instant guest pass. Please enter credentials above.");
-            demoBtn.disabled = false;
-            demoBtn.textContent = "⚡ Instant 1-Click Guest Pass";
-          }
-        };
-      }
+      await setupSocialButtons();
     }
+  }
+}
+
+// Greys out "Continue with …" buttons this server has no OAuth keys for. On static hosting
+// (GitHub Pages) there is no API at all, so sign-in is pointed at the hosted app instead.
+async function setupSocialButtons() {
+  const buttons = document.querySelectorAll("[data-social-auth] .social-btn");
+  const note = document.getElementById("social-auth-note");
+  if (!buttons.length) return;
+  let providers = null;
+  try {
+    const res = await fetch("/api/auth/providers");
+    if (res.ok) providers = (await res.json()).providers;
+  } catch (_) { /* static hosting */ }
+  const configured = new Set((providers || []).filter(p => p.configured).map(p => p.id));
+  buttons.forEach(btn => {
+    const ok = configured.has(btn.dataset.provider);
+    btn.classList.toggle("is-disabled", !ok);
+    btn.setAttribute("aria-disabled", String(!ok));
+    btn.title = ok ? "" : "Not set up on this server yet";
+    btn.addEventListener("click", (e) => { if (btn.classList.contains("is-disabled")) e.preventDefault(); });
+  });
+  if (note) {
+    note.hidden = configured.size > 0;
+    note.textContent = providers === null
+      ? "Sign-in runs on the Pith server. This static copy is read-only."
+      : "Google, GitHub, X and LinkedIn sign-in switch on once this server has their OAuth keys. Use a username for now.";
   }
 }

@@ -185,6 +185,12 @@ class Database:
         """
         ALTER TABLE cards ADD COLUMN factor_scores_json TEXT;
         """,
+        # 4: 'core' = one of the day's public 5; 'pool' = also passed threshold + verification,
+        # published as "More verified shifts" and used to personalise Your 5.
+        """
+        ALTER TABLE cards ADD COLUMN tier TEXT NOT NULL DEFAULT 'core';
+        CREATE INDEX IF NOT EXISTS idx_cards_issue_tier ON cards(issue_date, tier);
+        """,
     ]
 
     def _migrate(self, conn: sqlite3.Connection) -> None:
@@ -236,8 +242,8 @@ class Database:
                 json.dumps(issue.meta)
             ))
 
-            # Remove any cards for this issue that are no longer in issue.cards
-            current_card_ids = [c.id for c in issue.cards]
+            # Remove any cards for this issue that are no longer in issue.cards or issue.pool
+            current_card_ids = [c.id for c in issue.cards] + [c.id for c in issue.pool]
             if current_card_ids:
                 placeholders = ",".join(["?"] * len(current_card_ids))
                 cursor.execute(f"""
@@ -260,7 +266,9 @@ class Database:
                 """, [issue.date] + current_card_ids)
 
             for card in issue.cards:
-                self._save_card_cursor(cursor, card, issue.date)
+                self._save_card_cursor(cursor, card, issue.date, "core")
+            for card in issue.pool:
+                self._save_card_cursor(cursor, card, issue.date, "pool")
 
             cursor.execute("DELETE FROM not_included_stories WHERE issue_date = ?", (issue.date,))
             for ni in issue.not_included_today:
@@ -271,14 +279,14 @@ class Database:
 
             conn.commit()
 
-    def _save_card_cursor(self, cursor: sqlite3.Cursor, card: Card, issue_date: str):
+    def _save_card_cursor(self, cursor: sqlite3.Cursor, card: Card, issue_date: str, tier: str = "core"):
         cursor.execute("""
             INSERT OR REPLACE INTO cards (
                 id, issue_date, cluster_id, date, beat, headline, what_happened,
                 why_it_matters, second_order_json, signal_score, signal_level,
                 signal_reason, confidence, action_type, action_text,
-                historical_analogue_json, evidence_links_json, published_at, factor_scores_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                historical_analogue_json, evidence_links_json, published_at, factor_scores_json, tier
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             card.id,
             issue_date,
@@ -299,6 +307,7 @@ class Database:
             json.dumps([asdict_safe(el) for el in card.evidence_links]),
             card.published_at,
             json.dumps(card.factor_scores or {}),
+            tier,
         ))
 
         # Save role views (clean previous first to prevent stale keys)
@@ -363,7 +372,7 @@ class Database:
         # Load cards
         cursor.execute("SELECT * FROM cards WHERE issue_date = ? ORDER BY signal_score DESC", (issue_date,))
         card_rows = cursor.fetchall()
-        cards = []
+        cards, pool = [], []
         for cr in card_rows:
             card_id = cr["id"]
             # Load role views
@@ -422,7 +431,8 @@ class Database:
                 for el in (json.loads(cr["evidence_links_json"]) if cr["evidence_links_json"] else [])
             ]
 
-            cards.append(Card(
+            target = pool if cr["tier"] == "pool" else cards
+            target.append(Card(
                 id=cr["id"],
                 date=cr["date"],
                 headline=cr["headline"],
@@ -462,7 +472,8 @@ class Database:
             cards=cards,
             not_included_today=not_included,
             published_at=issue_row["published_at"],
-            meta=meta
+            meta=meta,
+            pool=pool,
         )
 
     def get_all_predictions(self) -> List[Prediction]:

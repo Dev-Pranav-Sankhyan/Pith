@@ -169,7 +169,9 @@ def synthesize_speech_macos(speech_text: str, output_aiff_path: str) -> bool:
 
 def synthesize_speech_elevenlabs(script: str, output_mp3_path: str) -> bool:
     """Uses ElevenLabs TTS API with Nicole voice (calm, crisp, authoritative intelligence narrative tone)."""
-    api_key = os.environ.get("ELEVENLABS_API_KEY") or "sk_2f20e5d26c9c8200fa2a79044638ad3fb05c31520635d9d0"
+    api_key = os.environ.get("ELEVENLABS_API_KEY")
+    if not api_key:
+        return False
     voice_id = "piTKgcLEGmPE4e6mEKli"  # Nicole
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     
@@ -189,10 +191,9 @@ def synthesize_speech_elevenlabs(script: str, output_mp3_path: str) -> bool:
         headers={"xi-api-key": api_key, "Content-Type": "application/json"},
         method="POST"
     )
-    import ssl
-    ctx = ssl._create_unverified_context()
     try:
-        with urllib.request.urlopen(req, context=ctx, timeout=60) as resp:
+        # Default TLS verification: the API key must never go over an unverified connection.
+        with urllib.request.urlopen(req, timeout=60) as resp:
             with open(output_mp3_path, "wb") as f:
                 f.write(resp.read())
             return True

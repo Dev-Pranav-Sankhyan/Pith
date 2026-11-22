@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,30 +9,34 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+    <script>(function(){try{var t=localStorage.getItem("pith_brief_theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="foryou.css">
 </head>
 <body class="fy-body">
-    <div class="ambient-orb ambient-orb--gilt" aria-hidden="true"></div>
-    <div class="grain-overlay" aria-hidden="true"></div>
 
     <header class="crown">
-        <a href="index.html" class="brand-wrapper">
+        <a href="index.html" class="brand-wrapper" aria-label="Pith home">
             <div class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             <div class="brand-name">PITH</div>
         </a>
         <div class="nav-cluster">
-            <nav class="nav-pills-bar">
+            <nav class="nav-pills-bar" aria-label="Main">
                 <a href="foryou.html" class="nav-link active" aria-current="page">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a><a href="about.html" class="nav-link">About</a>
             </nav>
-            <div class="fy-user-chip" id="fy-user-chip" hidden>
-                <span class="fy-avatar" id="fy-avatar">?</span>
-                <span id="fy-username"></span>
-                <button type="button" class="fy-link-btn" id="fy-logout">Sign out</button>
+            <div class="crown-tools">
+                <div class="fy-user-chip" id="fy-user-chip" hidden>
+                    <span class="fy-avatar" id="fy-avatar">?</span>
+                    <span id="fy-username"></span>
+                    <button type="button" class="fy-link-btn" id="fy-logout">Sign out</button>
+                </div>
+                <button class="theme-toggle" id="theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light or dark theme" type="button">
+                    <div class="theme-icon-circle"></div>
+                </button>
             </div>
-            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme" type="button">
-                <div class="theme-icon-circle"></div>
-            </button>
         </div>
     </header>
 
@@ -45,13 +49,32 @@
                 <h1 class="page-title">A front page that <em>learns you</em>.</h1>
                 <p class="fy-lede">Sign in and read the way you normally do. Every click, every minute you spend reading, every story you skip teaches your feed. No AI and no black box. It runs on transparent maths, and it shows you why each story is there.</p>
                 <ol class="fy-steps">
-                    <li><b>Tell it a little.</b> Pick a few topics to start, so day one isn't generic.</li>
-                    <li><b>Just read.</b> It tracks clicks, how long you read, what you skip, save and share.</li>
-                    <li><b>Watch it adapt.</b> Your Taste DNA updates live, and you can see and steer every weight.</li>
+                    <li><b>Sign in with what you already use.</b> Connect GitHub, X, LinkedIn or Google and day one starts from your interests, not a blank page.</li>
+                    <li><b>Just read, or listen.</b> It learns from clicks, reading time, skips, saves and shares, and reads Your 5 aloud in your name.</li>
+                    <li><b>Watch it adapt.</b> Your Taste DNA updates live, and you can see, steer or delete every signal.</li>
                 </ol>
+                <p class="fy-open-note">Daily News, the Forecast Ledger, the Archive and Tech Patterns stay open to everyone. Only this page needs an account.</p>
             </div>
 
             <div class="fy-auth-card">
+                <h2 class="fy-auth-title">Sign in to For You</h2>
+                <p class="fy-auth-error" id="fy-oauth-error" role="alert" hidden></p>
+                <div class="social-auth" id="fy-social">
+                    <a class="social-btn" data-provider="google" href="/api/auth/oauth/google/start?next=%2Fforyou">
+                        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg></span>
+                        <span>Continue with Google</span></a>
+                    <a class="social-btn" data-provider="github" href="/api/auth/oauth/github/start?next=%2Fforyou">
+                        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span>
+                        <span>Continue with GitHub</span></a>
+                    <a class="social-btn" data-provider="x" href="/api/auth/oauth/x/start?next=%2Fforyou">
+                        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg></span>
+                        <span>Continue with X</span></a>
+                    <a class="social-btn" data-provider="linkedin" href="/api/auth/oauth/linkedin/start?next=%2Fforyou">
+                        <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="#0A66C2" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></span>
+                        <span>Continue with LinkedIn</span></a>
+                </div>
+                <p class="social-auth-note" id="fy-social-note" hidden></p>
+                <div class="auth-divider"><span>OR USE A USERNAME</span></div>
                 <div class="fy-auth-tabs" role="tablist">
                     <button type="button" role="tab" class="fy-auth-tab active" data-mode="login" aria-selected="true">Sign in</button>
                     <button type="button" role="tab" class="fy-auth-tab" data-mode="signup" aria-selected="false">Create account</button>
@@ -72,34 +95,57 @@
                     <p class="fy-form-error" id="fy-auth-error" role="alert"></p>
                     <button type="submit" class="fy-primary-btn" id="fy-auth-submit">Sign in</button>
                 </form>
+                <p class="fy-privacy-note">With Google, GitHub, X or LinkedIn we read your public profile once, at sign-in, to seed your interests: GitHub repos and stars, your X bio and follows, your locale's country. We never ask for your email, never post, and don't keep the access token. Remove anything imported from your Taste DNA.</p>
             </div>
         </section>
 
         <!-- ============ Onboarding ============ -->
         <section class="fy-onboard" id="fy-onboard" hidden>
-            <div class="eyebrow"><span class="gilt-dot"></span> STEP 1 OF 1</div>
-            <h1 class="page-title">What do you <em>actually</em> read?</h1>
-            <p class="fy-lede">Pick at least three topics. This only seeds your feed. Your reading habits take over within a few sessions.</p>
-            <div class="fy-topic-grid" id="fy-topic-grid"></div>
-            <button type="button" class="fy-primary-btn" id="fy-onboard-go" disabled>Build my front page →</button>
+            <div id="fy-onboard-pairs" hidden>
+                <div class="eyebrow"><span class="gilt-dot"></span> STEP 1 OF 2 &middot; <span id="fy-pair-progress"></span></div>
+                <h1 class="page-title">Which would you <em>rather</em> read?</h1>
+                <p class="fy-lede">Real headlines from right now. Tap the one you'd open. A few quick picks teach your feed more than a list of topics.</p>
+                <div class="fy-pair" id="fy-pair"></div>
+                <button type="button" class="fy-link-btn fy-pair-skip" id="fy-pair-skip">Neither, skip this pair</button>
+            </div>
+            <div id="fy-onboard-topics" hidden>
+                <div class="eyebrow"><span class="gilt-dot"></span> <span id="fy-topics-step">STEP 2 OF 2</span></div>
+                <h1 class="page-title" id="fy-topics-title">Anything you <em>always</em> want?</h1>
+                <p class="fy-lede" id="fy-topics-lede">Optional. Add topics on top of your picks. Your reading habits take over within a few sessions.</p>
+                <div class="fy-topic-grid" id="fy-topic-grid"></div>
+                <button type="button" class="fy-primary-btn" id="fy-onboard-go" disabled>Build my front page →</button>
+            </div>
         </section>
 
         <!-- ============ Feed ============ -->
         <section class="fy-app" id="fy-app" hidden>
             <div class="fy-masthead">
-                <div>
+                <div class="fy-masthead-main">
                     <div class="eyebrow"><span class="gilt-dot"></span> <span id="fy-date"></span></div>
                     <h1 class="page-title" id="fy-greeting">Your front page</h1>
+                    <p class="fy-summary" id="fy-summary" aria-live="polite"></p>
                 </div>
-                <div class="fy-learning" title="How confident the feed is about your taste. Grows as you read.">
-                    <div class="fy-learning-label">Learning your taste <b id="fy-confidence">0%</b></div>
-                    <div class="fy-meter"><i id="fy-meter-fill"></i></div>
+                <div class="fy-masthead-side">
+                    <div class="fy-budget">
+                        <span class="fy-side-label" id="fy-budget-label">Time to read</span>
+                        <div class="seg-control fy-budget-seg" id="fy-budget" role="group" aria-labelledby="fy-budget-label">
+                            <button type="button" class="seg-btn" data-budget="5">5 min</button>
+                            <button type="button" class="seg-btn" data-budget="15">15 min</button>
+                            <button type="button" class="seg-btn" data-budget="30">30 min</button>
+                            <button type="button" class="seg-btn active" data-budget="0">All</button>
+                        </div>
+                    </div>
+                    <div class="fy-learning" title="How confident the feed is about your taste. Grows as you read.">
+                        <div class="fy-learning-label">Learning your taste <b id="fy-confidence">0%</b></div>
+                        <div class="fy-meter"><i id="fy-meter-fill"></i></div>
+                    </div>
                 </div>
             </div>
 
             <div class="fy-toolbar">
                 <div class="fy-tabs" role="tablist">
                     <button type="button" class="fy-tab active" data-tab="foryou">For You</button>
+                    <button type="button" class="fy-tab" data-tab="following">Following <span class="fy-badge" id="fy-follow-badge" hidden></span></button>
                     <button type="button" class="fy-tab" data-tab="trending">Trending</button>
                     <button type="button" class="fy-tab" data-tab="saved">Saved</button>
                     <button type="button" class="fy-tab" data-tab="history">History</button>
@@ -112,9 +158,11 @@
 
             <div class="fy-layout">
                 <div class="fy-feed-col">
+                    <section class="fy-your5" id="fy-your5" aria-label="Your 5" hidden></section>
                     <div class="fy-demo-banner" id="fy-demo-banner" hidden>
                         Offline demo mode. Live RSS feeds couldn't be reached, so you're seeing synthetic sample stories. They're replaced automatically once the server can fetch news.
                     </div>
+                    <div class="fy-budget-note" id="fy-budget-note" hidden></div>
                     <div class="fy-feed" id="fy-feed" aria-live="polite"></div>
                     <div class="fy-feed-status" id="fy-feed-status"></div>
                     <button type="button" class="fy-ghost-btn" id="fy-more" hidden>Load more</button>
@@ -126,7 +174,10 @@
                         <span class="fy-dna-sub">What your feed has learned. Updates as you read.</span>
                     </div>
                     <div class="fy-dna-stats" id="fy-dna-stats"></div>
-                    <h3>Topics</h3>
+                    <div class="fy-forecast-box" id="fy-forecast-box"></div>
+                    <h3>Connected accounts</h3>
+                    <div id="fy-connections" class="fy-connections"></div>
+                    <h3>Topics <span class="fy-h3-hint">tap − or + to steer</span></h3>
                     <div id="fy-dna-topics" class="fy-bars"></div>
                     <h3>Recurring interests</h3>
                     <div id="fy-dna-keywords" class="fy-cloud"></div>
@@ -139,6 +190,27 @@
                     <div id="fy-dna-muted-wrap" hidden>
                         <h3>Muted sources</h3>
                         <div id="fy-dna-muted" class="fy-cloud"></div>
+                    </div>
+                    <h3>Following</h3>
+                    <div id="fy-follow-list" class="fy-cloud"></div>
+                    <form class="fy-inline-form" id="fy-follow-form">
+                        <input id="fy-follow-input" type="text" maxlength="80" placeholder="Follow a name or phrase" aria-label="Follow a person, company or phrase">
+                        <button type="submit" class="fy-mini-btn">Follow</button>
+                    </form>
+                    <h3>Your own feeds</h3>
+                    <div id="fy-feed-list" class="fy-feed-list"></div>
+                    <form class="fy-inline-form" id="fy-feedurl-form">
+                        <input id="fy-feedurl-input" type="url" maxlength="500" placeholder="RSS or Atom feed URL" aria-label="Add an RSS or Atom feed">
+                        <button type="submit" class="fy-mini-btn">Add</button>
+                    </form>
+                    <p class="fy-form-error fy-small-error" id="fy-feedurl-error" role="alert"></p>
+                    <h3>Settings</h3>
+                    <div class="fy-settings">
+                        <label class="fy-setting"><span>Story depth</span><select id="fy-pref-depth"></select></label>
+                        <p class="fy-setting-note" id="fy-depth-reason"></p>
+                        <label class="fy-setting"><span>More news from</span><select id="fy-pref-region"></select></label>
+                        <label class="fy-setting"><span>Daily brief time</span><select id="fy-pref-hour"></select></label>
+                        <p class="fy-setting-note">Saved for scheduled delivery. Email sending isn't switched on yet.</p>
                     </div>
                     <button type="button" class="fy-link-btn fy-reset" id="fy-reset">Reset my profile</button>
                 </aside>

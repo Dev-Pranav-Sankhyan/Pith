@@ -19,7 +19,7 @@ import json
 from typing import List, Dict, Any
 
 from core.db import Database
-from core.models import DailyIssue, Card, NotIncludedStory
+from core.models import DailyIssue, Card, NotIncludedStory, POOL_MAX
 from core.sources import SourceCollector
 from pipeline.ingest_llm import run_pipeline, fetch_url_content
 from pipeline.build_issue import build_static_artifacts
@@ -112,6 +112,9 @@ def run_daily_pipeline(
     # Sort accepted cards by signal score descending
     accepted_cards.sort(key=lambda c: getattr(c, "signal_score", 70.0), reverse=True)
     top_5_cards = accepted_cards[:5]
+    # Everything else that passed the same threshold and verification becomes the pool:
+    # published as "More verified shifts" and used to build each reader's own Your 5.
+    pool_cards = accepted_cards[5:5 + POOL_MAX]
 
     # If we got fewer than 5 (e.g. offline dry-run or low volume), retain existing issue cards
     db = Database(db_path)
@@ -142,11 +145,13 @@ def run_daily_pipeline(
         date=today_str,
         beat="AI & Developer Infrastructure",
         cards=top_5_cards,
-        not_included_today=final_ignored
+        not_included_today=final_ignored,
+        pool=pool_cards,
     )
 
     db.save_issue(daily_issue)
-    print(f"  ✓ Issue saved to {db_path} with {len(daily_issue.cards)} cards and {len(daily_issue.not_included_today)} filtered stories.")
+    print(f"  ✓ Issue saved to {db_path} with {len(daily_issue.cards)} cards, {len(daily_issue.pool)} pool cards "
+          f"and {len(daily_issue.not_included_today)} filtered stories.")
 
     # 4. Static Asset Rendering & Feeds
     print("\n[Phase 4/5] Building static web pages and distribution feeds...")
@@ -191,6 +196,7 @@ def run_daily_pipeline(
         "status": "success",
         "date": today_str,
         "cards_count": len(daily_issue.cards),
+        "pool_count": len(daily_issue.pool),
         "ignored_count": len(daily_issue.not_included_today),
         "audio": audio_results
     }
