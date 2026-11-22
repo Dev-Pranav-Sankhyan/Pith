@@ -40,6 +40,8 @@ def get_nav_html(active_page: str) -> str:
         active_cls = "nav-link active" if is_active else "nav-link"
         current_attr = ' aria-current="page"' if is_active else ""
         members = "" if href == "about.html" else " data-members"
+        if href == "about.html":  # app.js unhides this for admins (/api/me says is_admin)
+            nav_links_html.append('<a href="admin.html" class="nav-link" data-members data-admin hidden>Admin</a>')
         nav_links_html.append(f'<a href="{href}" class="{active_cls}"{current_attr}{members}>{label}</a>')
     nav_links_html.append('<a href="about.html#access" class="nav-link nav-signin" data-guest>Sign in</a>')
 

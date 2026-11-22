@@ -25,7 +25,7 @@ from core.your5 import Your5Engine
 from core.demo_news import seed_demo
 from core import votes
 from core import follows as follows_mod, personal_audio, personal_forecasts, prefs as prefs_mod, userfeeds
-from core import oauth, social_signals
+from core import oauth, social_signals, admin
 from core.ratelimit import RateLimiter
 import threading
 import time
@@ -64,6 +64,9 @@ MEMBER_PAGES = {
     "/patterns": "/patterns.html", "/patterns.html": "/patterns.html",
     "/foryou": "/foryou.html", "/for-you": "/foryou.html", "/foryou.html": "/foryou.html",
 }
+# Admin-only (core/admin.py): signed-in readers without admin rights get a 403.
+ADMIN_PAGES = {"/admin": "/admin.html", "/admin.html": "/admin.html"}
+ADMIN_FILES = set(ADMIN_PAGES) | {"/admin.js"}
 DECOMMISSIONED = {"/horizon", "/bounty", "/matrix", "/economics", "/terminal"}
 EVENT_TEXT_FIELDS = ("kind", "article_id", "topic", "query", "publisher")
 EVENT_NUMBER_FIELDS = ("value", "local_hour")
@@ -179,6 +182,8 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         # ---- signed in from here on
         self._private = True
+        if path in ADMIN_FILES or path.startswith("/api/admin/"):
+            return self._route_admin_get(path, user)
         if path.startswith("/api/"):
             root = path.split("/")[2]
             if root in FORYOU_GET_ROOTS:
@@ -205,7 +210,7 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             return self._json({"error": "Login required"}, 401)
         if posixpath.splitext(path)[1] in ("", ".html"):
             target = "/about"
-            if path in MEMBER_PAGES and path != "/":
+            if (path in MEMBER_PAGES or path in ADMIN_PAGES) and path != "/":
                 target += "?next=" + urllib.parse.quote(path)
             return self._redirect(target + "#access" if target != "/about" else target)
         return self._json({"error": "Login required"}, 401)
@@ -233,6 +238,13 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             if not self._current_user():
                 return self._json({"error": "Login required"}, 401)
             return self._handle_api_score()
+        if path.startswith("/api/admin/"):
+            user = self._current_user()
+            if not user:
+                return self._json({"error": "Login required"}, 401)
+            if not admin.is_admin(user["id"], FOR_YOU_DB):
+                return self._json({"error": "Admins only"}, 403)
+            return self._handle_admin_post(path, user)
         if path in AUTH_POSTS or path.startswith(FORYOU_POST_PREFIXES):
             return self._handle_foryou_post(path)
         return self._json({"error": "Not found"}, 404)
@@ -350,7 +362,8 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         """Works signed out too (user is null), so the About page can tell which card to show."""
         if user:
             user = dict(user, avatar_url=oauth.avatar_for(user["id"], FOR_YOU_DB),
-                        providers=[i["provider"] for i in oauth.identities(user["id"], FOR_YOU_DB)])
+                        providers=[i["provider"] for i in oauth.identities(user["id"], FOR_YOU_DB)],
+                        is_admin=admin.is_admin(user["id"], FOR_YOU_DB))
             return self._json({"user": user, "articles": newsfeed.article_count(FOR_YOU_DB)})
         return self._json({"user": None})
 
@@ -551,6 +564,35 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             return self._json({"error": "No issue found"}, 404)
         self._send_json(issue.to_dict())
 
+    # ------------------------------------------------------------------ admin
+    def _route_admin_get(self, path: str, user):
+        if not admin.is_admin(user["id"], FOR_YOU_DB):
+            if path.startswith("/api/"):
+                return self._json({"error": "Admins only"}, 403)
+            return self.send_error(403, "Admins only")
+        if path == "/api/admin/overview":
+            return self._json(admin.overview(FOR_YOU_DB, BRIEF_DB))
+        if path.startswith("/api/"):
+            return self._json({"error": "Not found"}, 404)
+        return self._serve_static(ADMIN_PAGES.get(path, path))
+
+    def _handle_admin_post(self, path: str, user):
+        try:
+            data = self._read_json_body()
+        except (ValueError, json.JSONDecodeError) as e:
+            return self._json({"error": str(e)}, 400)
+        if path != "/api/admin/resolve":
+            return self._json({"error": "Not found"}, 404)
+        reviewer = (user.get("display_name") or user["username"]).strip()
+        try:
+            rid = admin.resolve(BRIEF_DB, data.get("prediction_id"), data.get("status"),
+                                data.get("evidence_url"), data.get("note"), reviewer)
+        except (admin.AdminError, ValueError, KeyError) as e:
+            return self._json({"error": str(e).strip("'\"")}, 400)
+        print(f"[admin] {user['username']} recorded verdict #{rid}: {data.get('prediction_id')} -> {data.get('status')}")
+        _rerender_site()
+        return self._json({"ok": True, "resolution_id": rid, "resolved_by": reviewer})
+
     def _handle_api_ledger(self):
         preds = Database(BRIEF_DB).get_all_predictions()
         stats = LedgerEngine.calculate_statistics(preds)
@@ -597,6 +639,22 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "private, no-store")
         self.end_headers()
         self._write(response_bytes)
+
+
+_render_lock = threading.Lock()
+
+
+def _rerender_site():
+    """Rebuild the static pages in the background after an admin verdict, so the Ledger page
+    shows it without anyone running pipeline.render_html by hand."""
+    def work():
+        with _render_lock:
+            try:
+                from pipeline.render_html import render_all
+                render_all(BRIEF_DB, PUBLIC_DIR)
+            except Exception as e:
+                print(f"[admin] re-render failed; run python3 -m pipeline.render_html: {e}")
+    threading.Thread(target=work, daemon=True).start()
 
 
 def _news_refresher():
