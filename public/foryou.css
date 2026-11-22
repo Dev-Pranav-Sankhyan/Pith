@@ -100,98 +100,7 @@
   font: 600 12px/1 var(--font-sans);
 }
 
-/* ---------------- gate */
-.fy-gate {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 64px;
-  align-items: start;
-  padding-top: 56px;
-}
-
-.fy-steps {
-  display: grid;
-  gap: 0;
-  max-width: 560px;
-  margin: 32px 0 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
-  border-top: 2px solid var(--rule);
-}
-
-.fy-steps li {
-  position: relative;
-  padding: 16px 0 16px 52px;
-  border-bottom: 1px solid var(--hairline);
-  counter-increment: step;
-  font: 400 15.5px/1.55 var(--font-sans);
-  color: var(--ink-2);
-}
-
-.fy-steps li::before {
-  content: counter(step, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 13px;
-  font: italic 500 24px/1 var(--font-serif);
-  color: var(--accent);
-}
-
-.fy-steps b { color: var(--ink); font-weight: 600; }
-
-.fy-auth-card {
-  padding: 32px;
-  border: 1px solid var(--hairline);
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: var(--shadow-hover);
-}
-
-.fy-auth-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  margin-bottom: 24px;
-  padding: 3px;
-  border-radius: 999px;
-  background: var(--surface-2);
-}
-
-.fy-auth-tab {
-  height: 36px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--muted);
-  font: 600 13.5px/1 var(--font-sans);
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.fy-auth-tab:hover { color: var(--ink); }
-.fy-auth-tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm), 0 0 0 1px var(--hairline); }
-:root[data-theme="dark"] .fy-auth-tab.active { background: var(--hairline-2); box-shadow: none; }
-
-.fy-field { display: grid; gap: 6px; margin-bottom: 16px; }
-.fy-field span { font: 600 13px/1.3 var(--font-sans); color: var(--ink-2); }
-
-.fy-field input {
-  width: 100%;
-  height: 46px;
-  padding: 0 14px;
-  border: 1px solid var(--hairline-2);
-  border-radius: var(--radius-sm);
-  background: var(--ground);
-  color: var(--ink);
-  font: 400 15px/1 var(--font-sans);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.fy-field input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px var(--accent-soft); }
-
 .fy-form-error { min-height: 18px; margin: 0 0 12px; font: 400 13.5px/1.4 var(--font-sans); color: var(--bad); }
-#fy-auth-form .fy-primary-btn { width: 100%; }
 
 /* ---------------- onboarding */
 .fy-onboard { max-width: 880px; padding-top: 56px; }
@@ -828,23 +737,6 @@
 .fy-fc-status--correct { color: var(--good); }
 .fy-fc-status--wrong { color: var(--bad); }
 
-/* ---------------- sign-in screen */
-.fy-auth-title { margin-bottom: 18px; font: 600 26px/1.15 var(--font-serif); letter-spacing: -0.015em; }
-
-.fy-auth-error {
-  margin: -6px 0 16px;
-  padding: 10px 14px;
-  border: 1px solid var(--bad-border);
-  border-radius: var(--radius-sm);
-  background: var(--bad-soft);
-  font: 400 14px/1.45 var(--font-sans);
-  color: var(--bad);
-}
-
-.fy-auth-card .auth-divider { margin: 22px 0 18px; }
-.fy-privacy-note { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--hairline); font: 400 12.5px/1.55 var(--font-sans); color: var(--muted); }
-.fy-open-note { max-width: 56ch; margin-top: 22px; font: 400 14px/1.55 var(--font-sans); color: var(--muted); }
-
 /* ---------------- masthead: summary + reading-time */
 .fy-masthead-main { min-width: 0; flex: 1 1 420px; }
 
@@ -1097,7 +989,6 @@
 @media (max-width: 980px) {
   .fy-layout { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .fy-dna { position: static; max-height: none; }
-  .fy-gate { grid-template-columns: minmax(0, 1fr); gap: 36px; }
 }
 
 @media (max-width: 960px) {
@@ -1105,14 +996,13 @@
 }
 
 @media (max-width: 640px) {
-  .fy-gate, .fy-onboard { padding-top: 36px; }
+  .fy-onboard { padding-top: 36px; }
   .fy-masthead-side { min-width: 0; width: 100%; }
   .fy-player { grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; }
   .fy-player-btn { justify-self: start; }
   .fy-player-btn[data-player="speed"] { grid-column: 1; justify-self: center; }
   .fy-listen-btn { margin-left: 0; }
   .fy-y5-item.is-speaking { margin: 0 -10px; padding-left: 10px; padding-right: 10px; }
-  .fy-auth-card { padding: 24px 18px; }
   .fy-masthead { padding-top: 32px; }
   .fy-learning { min-width: 0; width: 100%; }
   .fy-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }

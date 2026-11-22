@@ -1738,11 +1738,11 @@ function initArchivePage() {
 // 14. Station Authentication & Access Gate Controller
 // ==========================================================================
 async function initAuthGate() {
-  const isAboutPage = window.location.pathname.endsWith("about.html") || window.location.pathname.endsWith("/about");
+  const isAboutPage = document.body.classList.contains("about-page");
 
   let currentUser = null;
   try {
-    const res = await fetch("/api/me");
+    const res = await fetch("/api/me", { credentials: "same-origin" });
     if (res.ok) {
       const data = await res.json();
       currentUser = data.user;
@@ -1803,40 +1803,129 @@ async function initAuthGate() {
     }
   } else {
     if (crownChip) crownChip.style.display = "none";
-    // The brief, Ledger, Archive and Patterns are public. Only For You needs an
-    // account, and the server enforces that. (On static hosting there is no
-    // /api/me at all, so redirecting here would lock everyone out.)
+    // Signed out, the server only ever serves the About page; it redirects every
+    // member page there before any of this runs.
   }
 
-  // About page: everything is public, so this card only offers sign-in for For You.
-  if (isAboutPage) {
-    const loggedInBox = document.getElementById("auth-logged-in-box");
-    const formsWrap = document.getElementById("auth-forms-wrap");
-    const loggedInLabel = document.getElementById("logged-in-username-label");
-    const portalSignoutBtn = document.getElementById("portal-signout-btn");
+  if (isAboutPage) setupAboutAccess(currentUser);
+}
 
-    if (currentUser) {
-      if (loggedInBox) loggedInBox.style.display = "block";
-      if (formsWrap) formsWrap.style.display = "none";
-      if (loggedInLabel) loggedInLabel.textContent = currentUser.display_name || currentUser.username;
-      if (portalSignoutBtn) {
-        portalSignoutBtn.onclick = async () => {
-          try {
-            await fetch("/api/auth/logout", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: "{}"
-            });
-          } catch (_) {}
-          window.location.reload();
-        };
-      }
-    } else {
-      if (loggedInBox) loggedInBox.style.display = "none";
-      if (formsWrap) formsWrap.style.display = "block";
-      await setupSocialButtons();
+const STATIC_COPY_NOTE = "Sign-in runs on the Pith server. This static copy is read-only.";
+
+// Where to go after signing in: the page that sent the reader here (?next=), if it's on this site.
+function signInNext() {
+  const raw = new URLSearchParams(window.location.search).get("next") || "";
+  if (!/^\/(?![\/\\])[\x21-\x7e]*$/.test(raw)) return "/";
+  try {
+    const url = new URL(raw, window.location.origin);
+    return url.origin === window.location.origin ? url.pathname + url.search + url.hash : "/";
+  } catch (_) {
+    return "/";
+  }
+}
+
+// About page: the front door. Signed out, it is the only page there is, so it carries sign-in and
+// account creation; afterwards the reader goes on to the page they asked for.
+function setupAboutAccess(currentUser) {
+  const loggedInBox = document.getElementById("auth-logged-in-box");
+  const formsWrap = document.getElementById("auth-forms-wrap");
+  if (!loggedInBox || !formsWrap) return;
+  document.documentElement.setAttribute("data-session", currentUser ? "in" : "out");
+
+  if (currentUser) {
+    loggedInBox.hidden = false;
+    formsWrap.hidden = true;
+    const label = document.getElementById("logged-in-username-label");
+    if (label) label.textContent = currentUser.display_name || currentUser.username;
+    const signout = document.getElementById("portal-signout-btn");
+    if (signout) {
+      signout.onclick = async () => {
+        signout.disabled = true;
+        try {
+          await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" });
+        } catch (_) {}
+        window.location.reload();
+      };
     }
+    return;
   }
+
+  loggedInBox.hidden = true;
+  formsWrap.hidden = false;
+  const next = signInNext();
+  const params = new URLSearchParams(window.location.search);
+  const banner = document.getElementById("auth-error-banner");
+  const oauthError = params.get("auth_error");
+  if (oauthError && banner) {
+    banner.textContent = oauthError;
+    banner.hidden = false;
+  }
+  if (oauthError) {
+    // Keep ?next= so a retry still lands where the reader was going.
+    params.delete("auth_error");
+    const q = params.toString();
+    history.replaceState(null, "", window.location.pathname + (q ? `?${q}` : "") + window.location.hash);
+  }
+
+  document.querySelectorAll("[data-social-auth] .social-btn").forEach(btn => {
+    btn.href = `/api/auth/oauth/${btn.dataset.provider}/start?next=${encodeURIComponent(next)}`;
+  });
+  setupSocialButtons();
+
+  const form = document.getElementById("about-auth-form");
+  const submit = document.getElementById("auth-submit-btn");
+  const formError = document.getElementById("auth-form-error");
+  if (!form || !submit) return;
+  let mode = "login";
+  const showError = (msg) => {
+    if (!formError) return;
+    formError.textContent = msg;
+    formError.hidden = !msg;
+  };
+  const setMode = (m) => {
+    mode = m;
+    document.querySelectorAll(".auth-tab-btn[data-auth-mode]").forEach(b => {
+      const on = b.dataset.authMode === m;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", String(on));
+    });
+    form.querySelectorAll("[data-signup-only]").forEach(el => { el.hidden = m !== "signup"; });
+    form.password.autocomplete = m === "signup" ? "new-password" : "current-password";
+    submit.textContent = m === "signup" ? "Create account" : "Sign in";
+    showError("");
+  };
+  document.querySelectorAll(".auth-tab-btn[data-auth-mode]").forEach(b => b.addEventListener("click", () => setMode(b.dataset.authMode)));
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = {
+      username: form.username.value.trim(),
+      password: form.password.value,
+      display_name: form.display_name.value.trim(),
+    };
+    if (!body.username || !body.password) return showError("Enter a username and a password.");
+    if (mode === "signup" && body.password.length < 8) return showError("Password must be at least 8 characters.");
+    submit.disabled = true;
+    showError("");
+    try {
+      const res = await fetch(`/api/auth/${mode}`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      let data = {};
+      try { data = await res.json(); } catch (_) { /* static hosting answers with HTML */ }
+      if (!res.ok) {
+        throw new Error(data.error || ([404, 405, 501].includes(res.status) ? STATIC_COPY_NOTE : `Sign-in failed (HTTP ${res.status}).`));
+      }
+      form.password.value = "";
+      window.location.assign(next);
+    } catch (err) {
+      showError(err instanceof TypeError ? STATIC_COPY_NOTE : err.message);
+      submit.disabled = false;
+    }
+  });
 }
 
 // Greys out "Continue with …" buttons this server has no OAuth keys for. On static hosting
@@ -1861,7 +1950,7 @@ async function setupSocialButtons() {
   if (note) {
     note.hidden = configured.size > 0;
     note.textContent = providers === null
-      ? "Sign-in runs on the Pith server. This static copy is read-only."
+      ? STATIC_COPY_NOTE
       : "Google, GitHub, X and LinkedIn sign-in switch on once this server has their OAuth keys. Use a username for now.";
   }
 }

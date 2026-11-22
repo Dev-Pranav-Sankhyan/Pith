@@ -30,7 +30,7 @@
         </a>
         <div class="nav-cluster">
             <nav class="nav-pills-bar" aria-label="Main">
-                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link active" aria-current="page">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a><a href="about.html" class="nav-link">About</a>
+                <a href="foryou.html" class="nav-link" data-members>For You</a><a href="index.html" class="nav-link active" aria-current="page" data-members>Daily News</a><a href="ledger.html" class="nav-link" data-members>Forecast Ledger</a><a href="archive.html" class="nav-link" data-members>News Archive</a><a href="patterns.html" class="nav-link" data-members>Tech Patterns</a><a href="about.html" class="nav-link">About</a><a href="about.html#access" class="nav-link nav-signin" data-guest>Sign in</a>
             </nav>
             <div class="crown-tools">
                 <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Signed in">
@@ -38,7 +38,7 @@
                     <span class="crown-username" id="crown-username"></span>
                     <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out">Sign out</button>
                 </div>
-                <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                <div class="elo-badge" id="elo-badge" data-members title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
                     <span class="elo-icon" aria-hidden="true">◈</span>
                     <span class="elo-score" id="user-elo-score">1200</span>
                     <span class="elo-tier" id="user-elo-tier">Observer</span>
@@ -1508,14 +1508,14 @@
         <footer class="colophon">
             <div class="colophon-brand">
                 <div class="colophon-name"><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
-                <div class="colophon-tagline">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
+                <div class="colophon-tagline">Primary-sourced &bull; Every forecast scored &bull; No sponsored content or noise</div>
             </div>
             <nav class="footer-nav" aria-label="Footer">
-                <a href="foryou.html">For You</a>
-                <a href="index.html">Daily News</a>
-                <a href="ledger.html">Forecast Ledger</a>
-                <a href="archive.html">News Archive</a>
-                <a href="patterns.html">Tech Patterns</a>
+                <a href="foryou.html" data-members>For You</a>
+                <a href="index.html" data-members>Daily News</a>
+                <a href="ledger.html" data-members>Forecast Ledger</a>
+                <a href="archive.html" data-members>News Archive</a>
+                <a href="patterns.html" data-members>Tech Patterns</a>
                 <a href="about.html">About Pith</a>
             </nav>
         </footer>

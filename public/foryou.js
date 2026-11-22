@@ -1,6 +1,6 @@
 /* ==========================================================================
    Pith For You: client controller
-   - auth + onboarding
+   - onboarding (sign-in lives on the About page)
    - feed rendering with explanations
    - behavioural telemetry: impressions (≥60% visible for 1s), clicks,
      dwell time (time away reading the article tab), reactions, saves,
@@ -62,6 +62,7 @@
     const res = await fetch(path, opts);
     let data = {};
     try { data = await res.json(); } catch (_) { /* empty body */ }
+    if (res.status === 401 && !path.startsWith("/api/auth/")) toSignIn();  // session ended mid-visit
     if (!res.ok) throw Object.assign(new Error(data.error || `HTTP ${res.status}`), { status: res.status });
     return data;
   }
@@ -83,7 +84,12 @@
   }
 
   function show(section) {
-    for (const id of ["fy-gate", "fy-onboard", "fy-app"]) $(id).hidden = id !== section;
+    for (const id of ["fy-onboard", "fy-app"]) $(id).hidden = id !== section;
+  }
+
+  // Signing in happens on the About page; it brings the reader back here afterwards.
+  function toSignIn() {
+    window.location.replace("/about?next=%2Fforyou#access");
   }
 
   // ------------------------------------------------------------------ telemetry
@@ -148,63 +154,12 @@
   }, { threshold: 0.6 });
 
   // ------------------------------------------------------------------ auth
-  let authMode = "login";
-  function setAuthMode(mode) {
-    authMode = mode;
-    document.querySelectorAll(".fy-auth-tab").forEach((b) => {
-      const on = b.dataset.mode === mode;
-      b.classList.toggle("active", on);
-      b.setAttribute("aria-selected", on);
-    });
-    document.querySelectorAll(".fy-signup-only").forEach((el) => (el.hidden = mode !== "signup"));
-    $("fy-auth-submit").textContent = mode === "signup" ? "Create account" : "Sign in";
-    $("fy-auth-form").password.autocomplete = mode === "signup" ? "new-password" : "current-password";
-    $("fy-auth-error").textContent = "";
-  }
-
-  async function submitAuth(e) {
-    e.preventDefault();
-    const f = e.target;
-    const btn = $("fy-auth-submit");
-    btn.disabled = true;
-    $("fy-auth-error").textContent = "";
-    try {
-      const { user } = await api(`/api/auth/${authMode}`, {
-        username: f.username.value.trim(),
-        password: f.password.value,
-        display_name: f.display_name.value.trim(),
-      });
-      f.password.value = "";
-      await enter(user);
-    } catch (err) {
-      $("fy-auth-error").textContent = err.message;
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  async function setupSocial() {
-    let providers = [];
-    try { ({ providers } = await api("/api/auth/providers")); } catch (_) { providers = []; }
-    const on = new Set(providers.filter((p) => p.configured).map((p) => p.id));
-    document.querySelectorAll("#fy-social .social-btn").forEach((a) => {
-      const ok = on.has(a.dataset.provider);
-      a.classList.toggle("is-disabled", !ok);
-      a.setAttribute("aria-disabled", String(!ok));
-      a.title = ok ? "" : "Not set up on this server yet";
-    });
-    const note = $("fy-social-note");
-    note.hidden = on.size > 0;
-    note.textContent = "Google, GitHub, X and LinkedIn sign-in switch on once this server has their OAuth keys. Use a username for now.";
-  }
-
   function readUrlMessages() {
     const params = new URLSearchParams(location.search);
     const err = params.get("auth_error");
     const connected = params.get("connected");
-    if (err) { $("fy-oauth-error").textContent = err; $("fy-oauth-error").hidden = false; }
     if (err || connected) history.replaceState(null, "", location.pathname);
-    return connected;
+    return { connected, err };
   }
 
   async function logout() {
@@ -213,7 +168,7 @@
     state.user = null;
     $("fy-user-chip").hidden = true;
     stopAudio();
-    window.location.href = "foryou.html";
+    window.location.href = "/about";
   }
 
   // ------------------------------------------------------------------ onboarding
@@ -1210,21 +1165,17 @@
   }
 
   async function boot() {
-    const connected = readUrlMessages();
-    try {
-      const { user } = await api("/api/me");
-      if (user) {
-        if (connected) toast(`${PROVIDER_NAMES[connected] || "Account"} connected. Your front page starts from your interests now.`);
-        return enter(user);
-      }
-    } catch (_) { /* server offline: fall through to gate */ }
-    show("fy-gate");
-    setupSocial();
+    const { connected, err } = readUrlMessages();
+    let user = null;
+    try { ({ user } = await api("/api/me")); } catch (_) { user = null; }
+    if (!user) return toSignIn();
+    // A failed "connect another account" lands here with the reason (sign-in failures go to About).
+    if (err) toast(err);
+    else if (connected) toast(`${PROVIDER_NAMES[connected] || "Account"} connected. Your front page starts from your interests now.`);
+    return enter(user);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".fy-auth-tab").forEach((b) => b.addEventListener("click", () => setAuthMode(b.dataset.mode)));
-    $("fy-auth-form").addEventListener("submit", submitAuth);
     $("fy-logout").addEventListener("click", logout);
     $("fy-feed").addEventListener("click", onFeedClick);
     $("fy-feed").addEventListener("auxclick", (e) => { if (e.button === 1) onFeedClick(e); });
@@ -1268,9 +1219,6 @@
     });
     $("fy-budget-note").addEventListener("click", (e) => { if (e.target.closest("[data-budget-clear]")) setBudget(0); });
     $("fy-summary").addEventListener("click", (e) => { if (e.target.closest('[data-summary="following"]')) setTab("following"); });
-    document.querySelectorAll("#fy-social .social-btn").forEach((a) => a.addEventListener("click", (e) => {
-      if (a.classList.contains("is-disabled")) { e.preventDefault(); toast("That sign-in isn't set up on this server yet."); }
-    }));
     $("fy-your5").addEventListener("click", onYour5Click);
     $("fy-your5").addEventListener("keydown", (e) => {
       if (e.target.id !== "fy-player-track" || !audio.data) return;

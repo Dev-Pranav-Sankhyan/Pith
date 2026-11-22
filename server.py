@@ -1,12 +1,19 @@
 """
-Lightweight Python HTTP server and API for Daily Tech Intelligence Brief.
-Provides static file serving and JSON APIs for the app and scoring engine.
+Lightweight Python HTTP server and API for Pith.
+
+Access model: the About page is the front door and the only page anyone can open. It carries
+sign-in and account creation. Every other page, file and API (Daily News, the Ledger, the
+Archive, Patterns, For You, feed.json, rss.xml, the email edition, the audio briefs) needs a
+session. Requests are checked deny-by-default on the decoded, normalised path, so encodings like
+/l%65dger.html or /about.html/../index.html can't slip past the gate.
 """
 
+import errno
 import http.server
 import socketserver
 import json
 import os
+import posixpath
 import re
 import urllib.parse
 from core.db import Database
@@ -24,9 +31,11 @@ import threading
 import time
 
 
+ROOT = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get("PORT", 8000))
-PUBLIC_DIR = os.path.join(os.path.dirname(__file__), "public")
-FOR_YOU_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), newsfeed.FOR_YOU_DB)
+PUBLIC_DIR = os.path.join(ROOT, "public")
+BRIEF_DB = os.path.join(ROOT, "brief.sqlite3")
+FOR_YOU_DB = os.path.join(ROOT, newsfeed.FOR_YOU_DB)
 REFRESH_MINUTES = int(os.environ.get("PITH_REFRESH_MINUTES", 30))
 SECURE_COOKIES = os.environ.get("PITH_SECURE_COOKIES") == "1"
 MAX_BODY = 64 * 1024
@@ -36,32 +45,74 @@ WRITE_LIMITER = RateLimiter(max_hits=120, window_seconds=60)    # other POSTs pe
 REFRESH_LIMITER = RateLimiter(max_hits=2, window_seconds=600)   # manual feed refreshes per IP
 FEED_ADD_LIMITER = RateLimiter(max_hits=10, window_seconds=3600)  # reader-added feed fetches per IP
 AUDIO_LIMITER = RateLimiter(max_hits=3, window_seconds=86400)    # studio-voice renders per reader per day
-FORYOU_GET_ROOTS = ("me", "feed", "profile", "your5", "digest", "follows", "forecasts", "prefs", "onboard", "feeds")
-FORYOU_POST_PREFIXES = ("/api/auth/", "/api/events", "/api/onboard", "/api/profile/", "/api/refresh", "/api/vote",
+FORYOU_GET_ROOTS = ("feed", "profile", "your5", "digest", "follows", "forecasts", "prefs", "onboard", "feeds")
+FORYOU_POST_PREFIXES = ("/api/events", "/api/onboard", "/api/profile/", "/api/refresh", "/api/vote",
                         "/api/follows", "/api/forecasts/", "/api/prefs", "/api/your5/", "/api/feeds", "/api/connections")
+AUTH_POSTS = ("/api/auth/signup", "/api/auth/login", "/api/auth/logout")
 OAUTH_PATH = re.compile(r"^/api/auth/oauth/(google|github|x|linkedin)/(start|callback)$")
 _HOST_SAFE = re.compile(r"^[A-Za-z0-9.\-]+(:\d{1,5})?$|^\[[0-9a-fA-F:]+\](:\d{1,5})?$")
 
-# Pages anyone can read. For You is served to everyone too, but logged out it only shows its
-# sign-in screen: every personal API below refuses requests without a session.
-PUBLIC_PAGES = {
+# Anyone may load these: the About page (with sign-in) and the shell assets it needs. Nothing in
+# this list carries news content. Everything else needs a session.
+ABOUT_PATHS = {"/about", "/about.html"}
+OPEN_ASSETS = {"/style.css", "/app.js", "/favicon.svg", "/favicon.png", "/favicon.ico", "/apple-touch-icon.png"}
+# Pretty paths for the member pages.
+MEMBER_PAGES = {
     "/": "/index.html", "/index": "/index.html", "/index.html": "/index.html",
     "/ledger": "/ledger.html", "/ledger.html": "/ledger.html",
     "/archive": "/archive.html", "/archive.html": "/archive.html",
     "/patterns": "/patterns.html", "/patterns.html": "/patterns.html",
-    "/about": "/about.html", "/about.html": "/about.html",
+    "/foryou": "/foryou.html", "/for-you": "/foryou.html", "/foryou.html": "/foryou.html",
 }
-MEMBER_PAGES = {"/foryou", "/for-you", "/login", "/foryou.html"}
+DECOMMISSIONED = {"/horizon", "/bounty", "/matrix", "/economics", "/terminal"}
+EVENT_TEXT_FIELDS = ("kind", "article_id", "topic", "query", "publisher")
+EVENT_NUMBER_FIELDS = ("value", "local_hour")
+
+
+def normalise_path(raw: str) -> str:
+    """The path the file server would actually resolve: percent-decoded, dot segments collapsed,
+    lower-cased, no trailing slash. Every access decision is made on this."""
+    path = posixpath.normpath(urllib.parse.unquote(raw or "/")).lower()
+    path = "/" + path.lstrip("/")
+    if path in ("/.", "/"):
+        return "/"
+    return path.rstrip("/") or "/"
+
+
+def clean_event(ev):
+    """Only the known fields, and only as plain scalars, so odd client payloads can't crash the recorder."""
+    if not isinstance(ev, dict) or not isinstance(ev.get("kind"), str):
+        return None
+    out = {}
+    for k in EVENT_TEXT_FIELDS:
+        if isinstance(ev.get(k), str):
+            out[k] = ev[k][:300]
+    for k in EVENT_NUMBER_FIELDS:
+        v = ev.get(k)
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v and abs(v) != float("inf"):
+            out[k] = v
+    return out
 
 
 class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
+        self._head_only = False
+        self._cache_sent = False
+        self._private = False
         super().__init__(*args, directory=PUBLIC_DIR, **kwargs)
 
+    def send_header(self, keyword, value):
+        if keyword.lower() == "cache-control":
+            self._cache_sent = True
+        super().send_header(keyword, value)
+
     def end_headers(self):
-        self.send_header("Cache-Control", "no-cache, must-revalidate")
+        if not self._cache_sent:
+            # Member content must not outlive the session in the browser cache (back button after sign-out).
+            self.send_header("Cache-Control", "private, no-store" if self._private else "no-cache, must-revalidate")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+        self.send_header("X-Frame-Options", "DENY")
         super().end_headers()
 
     def list_directory(self, path):
@@ -69,75 +120,122 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_error(404, "Not found")
         return None
 
+    # ------------------------------------------------------------------ dispatch
     def do_GET(self):
+        self._guard(self._route_get)
+
+    def do_HEAD(self):
+        # Same gate as GET, headers only.
+        self._head_only = True
+        self._guard(self._route_get)
+
+    def do_POST(self):
+        self._guard(self._route_post)
+
+    def _guard(self, route):
+        """Any unexpected error becomes a JSON 500 instead of a dropped connection."""
+        try:
+            route()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+        except Exception as e:
+            print(f"[server] {self.command} {urllib.parse.urlparse(self.path).path} failed: {type(e).__name__}: {e}")
+            try:
+                self._json({"error": "Something went wrong on our side."}, 500)
+            except Exception:
+                pass
+
+    def _write(self, data: bytes):
+        if not self._head_only:
+            self.wfile.write(data)
+
+    def _serve_static(self, path=None):
+        if path is not None:
+            self.path = path
+        return super().do_HEAD() if self._head_only else super().do_GET()
+
+    def _route_get(self):
         parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path.lower().rstrip("/")
-        if not path:
-            path = "/"
+        path = normalise_path(parsed.path)
         if path == "/healthz":
             return self._json({"ok": True})
-        if path == "/api/votes":
-            q = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
-            card_id = q.get("card_id", "")
-            if not card_id:
-                return self._json({"error": "card_id required"}, 400)
-            return self._json({"card_id": card_id, "counts": votes.counts(card_id, FOR_YOU_DB)})
-
         if path == "/api/auth/providers":
             return self._json({"providers": oauth.provider_list()})
         m = OAUTH_PATH.match(path)
         if m:
             return self._handle_oauth(m.group(1), m.group(2), parsed)
+        if path == "/login":
+            return self._redirect("/about#access")
 
-        if path.startswith("/api/") and path.split("/")[2] in FORYOU_GET_ROOTS:
-            return self._handle_foryou_get(path, parsed)
-        elif path == "/api/issue":
-            self._handle_api_issue()
-            return
-        elif path == "/api/ledger":
-            self._handle_api_ledger()
-            return
+        user = self._current_user()
+        if path in ABOUT_PATHS:
+            return self._serve_about(user)
+        if path in OPEN_ASSETS:
+            return self._serve_static(path)  # canonical path, so what's served is exactly what was checked
+        if path == "/api/me":
+            return self._handle_me(user)
+        if not user:
+            return self._deny(path)
 
-        # Always serve static assets (.css, .js, .png, .svg, etc.)
-        if any(path.endswith(ext) for ext in (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".ico", ".mp3", ".json", ".xml", ".woff2", ".txt")):
-            return super().do_GET()
-
-        # Decommissioned pages redirect to /
-        if path in ("/horizon", "/bounty", "/matrix", "/economics", "/terminal"):
-            self.send_response(302)
-            self.send_header("Location", "/")
-            self.end_headers()
-            return
-
-        if path in PUBLIC_PAGES:
-            self.path = PUBLIC_PAGES[path]
-            return super().do_GET()
-
+        # ---- signed in from here on
+        self._private = True
+        if path.startswith("/api/"):
+            root = path.split("/")[2]
+            if root in FORYOU_GET_ROOTS:
+                return self._handle_foryou_get(path, parsed, user)
+            if path == "/api/issue":
+                return self._handle_api_issue()
+            if path == "/api/ledger":
+                return self._handle_api_ledger()
+            if path == "/api/votes":
+                card_id = urllib.parse.parse_qs(parsed.query).get("card_id", [""])[0]
+                if not card_id:
+                    return self._json({"error": "card_id required"}, 400)
+                return self._json({"card_id": card_id, "counts": votes.counts(card_id, FOR_YOU_DB)})
+            return self._json({"error": "Not found"}, 404)
+        if path in DECOMMISSIONED:
+            return self._redirect("/")
         if path in MEMBER_PAGES:
-            self.path = "/foryou.html"
-            return super().do_GET()
+            return self._serve_static(MEMBER_PAGES[path])
+        return self._serve_static()
 
-        return super().do_GET()
+    def _deny(self, path: str):
+        """Signed out: pages send the reader to the About page to sign in; data gets a 401."""
+        if path.startswith("/api/"):
+            return self._json({"error": "Login required"}, 401)
+        if posixpath.splitext(path)[1] in ("", ".html"):
+            target = "/about"
+            if path in MEMBER_PAGES and path != "/":
+                target += "?next=" + urllib.parse.quote(path)
+            return self._redirect(target + "#access" if target != "/about" else target)
+        return self._json({"error": "Login required"}, 401)
 
-    def _send_text(self, text: str, status: int = 200):
-        data = text.encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "text/plain; charset=utf-8")
+    def _serve_about(self, user):
+        """The About page, marked signed in or out before it's sent so the nav never flashes links
+        a signed-out visitor can't open."""
+        with open(os.path.join(PUBLIC_DIR, "about.html"), "rb") as f:
+            data = f.read()
+        if user:
+            data = data.replace(b'data-session="out"', b'data-session="in"', 1)
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "private, no-cache")
+        self.send_header("Vary", "Cookie")
         self.end_headers()
-        self.wfile.write(data)
+        self._write(data)
 
-    def do_POST(self):
-        parsed = urllib.parse.urlparse(self.path)
+    def _route_post(self):
+        path = urllib.parse.urlparse(self.path).path
         if not WRITE_LIMITER.allow(self._client_ip()):
             return self._json({"error": "Too many requests"}, 429)
-        if parsed.path == "/api/score":
-            self._handle_api_score()
-        elif parsed.path.startswith(FORYOU_POST_PREFIXES):
-            self._handle_foryou_post(parsed.path)
-        else:
-            self.send_error(404, "Endpoint not found")
+        if path == "/api/score":
+            if not self._current_user():
+                return self._json({"error": "Login required"}, 401)
+            return self._handle_api_score()
+        if path in AUTH_POSTS or path.startswith(FORYOU_POST_PREFIXES):
+            return self._handle_foryou_post(path)
+        return self._json({"error": "Not found"}, 404)
 
     # ------------------------------------------------------------------ For You (personalised feed)
     def _client_ip(self) -> str:
@@ -158,7 +256,8 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def _redirect(self, location: str, cookies=()):
         self.send_response(302)
-        self.send_header("Location", location)
+        # Header injection guard: a Location never carries control characters.
+        self.send_header("Location", re.sub(r"[\x00-\x1f\x7f]", "", location))
         self.send_header("Cache-Control", "no-store")
         for c in cookies:
             self.send_header("Set-Cookie", c)
@@ -168,8 +267,11 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         q = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
 
         def fail(message: str):
-            return self._redirect("/foryou?auth_error=" + urllib.parse.quote(message),
-                                  [oauth.clear_state_cookie()])
+            # Signed-in readers were connecting another account from For You; everyone else
+            # was signing in on the About page.
+            where = "/foryou?auth_error=" if self._current_user() else "/about?auth_error="
+            suffix = "" if where.startswith("/foryou") else "#access"
+            return self._redirect(where + urllib.parse.quote(message) + suffix, [oauth.clear_state_cookie()])
 
         if not AUTH_LIMITER.allow(self._client_ip()):
             return fail("Too many sign-in attempts. Try again in a few minutes.")
@@ -202,7 +304,8 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if not link:
             cookies.append(auth.session_cookie(auth.create_session(uid, FOR_YOU_DB), SECURE_COOKIES))
         target = result["next"]
-        target += ("&" if "?" in target else "?") + "connected=" + provider
+        if target.split("?")[0] in ("/foryou", "/foryou.html", "/for-you"):  # For You shows a welcome note
+            target += ("&" if "?" in target else "?") + "connected=" + provider
         return self._redirect(target, cookies)
 
     def _personal_brief(self, user, hour):
@@ -222,48 +325,52 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if cookie:
             self.send_header("Set-Cookie", cookie)
         self.end_headers()
-        self.wfile.write(body)
+        self._write(body)
 
     def _read_json_body(self):
         # Requiring a JSON content type blocks cross-site <form> posts (CSRF) on top of SameSite cookies.
         ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
         if ctype != "application/json":
             raise ValueError("Content-Type must be application/json")
-        length = int(self.headers.get("Content-Length") or 0)
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            raise ValueError("Bad Content-Length")
+        if length < 0:  # rfile.read(-1) would read until the client hangs up
+            raise ValueError("Bad Content-Length")
         if length > MAX_BODY:
             raise ValueError("Request body too large")
         raw = self.rfile.read(length) if length else b""
-        return json.loads(raw) if raw else {}
+        data = json.loads(raw) if raw else {}
+        if not isinstance(data, dict):
+            raise ValueError("Request body must be a JSON object")
+        return data
 
-    def _handle_foryou_get(self, path: str, parsed):
-        q = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
-        user = self._current_user()
-        if path == "/api/me":
-            if user:
-                user = dict(user, avatar_url=oauth.avatar_for(user["id"], FOR_YOU_DB),
-                            providers=[i["provider"] for i in oauth.identities(user["id"], FOR_YOU_DB)])
+    def _handle_me(self, user):
+        """Works signed out too (user is null), so the About page can tell which card to show."""
+        if user:
+            user = dict(user, avatar_url=oauth.avatar_for(user["id"], FOR_YOU_DB),
+                        providers=[i["provider"] for i in oauth.identities(user["id"], FOR_YOU_DB)])
             return self._json({"user": user, "articles": newsfeed.article_count(FOR_YOU_DB)})
+        return self._json({"user": None})
+
+    def _handle_foryou_get(self, path: str, parsed, user):
+        """Personal reads. The router only calls this with a signed-in reader."""
+        q = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
+        uid = user["id"]
         hour = None
-        if q.get("hour", "").lstrip("-").isdigit():
+        if re.fullmatch(r"-?\d{1,3}", q.get("hour", "")):
             hour = int(q["hour"]) % 24
         if path == "/api/your5":
-            engine = Your5Engine()
-            return self._json(engine.get_your_5(user["id"] if user else None, hour))
+            return self._json(Your5Engine().get_your_5(uid, hour))
         if path == "/api/digest":
-            if not user:
-                return self._json({"error": "Login required"}, 401)
-            engine = Your5Engine()
-            return self._json(engine.get_weekly_digest(user["id"]))
+            return self._json(Your5Engine().get_weekly_digest(uid))
         tab = q.get("tab", "foryou")
-        if not user and not (path == "/api/feed" and tab == "trending"):
-            return self._json({"error": "Login required"}, 401)
         try:
             limit = max(1, min(int(q.get("limit", 30)), 60))
         except ValueError:
             return self._json({"error": "Bad query parameter"}, 400)
         exclude = [x for x in q.get("exclude", "").split(",") if x][:500]
-
-        uid = user["id"] if user else None  # only the public Trending tab gets here without a user
         if path == "/api/profile":
             prof = recommender.profile(uid)
             prof.update({
@@ -322,6 +429,8 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             return self._json({"error": str(e)}, 400)
 
         if path in ("/api/auth/signup", "/api/auth/login"):
+            if not all(isinstance(data.get(k, ""), str) for k in ("username", "password", "display_name")):
+                return self._json({"error": "Username, password and display name must be text."}, 400)
             if not AUTH_LIMITER.allow(self._client_ip()):
                 return self._json({"error": "Too many attempts. Try again in a few minutes."}, 429)
             try:
@@ -357,7 +466,7 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 if action == "unfollow":
                     return self._json({"ok": follows_mod.unfollow(uid, str(kind or ""), str(data.get("key") or ""), FOR_YOU_DB)})
                 if action == "seen":
-                    follows_mod.mark_seen(uid, kind, data.get("key"), FOR_YOU_DB)
+                    follows_mod.mark_seen(uid, str(kind or ""), str(data.get("key") or ""), FOR_YOU_DB)
                     return self._json({"ok": True})
             except ValueError as e:
                 return self._json({"error": str(e)}, 400)
@@ -409,10 +518,13 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             return self._json({"ok": True, "url": "/api/your5/audio.mp3" + ("" if hour is None else f"?hour={hour % 24}")})
         if path == "/api/events":
             events = data.get("events") if isinstance(data.get("events"), list) else [data]
+            recorded = 0
             for ev in events[:200]:
-                if isinstance(ev, dict) and isinstance(ev.get("kind"), str):
+                ev = clean_event(ev)
+                if ev:
                     recommender.record(uid, ev)
-            return self._json({"ok": True, "recorded": min(len(events), 200)})
+                    recorded += 1
+            return self._json({"ok": True, "recorded": recorded})
         if path == "/api/profile/reset":
             recommender.reset(uid)
             return self._json({"ok": True})
@@ -434,16 +546,13 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         return self._json({"error": "Not found"}, 404)
 
     def _handle_api_issue(self):
-        db = Database("brief.sqlite3")
-        issue = db.get_latest_issue()
+        issue = Database(BRIEF_DB).get_latest_issue()
         if not issue:
-            self.send_error(404, "No issue found")
-            return
+            return self._json({"error": "No issue found"}, 404)
         self._send_json(issue.to_dict())
 
     def _handle_api_ledger(self):
-        db = Database("brief.sqlite3")
-        preds = db.get_all_predictions()
+        preds = Database(BRIEF_DB).get_all_predictions()
         stats = LedgerEngine.calculate_statistics(preds)
         self._send_json({
             "stats": stats,
@@ -478,16 +587,16 @@ class BriefHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "private, no-store")
         self.end_headers()
-        self.wfile.write(data)
+        self._write(data)
 
     def _send_json(self, data: dict):
         response_bytes = json.dumps(data, indent=2).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(response_bytes)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "private, no-store")
         self.end_headers()
-        self.wfile.write(response_bytes)
+        self._write(response_bytes)
 
 
 def _news_refresher():
@@ -526,7 +635,7 @@ def run_server():
                 httpd.server_close()
             return
         except OSError as e:
-            if e.errno == 48:  # Address already in use
+            if e.errno == errno.EADDRINUSE:  # 48 on macOS, 98 on Linux
                 continue
             raise e
     print(f"Could not bind to any port between {PORT} and {PORT + 19}.")

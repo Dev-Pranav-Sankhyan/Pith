@@ -9,7 +9,7 @@
 Most tech feeds monetize anxiety, clickbait, and FOMO. **Pith** does the opposite:
 1. **Lowpass Noise-to-Signal Filter**: Strips out PR releases, synthetic benchmarks, and cosmetic UI drama.
 2. **Plain English + Tailored Technical Lenses**: "What Happened" and "Why It Matters" are written in crisp, jargon-free English. Deep technical specifics are strictly isolated inside **Developer**, **Founder**, and **Investor** lenses.
-3. **Public Accountable Predictions**: Every item carries a falsifiable prediction with exact resolution criteria, tracked in a public Brier score ledger with post-mortems for wrong calls.
+3. **Public Accountable Predictions**: Every item carries a falsifiable prediction with exact resolution criteria, tracked in a Brier score ledger with post-mortems for wrong calls.
 4. **"Beat the Brief" (Reader vs. Site Calibration)**: A 30-second daily forecasting game where readers log their probability assessments and earn a live Calibration ELO rating.
 5. **The "Contrarian Multiplier"**: Anyone who bets against dominant consensus—and wins—earns 2x ELO points, rewarding independent strategic thinking over herd behavior.
 6. **"Zero-FOMO" Completion**: When you finish the issue, there is no infinite scroll or algorithmic rabbit hole. The briefing locks with *"Briefing complete. Go build."*
@@ -110,7 +110,7 @@ Pith includes an automated daily workflow in `.github/workflows/daily_brief.yml`
 - **Required Repository Secrets** (add under *Settings > Secrets and variables > Actions*):
   - `ELEVENLABS_API_KEY`: For high-realism voice synthesis.
   - `GEMINI_API_KEY` (or `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`): For automated signal scoring and 4-lens drafting.
-- Automatically commits updated SQLite database, static HTML, feeds, and mastered audio files back to `main`, and deploys to GitHub Pages.
+- Automatically commits updated SQLite database, static HTML, feeds, and mastered audio files back to `main`, and deploys the About page (the only page open without signing in) to GitHub Pages. Everything else is served by `server.py` to signed-in readers.
 
 ### 5. Start Development Server
 You can ingest any raw article, announcement, or URL with an LLM. It automatically scores signal (0-100), drafts structured JSON, verifies quoted spans, and updates your issue:

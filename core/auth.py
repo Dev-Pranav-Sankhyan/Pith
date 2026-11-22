@@ -26,6 +26,9 @@ _USERNAME_RE = re.compile(r"^[A-Za-z0-9_.\-]{3,32}$")
 # Simple in-memory brute-force throttle: username -> [failures, first_failure_ts]
 _failed: Dict[str, list] = {}
 MAX_FAILURES, LOCK_WINDOW = 8, 300
+# Checked when the username doesn't exist, so a wrong username takes as long as a wrong
+# password and response timing doesn't reveal which accounts exist.
+_DUMMY_HASH = None
 
 
 class AuthError(Exception):
@@ -41,11 +44,12 @@ def hash_password(password: str, salt: Optional[bytes] = None) -> str:
 def verify_password(password: str, stored: str) -> bool:
     try:
         algo, iters, salt_hex, digest_hex = stored.split("$")
+        salt, rounds = bytes.fromhex(salt_hex), int(iters)
     except ValueError:
         return False
     if algo != "pbkdf2_sha256":
         return False
-    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt_hex), int(iters))
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, rounds)
     return hmac.compare_digest(digest.hex(), digest_hex)
 
 
@@ -53,13 +57,21 @@ def _token_hash(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
+def _text(value: Any) -> str:
+    if value is not None and not isinstance(value, str):
+        raise AuthError("Username and password must be text.")
+    return value or ""
+
+
 def create_user(username: str, password: str, display_name: str = "", db_path: str = FOR_YOU_DB) -> int:
     init_schema(db_path)
-    username = (username or "").strip()
+    username, password, display_name = _text(username).strip(), _text(password), _text(display_name)
     if not _USERNAME_RE.match(username):
         raise AuthError("Username must be 3–32 characters: letters, numbers, _ . -")
-    if len(password or "") < 8:
+    if len(password) < 8:
         raise AuthError("Password must be at least 8 characters.")
+    if len(password) > 1024:  # PBKDF2 cost grows with length; nobody needs more
+        raise AuthError("Password must be at most 1024 characters.")
     try:
         with connect(db_path) as conn:
             cur = conn.execute(
@@ -71,13 +83,24 @@ def create_user(username: str, password: str, display_name: str = "", db_path: s
 
 
 def authenticate(username: str, password: str, db_path: str = FOR_YOU_DB) -> int:
-    key = (username or "").strip().lower()
+    global _DUMMY_HASH
+    username, password = _text(username).strip(), _text(password)
+    if len(password) > 1024:
+        raise AuthError("Wrong username or password.")
+    key = username.lower()
     rec = _failed.get(key)
     if rec and rec[0] >= MAX_FAILURES and time.time() - rec[1] < LOCK_WINDOW:
         raise AuthError("Too many attempts. Try again in a few minutes.")
     with connect(db_path) as conn:
-        row = conn.execute("SELECT id, password_hash FROM users WHERE username = ?", (username.strip(),)).fetchone()
-    if not row or not verify_password(password or "", row["password_hash"]):
+        row = conn.execute("SELECT id, password_hash FROM users WHERE username = ?", (username,)).fetchone()
+    if not row:
+        _DUMMY_HASH = _DUMMY_HASH or hash_password(secrets.token_hex(16))
+        verify_password(password, _DUMMY_HASH)
+    if len(_failed) > 10_000:  # forget stale entries so random usernames can't grow this forever
+        cutoff = time.time() - LOCK_WINDOW
+        for k in [k for k, v in _failed.items() if v[1] < cutoff]:
+            _failed.pop(k, None)
+    if not row or not verify_password(password, row["password_hash"]):
         if not rec or time.time() - rec[1] >= LOCK_WINDOW:
             _failed[key] = [1, time.time()]
         else:

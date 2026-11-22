@@ -108,9 +108,21 @@ jobs:
             git push origin HEAD:${{ github.ref }}
           fi
 
+      # Static hosting can't check a login, so GitHub Pages only gets the front door: the About
+      # page (also served as the site root) and the shell assets it needs. The brief, Ledger,
+      # Archive, Patterns, For You, feeds, email and audio are served only by server.py, to
+      # signed-in readers.
+      - name: Stage the public front door
+        run: |
+          rm -rf _site && mkdir -p _site
+          cp public/about.html _site/about.html
+          cp public/about.html _site/index.html
+          cp public/style.css public/app.js public/favicon.svg public/favicon.png public/favicon.ico public/apple-touch-icon.png _site/
+          ls -la _site/
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         if: success()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./_site

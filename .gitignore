@@ -19,3 +19,6 @@ foryou.sqlite3*
 # Private per-reader output: studio-voice audio and the delivery outbox
 private_audio/
 outbox/
+
+# GitHub Pages staging (built in CI from public/)
+_site/

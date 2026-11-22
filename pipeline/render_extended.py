@@ -24,6 +24,8 @@ def escape(text: Any) -> str:
 
 
 def get_nav_html(active_page: str) -> str:
+    """The global header. Links marked data-members are hidden on a page whose <html> says
+    data-session="out" (the About page, for signed-out visitors); the server makes that call."""
     links = [
         ("foryou.html", "For You"),
         ("index.html", "Daily News"),
@@ -37,7 +39,9 @@ def get_nav_html(active_page: str) -> str:
         is_active = (href == active_page)
         active_cls = "nav-link active" if is_active else "nav-link"
         current_attr = ' aria-current="page"' if is_active else ""
-        nav_links_html.append(f'<a href="{href}" class="{active_cls}"{current_attr}>{label}</a>')
+        members = "" if href == "about.html" else " data-members"
+        nav_links_html.append(f'<a href="{href}" class="{active_cls}"{current_attr}{members}>{label}</a>')
+    nav_links_html.append('<a href="about.html#access" class="nav-link nav-signin" data-guest>Sign in</a>')
 
     return f"""
     <header class="crown">
@@ -57,7 +61,7 @@ def get_nav_html(active_page: str) -> str:
                     <span class="crown-username" id="crown-username"></span>
                     <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out">Sign out</button>
                 </div>
-                <div class="elo-badge" id="elo-badge" title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
+                <div class="elo-badge" id="elo-badge" data-members title="Forecasting Calibration ELO (starts at 1200 · Beat the Brief)">
                     <span class="elo-icon" aria-hidden="true">◈</span>
                     <span class="elo-score" id="user-elo-score">1200</span>
                     <span class="elo-tier" id="user-elo-tier">Observer</span>
@@ -94,7 +98,7 @@ SOCIAL_ICONS = {
 SOCIAL_NAMES = (("google", "Google"), ("github", "GitHub"), ("x", "X"), ("linkedin", "LinkedIn"))
 
 
-def get_social_buttons_html(next_path: str = "/foryou") -> str:
+def get_social_buttons_html(next_path: str = "/") -> str:
     """"Continue with …" links. They start the server-side OAuth flow (core/oauth.py); app.js hides
     the ones this server has no keys for."""
     from urllib.parse import quote
@@ -116,14 +120,14 @@ def get_footer_html() -> str:
         <footer class="colophon">
             <div class="colophon-brand">
                 <div class="colophon-name"><strong>Pith</strong> &middot; Daily High-Signal Technology Intelligence &amp; Architectural Shifts</div>
-                <div class="colophon-tagline">Primary-sourced &bull; Public calibration ledger &bull; No sponsored content or noise</div>
+                <div class="colophon-tagline">Primary-sourced &bull; Every forecast scored &bull; No sponsored content or noise</div>
             </div>
             <nav class="footer-nav" aria-label="Footer">
-                <a href="foryou.html">For You</a>
-                <a href="index.html">Daily News</a>
-                <a href="ledger.html">Forecast Ledger</a>
-                <a href="archive.html">News Archive</a>
-                <a href="patterns.html">Tech Patterns</a>
+                <a href="foryou.html" data-members>For You</a>
+                <a href="index.html" data-members>Daily News</a>
+                <a href="ledger.html" data-members>Forecast Ledger</a>
+                <a href="archive.html" data-members>News Archive</a>
+                <a href="patterns.html" data-members>Tech Patterns</a>
                 <a href="about.html">About Pith</a>
             </nav>
         </footer>
@@ -294,8 +298,10 @@ def render_bounty(all_claims: List[Dict[str, Any]], predictions: List[Prediction
 # 7. ABOUT.HTML - OUR STORY, MANIFESTO & ACCESS TERMINAL
 # ==============================================================================
 def render_about(path: str):
+    # data-session="out" is the safe default: signed-out visitors (and the static copy) see no links
+    # to member pages. The server swaps it to "in" for a signed-in reader before sending the page.
     html = f"""<!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" data-session="out">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -324,43 +330,72 @@ def render_about(path: str):
             </div>
         </section>
 
-        <!-- Accounts: everything is open; an account adds For You -->
+        <!-- The front door: every other page opens after sign-in -->
         <section class="access-portal-section" id="access">
             <div class="access-portal-grid">
                 <div class="access-portal-card lab-card" id="access-auth-card">
                     <div class="portal-card-header">
-                        <span class="portal-badge"><i class="radar-dot"></i> OPEN TO EVERYONE</span>
-                        <h2 class="portal-title">Read everything. Sign in only for For You.</h2>
-                        <p class="portal-sub">Daily News, the Forecast Ledger, the Archive and Tech Patterns are free and open, with no account. An account adds For You: a front page, Your 5 and a spoken brief built around what you read.</p>
+                        <span class="portal-badge"><i class="radar-dot"></i> MEMBERS ONLY</span>
+                        <h2 class="portal-title">Sign in to read Pith.</h2>
+                        <p class="portal-sub">Daily News, the Forecast Ledger, the Archive, Tech Patterns and For You open once you're signed in. Creating an account takes a few seconds.</p>
                     </div>
 
                     <!-- Shown when signed in -->
-                    <div class="auth-logged-in-box" id="auth-logged-in-box" style="display:none;">
+                    <div class="auth-logged-in-box" id="auth-logged-in-box" hidden>
                         <div class="logged-in-icon">✓</div>
                         <div class="logged-in-title">You're signed in</div>
                         <div class="logged-in-sub">Signed in as <strong id="logged-in-username-label">Member</strong>.</div>
                         <div class="logged-in-actions">
-                            <a href="foryou.html" class="portal-submit-btn enter-station-btn">Open For You &rarr;</a>
+                            <a href="index.html" class="portal-submit-btn">Read today's brief &rarr;</a>
+                            <a href="foryou.html" class="portal-demo-btn">Open For You</a>
                             <button type="button" class="portal-demo-btn" id="portal-signout-btn">Sign out</button>
                         </div>
                     </div>
 
                     <!-- Shown when signed out -->
                     <div class="auth-forms-wrap" id="auth-forms-wrap">
-                        {get_social_buttons_html('/foryou')}
+                        <div class="auth-alert-box error" id="auth-error-banner" role="alert" hidden></div>
+                        {get_social_buttons_html('/')}
                         <p class="social-auth-note" id="social-auth-note" hidden></p>
-                        <a class="portal-alt-link" href="foryou.html">Or sign in with a username and password &rarr;</a>
+                        <div class="auth-divider"><span>OR USE A USERNAME</span></div>
+                        <div class="auth-tabs-bar" role="tablist" aria-label="Sign in or create an account">
+                            <button type="button" role="tab" class="auth-tab-btn active" data-auth-mode="login" aria-selected="true">Sign in</button>
+                            <button type="button" role="tab" class="auth-tab-btn" data-auth-mode="signup" aria-selected="false">Create account</button>
+                        </div>
+                        <form id="about-auth-form" autocomplete="on" novalidate>
+                            <div class="form-field-group" data-signup-only hidden>
+                                <label for="auth-display-name">Display name</label>
+                                <input id="auth-display-name" name="display_name" type="text" maxlength="60" autocomplete="nickname" placeholder="What should we call you?">
+                            </div>
+                            <div class="form-field-group">
+                                <label for="auth-username">Username</label>
+                                <input id="auth-username" name="username" type="text" required minlength="3" maxlength="32" autocomplete="username" autocapitalize="none" spellcheck="false">
+                            </div>
+                            <div class="form-field-group">
+                                <label for="auth-password">Password</label>
+                                <input id="auth-password" name="password" type="password" required minlength="8" maxlength="1024" autocomplete="current-password">
+                            </div>
+                            <div class="auth-alert-box error" id="auth-form-error" role="alert" hidden></div>
+                            <button type="submit" class="portal-submit-btn" id="auth-submit-btn">Sign in</button>
+                        </form>
                         <p class="privacy-note">With Google, GitHub, X or LinkedIn we read your public profile once, at sign-in, to seed your interests. We never ask for your email, never post, and don't keep the access token. You can remove anything imported from For You.</p>
                     </div>
                 </div>
 
                 <div class="access-info-col">
                     <div class="access-privilege-card lab-card">
-                        <div class="privilege-eyebrow">✦ WHAT AN ACCOUNT ADDS</div>
+                        <div class="privilege-eyebrow">✦ WHAT YOU GET INSIDE</div>
                         <h3 class="privilege-title">A News Product That Respects Your Mind</h3>
-                        <p class="privilege-p">Modern tech publications monetize outrage, infinite scrolling, and sponsor placements. Pith operates on the inverse thesis: news that protects your focus and proves it was right. The account is only for the parts that are about you.</p>
+                        <p class="privilege-p">Modern tech publications monetize outrage, infinite scrolling, and sponsor placements. Pith operates on the inverse thesis: news that protects your focus and proves it was right.</p>
 
                         <div class="privileges-list">
+                            <div class="privilege-item">
+                                <div class="priv-icon">◆</div>
+                                <div>
+                                    <strong>The daily brief</strong>
+                                    <p>Five verified shifts every morning, each with a dated forecast, plus the stories you can safely ignore.</p>
+                                </div>
+                            </div>
                             <div class="privilege-item">
                                 <div class="priv-icon">◈</div>
                                 <div>
@@ -385,8 +420,8 @@ def render_about(path: str):
                             <div class="privilege-item">
                                 <div class="priv-icon">✓</div>
                                 <div>
-                                    <strong>Your forecast record</strong>
-                                    <p>Call Pith's forecasts higher or lower, and see whether you beat the brief once they resolve.</p>
+                                    <strong>The Ledger, and your own record</strong>
+                                    <p>Every forecast Pith has made, scored. Call them higher or lower yourself and see whether you beat the brief.</p>
                                 </div>
                             </div>
                         </div>
@@ -412,7 +447,7 @@ def render_about(path: str):
                 <div class="pillar-card lab-card">
                     <div class="pillar-num">02</div>
                     <h3 class="pillar-title">Mathematical Falsifiability</h3>
-                    <p class="pillar-desc">Opinions are cheap; calibration is earned. Every single story published on Pith includes an explicit, dated prediction with verifiable resolution criteria. Our public Brier score measures exactly how calibrated we are over time.</p>
+                    <p class="pillar-desc">Opinions are cheap; calibration is earned. Every single story published on Pith includes an explicit, dated prediction with verifiable resolution criteria. Our Brier score, published on the Forecast Ledger, measures exactly how calibrated we are over time.</p>
                 </div>
 
                 <div class="pillar-card lab-card">

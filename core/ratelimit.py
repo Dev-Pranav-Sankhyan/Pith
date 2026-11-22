@@ -16,6 +16,9 @@ class RateLimiter:
     def allow(self, key: str, now: float = None) -> bool:
         now = time.monotonic() if now is None else now
         with self._lock:
+            if len(self._hits) > 10_000:  # drop idle keys so many distinct IPs can't grow memory forever
+                for k in [k for k, q in self._hits.items() if not q or now - q[-1] > self.window]:
+                    del self._hits[k]
             q = self._hits[key]
             while q and now - q[0] > self.window:
                 q.popleft()

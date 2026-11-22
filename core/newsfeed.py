@@ -327,6 +327,9 @@ def _find_image(item: ET.Element, summary_html: str) -> Optional[str]:
 
 
 def parse_feed(xml_bytes: bytes, feed: Dict[str, str]) -> List[Dict[str, Any]]:
+    # Entity declarations are how XML bombs and external-entity tricks start; no real feed needs them.
+    if b"<!ENTITY" in xml_bytes or b"<!entity" in xml_bytes.lower():
+        raise ET.ParseError("XML entity declarations aren't allowed in feeds")
     root = ET.fromstring(xml_bytes)
     items: List[Dict[str, Any]] = []
     rss_items = root.findall(".//item")
@@ -357,7 +360,7 @@ def parse_feed(xml_bytes: bytes, feed: Dict[str, str]) -> List[Dict[str, Any]]:
             })
     out = []
     for i in items:
-        if not i["title"] or not i["url"].startswith("http"):
+        if not i["title"] or not i["url"].lower().startswith(("http://", "https://")):
             continue
         full_text = strip_html(i["summary_html"])
         summary = full_text

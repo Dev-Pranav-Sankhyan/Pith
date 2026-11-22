@@ -105,10 +105,14 @@ def redirect_uri(provider_id: str, request_base: str) -> str:
     return f"{base}/api/auth/oauth/{provider_id}/callback"
 
 
-def safe_next(path: Optional[str], default: str = "/foryou") -> str:
+def safe_next(path: Optional[str], default: str = "/") -> str:
     """Only same-site relative paths, so the callback can't be used as an open redirect."""
-    path = (path or "").strip()
-    if not path.startswith("/") or path.startswith("//") or "\\" in path or len(path) > 200:
+    path = (path or "").strip() if isinstance(path, str) else ""
+    # Browsers drop tabs and newlines inside URLs ("/\t/evil.com" becomes "//evil.com"), and control
+    # characters could split the Location header, so only plain printable ASCII is accepted.
+    if not re.fullmatch(r"[\x21-\x7e]{1,200}", path):
+        return default
+    if not path.startswith("/") or path.startswith("//") or "\\" in path:
         return default
     return path
 
@@ -181,7 +185,8 @@ def start(provider_id: str, request_base: str, next_path: Optional[str] = None,
 
 
 def _consume_state(provider_id: str, state: str, cookie_state: Optional[str], db_path: str) -> Dict[str, Any]:
-    if not state or not cookie_state or not hmac.compare_digest(state, cookie_state):
+    # compare_digest on str raises for non-ASCII input, so compare the encoded bytes.
+    if not state or not cookie_state or not hmac.compare_digest(state.encode(), cookie_state.encode()):
         raise OAuthError("That sign-in link expired or was opened in another browser. Please try again.")
     with _write_lock, connect(db_path) as conn:
         row = conn.execute("SELECT * FROM oauth_states WHERE state_hash = ?", (_hash(state),)).fetchone()

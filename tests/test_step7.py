@@ -5,7 +5,7 @@ chaptered personal audio brief.
     creation and linking, no merge by email, disconnect rules
   * social signals: what each provider contributes, idempotent re-sync, forget, region rules
   * personal audio: chapters, depth-sized length, follow and forecast segments
-  * routing: For You serves its own sign-in screen; its data still needs a session
+  * routing: sign-in lives on the About page; For You and its data need a session
 Run: python3 -m unittest tests.test_step7
 """
 
@@ -145,9 +145,11 @@ class TestOAuthFlow(OAuthEnv):
             oauth.complete("github", "c", state, state, "http://h", self.db)
 
     def test_safe_next_blocks_open_redirects(self):
-        for bad in ("https://evil.com", "//evil.com", "/\\evil", "javascript:alert(1)", ""):
-            self.assertEqual(oauth.safe_next(bad), "/foryou")
+        for bad in ("https://evil.com", "//evil.com", "/\\evil", "javascript:alert(1)", "",
+                    "/\t/evil.com", "/\n/evil.com", "/a\r\nSet-Cookie: x=1", "/caf\u00e9", None, ["/x"]):
+            self.assertEqual(oauth.safe_next(bad), "/", repr(bad))
         self.assertEqual(oauth.safe_next("/foryou?x=1"), "/foryou?x=1")
+        self.assertEqual(oauth.safe_next("bad", default="/foryou"), "/foryou")
 
     def test_token_exchange_failure(self):
         oauth.HTTP = fake_http([("login/oauth/access_token", 400, {"error": "bad_verification_code"})])
@@ -341,10 +343,13 @@ class TestRouting(unittest.TestCase):
         conn.close()
         return r.status, r.getheader("Location"), body
 
-    def test_for_you_page_is_served_but_data_needs_login(self):
-        status, _, body = self._get("/foryou")
+    def test_sign_in_lives_on_about_and_for_you_needs_login(self):
+        status, loc, _ = self._get("/foryou")
+        self.assertEqual((status, loc), (302, "/about?next=/foryou#access"))
+        status, _, body = self._get("/about")
         self.assertEqual(status, 200)
         self.assertIn(b"Continue with GitHub", body)
+        self.assertIn(b'id="about-auth-form"', body)
         self.assertNotIn(b"Guest Pass", body)
         status, _, _ = self._get("/api/feed?tab=foryou")
         self.assertEqual(status, 401)
@@ -358,7 +363,7 @@ class TestRouting(unittest.TestCase):
         with mock.patch.dict(os.environ, {"PITH_GOOGLE_CLIENT_ID": "", "PITH_GOOGLE_CLIENT_SECRET": ""}):
             status, loc, _ = self._get("/api/auth/oauth/google/start")
         self.assertEqual(status, 302)
-        self.assertTrue(loc.startswith("/foryou?auth_error="))
+        self.assertTrue(loc.startswith("/about?auth_error="), loc)
 
     def test_callback_without_state_is_refused(self):
         with mock.patch.dict(os.environ, KEYS):

@@ -218,29 +218,29 @@ class TestPublicRouting(unittest.TestCase):
         conn.close()
         return r.status, r.getheader("Location"), body
 
-    def test_brief_and_ledger_are_public(self):
-        for path in ("/", "/ledger", "/archive", "/patterns", "/about"):
-            status, _, _ = self._get(path)
-            self.assertEqual(status, 200, path)
+    def test_only_about_is_open(self):
+        status, _, _ = self._get("/about")
+        self.assertEqual(status, 200)
+        for path in ("/", "/ledger", "/archive", "/patterns", "/foryou"):
+            status, loc, _ = self._get(path)
+            self.assertEqual(status, 302, path)
+            self.assertTrue(loc.startswith("/about"), (path, loc))
 
     def test_for_you_requires_login(self):
-        # The page itself is its own sign-in screen; everything personal behind it needs a session.
-        status, _, _ = self._get("/foryou")
-        self.assertEqual(status, 200)
         for path in ("/api/feed?tab=foryou", "/api/profile", "/api/your5/script"):
             status, _, _ = self._get(path)
             self.assertEqual(status, 401, path)
 
     def test_no_directory_listing(self):
-        status, _, _ = self._get("/audio/")
-        self.assertEqual(status, 404)
+        status, _, body = self._get("/audio/")
+        self.assertIn(status, (302, 401, 404))  # signed out the gate answers first; signed in it is a 404
+        self.assertNotIn(b"brief-developer.mp3", body)
 
     def test_healthz_and_votes(self):
         status, _, body = self._get("/healthz")
         self.assertEqual((status, json.loads(body)["ok"]), (200, True))
-        status, _, body = self._get("/api/votes?card_id=card-none")
-        self.assertEqual(status, 200)
-        self.assertEqual(sum(json.loads(body)["counts"].values()), 0)
+        status, _, _ = self._get("/api/votes?card_id=card-none")
+        self.assertEqual(status, 401)  # vote counts are member data too
 
 
 if __name__ == "__main__":

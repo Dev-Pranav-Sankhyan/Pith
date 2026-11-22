@@ -274,6 +274,13 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; 
 .nav-link.active { color: var(--ink); }
 .nav-link.active::after { transform: scaleX(1); background: var(--accent); }
 
+/* Signed out, only the About page exists: the server marks it data-session="out", which hides
+   every link to a member page and shows the Sign in link instead. */
+:root[data-session="out"] [data-members] { display: none !important; }
+:root:not([data-session="out"]) [data-guest] { display: none !important; }
+.nav-signin { color: var(--accent-ink); font-weight: 600; }
+.nav-signin:hover { color: var(--accent); }
+
 .crown-tools {
   display: flex;
   align-items: center;
@@ -2369,6 +2376,7 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; 
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+a.portal-demo-btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .portal-demo-btn:hover:not(:disabled) { border-color: var(--ink); background: var(--surface-2); }
 .portal-demo-btn:disabled { opacity: 0.6; cursor: wait; }
 

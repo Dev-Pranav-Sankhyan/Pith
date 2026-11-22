@@ -8,13 +8,16 @@ Trending or anyone else's feed.
 Fetching a URL a user typed is a server-side request forgery risk, so every fetch:
   * allows only http/https on default or common ports,
   * resolves the host and refuses private, loopback, link-local, multicast and reserved
-    addresses (checked again on every redirect),
+    addresses, then connects to exactly the address it checked (so a DNS answer that changes
+    between the check and the connect can't point the fetch at an internal host), on every
+    redirect too, and never through an environment proxy,
   * caps the response size and time, and refuses XML with entity declarations.
 """
 
 from __future__ import annotations
 
 import hashlib
+import http.client
 import ipaddress
 import re
 import socket
@@ -37,17 +40,62 @@ class FeedError(ValueError):
     pass
 
 
-def _check_host(host: str, port: Optional[int]) -> None:
+def _public_addresses(host: str, port: Optional[int]):
+    """Every address the host resolves to, or FeedError if any of them isn't on the public internet."""
     if not host:
         raise FeedError("That URL has no host")
     try:
         infos = socket.getaddrinfo(host, port or 443, proto=socket.IPPROTO_TCP)
     except socket.gaierror:
         raise FeedError("Couldn't find that site")
-    for info in infos:
-        ip = ipaddress.ip_address(info[4][0])
+    out = []
+    for family, _type, _proto, _name, sockaddr in infos:
+        ip = ipaddress.ip_address(sockaddr[0].split("%")[0])
         if not ip.is_global or ip.is_multicast:
             raise FeedError("That address isn't on the public internet")
+        out.append((family, sockaddr))
+    return out
+
+
+def _check_host(host: str, port: Optional[int]) -> None:
+    _public_addresses(host, port)
+
+
+def _connect_public(host: str, port: int, timeout) -> socket.socket:
+    """Resolve, check and connect in one step, to the address that was checked."""
+    last: Optional[OSError] = None
+    for family, sockaddr in _public_addresses(host, port):
+        sock = socket.socket(family, socket.SOCK_STREAM)
+        if timeout is not None and timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+            sock.settimeout(timeout)
+        try:
+            sock.connect(sockaddr)
+            return sock
+        except OSError as e:
+            sock.close()
+            last = e
+    raise last or FeedError("Couldn't connect to that site")
+
+
+class _PublicHTTPConnection(http.client.HTTPConnection):
+    def connect(self):
+        self.sock = _connect_public(self.host, self.port, self.timeout)
+
+
+class _PublicHTTPSConnection(http.client.HTTPSConnection):
+    def connect(self):
+        sock = _connect_public(self.host, self.port, self.timeout)
+        self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
+
+
+class _PublicHTTPHandler(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        return self.do_open(_PublicHTTPConnection, req)
+
+
+class _PublicHTTPSHandler(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_PublicHTTPSConnection, req, context=self._context)
 
 
 def validate_url(url: str) -> str:
@@ -73,7 +121,8 @@ class _SafeRedirect(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-_OPENER = urllib.request.build_opener(_SafeRedirect)
+_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}), _SafeRedirect,
+                                      _PublicHTTPHandler, _PublicHTTPSHandler)
 
 
 def safe_fetch(url: str) -> bytes:
@@ -91,7 +140,7 @@ def safe_fetch(url: str) -> bytes:
         raise FeedError(f"Couldn't fetch that feed ({type(e).__name__})")
     if len(body) > MAX_FEED_BYTES:
         raise FeedError("That feed is too large")
-    if re.search(rb"<!ENTITY", body[:4096], re.IGNORECASE):
+    if re.search(rb"<!ENTITY", body, re.IGNORECASE):
         raise FeedError("That feed uses XML entity declarations, which aren't allowed")
     return body
 
