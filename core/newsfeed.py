@@ -138,6 +138,13 @@ def init_schema(db_path: str = FOR_YOU_DB) -> None:
             expires_at TEXT NOT NULL
         );
 
+        -- Admin rights (core/admin.py). Granted only from a shell, never over HTTP.
+        CREATE TABLE IF NOT EXISTS admins (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            granted_at TEXT NOT NULL,
+            granted_by TEXT NOT NULL
+        );
+
         -- Raw behavioural log: every signal the reader gives us.
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

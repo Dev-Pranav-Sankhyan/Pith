@@ -1757,6 +1757,10 @@ async function initAuthGate() {
   const crownUsername = document.getElementById("crown-username");
   const crownLogoutBtn = document.getElementById("crown-logout-btn");
 
+  if (currentUser && currentUser.is_admin) {
+    document.querySelectorAll("[data-admin]").forEach((a) => { a.hidden = false; });
+  }
+
   if (currentUser) {
     if (crownChip) crownChip.style.display = "inline-flex";
     if (crownAvatar) crownAvatar.textContent = (currentUser.username || "U")[0].toUpperCase();

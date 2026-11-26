@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin &middot; Pith</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+    <script>(function(){try{var t=localStorage.getItem("pith_brief_theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+
+    <header class="crown">
+        <a href="index.html" class="brand-wrapper" aria-label="Pith home">
+            <div class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="brand-name">PITH</div>
+        </a>
+        <div class="nav-cluster">
+            <nav class="nav-pills-bar" aria-label="Main">
+                <a href="foryou.html" class="nav-link">For You</a><a href="index.html" class="nav-link">Daily News</a><a href="ledger.html" class="nav-link">Forecast Ledger</a><a href="archive.html" class="nav-link">News Archive</a><a href="patterns.html" class="nav-link">Tech Patterns</a><a href="admin.html" class="nav-link active" aria-current="page">Admin</a><a href="about.html" class="nav-link">About</a>
+            </nav>
+            <div class="crown-tools">
+                <div class="crown-user-chip" id="crown-user-chip" style="display:none;" title="Signed in">
+                    <span class="crown-avatar" id="crown-avatar">?</span>
+                    <span class="crown-username" id="crown-username"></span>
+                    <button type="button" class="crown-logout-btn" id="crown-logout-btn" title="Sign out">Sign out</button>
+                </div>
+                <button class="theme-toggle" id="theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light or dark theme" type="button">
+                    <div class="theme-icon-circle"></div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="desk-container">
+        <section class="masthead">
+            <div class="eyebrow"><span class="gilt-dot"></span> ADMIN &middot; READERS &middot; VERDICTS</div>
+            <h1 class="page-title">Admin <em>desk</em></h1>
+            <p class="masthead-dek">Who is reading, whether the feeds are fresh, and which forecasts are waiting for a verdict. Every verdict you record is permanent and signed with your name on the Ledger.</p>
+        </section>
+
+        <div class="notice" id="admin-error" hidden></div>
+
+        <div class="bignum-grid" id="admin-stats" aria-busy="true">
+            <div class="bignum-card"><div class="bignum" id="stat-readers">&mdash;</div><div class="bignum-label">Readers</div><div class="bignum-sub" id="stat-readers-sub">&nbsp;</div></div>
+            <div class="bignum-card"><div class="bignum" id="stat-active">&mdash;</div><div class="bignum-label">Active this week</div><div class="bignum-sub" id="stat-active-sub">&nbsp;</div></div>
+            <div class="bignum-card"><div class="bignum" id="stat-due">&mdash;</div><div class="bignum-label">Forecasts due</div><div class="bignum-sub" id="stat-due-sub">&nbsp;</div></div>
+            <div class="bignum-card"><div class="bignum" id="stat-articles">&mdash;</div><div class="bignum-label">For You articles</div><div class="bignum-sub" id="stat-articles-sub">&nbsp;</div></div>
+        </div>
+
+        <section class="table-sheet admin-sheet">
+            <div class="sheet-header-line">
+                <h2 class="sheet-title">Due for a verdict</h2>
+                <span class="sheet-note">Live forecasts past their date. Correct and wrong need an evidence link.</span>
+            </div>
+            <div id="admin-due" class="admin-due"></div>
+        </section>
+
+        <section class="table-sheet">
+            <div class="sheet-header-line">
+                <h2 class="sheet-title">Coming up</h2>
+                <span class="sheet-note">The next open forecasts, soonest first.</span>
+            </div>
+            <table class="instrument-table">
+                <thead><tr><th>Due</th><th>Forecast</th><th>Probability</th><th>Made</th></tr></thead>
+                <tbody id="admin-upcoming"></tbody>
+            </table>
+        </section>
+
+        <section class="table-sheet">
+            <div class="sheet-header-line">
+                <h2 class="sheet-title">Recent verdicts</h2>
+                <span class="sheet-note">To correct one, run <code>python3 -m pipeline.resolve_predictions resolve</code>. The earlier verdict is kept.</span>
+            </div>
+            <table class="instrument-table">
+                <thead><tr><th>Resolved</th><th>Forecast</th><th>Verdict</th><th>By</th><th>Evidence</th></tr></thead>
+                <tbody id="admin-recent"></tbody>
+            </table>
+        </section>
+
+        <section class="table-sheet">
+            <div class="sheet-header-line">
+                <h2 class="sheet-title">Readers</h2>
+                <span class="sheet-note" id="admin-readers-note">Newest first.</span>
+            </div>
+            <table class="instrument-table">
+                <thead><tr><th>Reader</th><th>Joined</th><th>Last active</th><th>Signs in with</th><th>Signals</th><th>For You</th></tr></thead>
+                <tbody id="admin-readers"></tbody>
+            </table>
+        </section>
+
+        <footer class="colophon">
+            <div class="colophon-brand">
+                <div class="colophon-name"><strong>Pith</strong> &middot; Admin</div>
+                <div class="colophon-tagline">Admin rights are granted from the server's shell: <code>python3 -m core.admin grant &lt;username&gt;</code></div>
+            </div>
+        </footer>
+    </main>
+
+    <div class="admin-toast" id="admin-toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
