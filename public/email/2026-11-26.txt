@@ -1,0 +1,40 @@
+PITH · 2026-11-26
+The five shifts that matter today.
+
+1. Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In
+A major open specification was released for AI developer workflows. The Linux Foundation and CNCF announced the creation of the Open Agent Protocol (OAP), a v.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
+Forecast (70%): By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint. Resolves 2027-12-31.
+https://pith.news/#card-20261122-infrastructure-standard--59db23
+
+2. Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In
+A major open specification was released for AI developer workflows. Anthropic introduced the Computer Use API specification, providing a deterministic screens.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
+Forecast (70%): By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint. Resolves 2027-12-31.
+https://pith.news/#card-20261122-infrastructure-standard--865b31
+
+3. Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In
+A major open specification was released for AI developer workflows. vLLM 0.7.0 introduces cross-node distributed KV-cache sharing and persistent prefix lookup.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
+Forecast (70%): By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint. Resolves 2027-12-31.
+https://pith.news/#card-20261122-infrastructure-standard--f746b2
+
+4. Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In
+A major open specification was released for AI developer workflows. AI Search Co announced a $40 million Series A round from top venture firms to build the fu.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
+Forecast (70%): By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint. Resolves 2027-12-31.
+https://pith.news/#card-20261122-infrastructure-standard--cd6814
+
+5. Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In
+A major open specification was released for AI developer workflows. Title: Inkling-2-Mini in 5.4 GB Memory.
+Why it matters: Engineering teams gain cross-provider interoperability for distributed agent runtimes. Closed single-model ecosystems lose leverage over client tool pipelines.
+Forecast (70%): By 31 December 2027, at least three leading database runtimes natively support this standardized RPC endpoint. Resolves 2027-12-31.
+https://pith.news/#card-20261122-infrastructure-standard--be2bc5
+
+SAFELY IGNORE TODAY
+- New Consumer Chatbot App Launch with Character Avatars: Insufficient technical differentiation and negligible impact on developer infrastructure.
+- Minor GitHub Copilot UI Button Reorganization: Cosmetic developer interface change with zero platform or architectural implications.
+- Unverified Synthetic Benchmark Claim for Experimental Model: Lacks primary methodology disclosure and independent peer reproducibility.
+
+Forecast record: 20 open, none resolved yet.
+Full record: https://pith.news/ledger

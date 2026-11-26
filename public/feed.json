@@ -5,8 +5,8 @@
   "feed_url": "https://pith.news/feed.json",
   "description": "Pith filters tech noise down to events that alter architectures, margins, or moats.",
   "issue": {
-    "issue_id": "issue-2026-11-25",
-    "date": "2026-11-25",
+    "issue_id": "issue-2026-11-26",
+    "date": "2026-11-26",
     "beat": "AI & Developer Infrastructure",
     "is_quiet_day": false,
     "cards": [
@@ -493,7 +493,7 @@
         "source_url": "https://arxiv.org"
       }
     ],
-    "published_at": "2026-11-25T15:05:25.826757+00:00",
+    "published_at": "2026-11-26T14:34:51.526957+00:00",
     "meta": {},
     "pool": []
   },
