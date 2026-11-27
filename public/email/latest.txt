@@ -1,4 +1,4 @@
-PITH · 2026-11-26
+PITH · 2026-11-27
 The five shifts that matter today.
 
 1. Infrastructure Standard Introduced to Reduce Multi-Cloud Tool Lock-In
